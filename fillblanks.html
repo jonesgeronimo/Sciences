@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Texte à trous — La spécialisation cellulaire</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+      padding: 24px 16px;
+      color: #1e293b;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #475569;
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    /* Word bank */
+    .bank-box {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .bank-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .word-chip {
+      background: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      border-radius: 99px;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      cursor: grab;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+      user-select: none;
+    }
+
+    .word-chip:hover {
+      transform: scale(1.06);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .word-chip.used {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Text card */
+    .text-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+      font-size: 16px;
+      line-height: 2.2;
+      color: #1e293b;
+    }
+
+    .blank {
+      display: inline-block;
+      min-width: 130px;
+      border-bottom: 2.5px solid #94a3b8;
+      margin: 0 4px;
+      padding: 2px 8px;
+      border-radius: 6px 6px 0 0;
+      background: #f8fafc;
+      font-weight: 700;
+      font-size: 15px;
+      color: #1e293b;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      vertical-align: middle;
+    }
+
+    .blank.active {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .blank.filled {
+      border-color: #64748b;
+      background: #f1f5f9;
+    }
+
+    .blank.correct {
+      border-color: #22c55e;
+      background: #f0fdf4;
+      color: #15803d;
+    }
+
+    .blank.wrong {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    #btn-check {
+      background: #0f172a;
+      color: white;
+    }
+
+    #btn-check:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    #btn-reset {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    #btn-reset:hover { background: #cbd5e1; }
+
+    /* Score */
+    #score-box {
+      display: none;
+      text-align: center;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    #score-box.perfect { background: #f0fdf4; border: 2px solid #22c55e; color: #15803d; }
+    #score-box.partial { background: #fef9c3; border: 2px solid #facc15; color: #854d0e; }
+
+    /* Hint */
+    #hint-box {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Instruction tooltip */
+    .instruction {
+      text-align: center;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🧬 La spécialisation cellulaire</h1>
+  <p class="subtitle">Complète le texte avec les mots de la liste.</p>
+
+  <!-- Word bank -->
+  <div class="bank-box">
+    <div class="bank-label">Mots disponibles</div>
+    <div class="bank" id="bank"></div>
+  </div>
+
+  <p class="instruction">Clique sur un mot, puis clique sur un espace vide pour le placer. Clique sur un espace rempli pour le retirer.</p>
+
+  <!-- Text -->
+  <div class="text-card" id="text-card">
+    Un organisme
+    <span class="blank" data-answer="pluricellulaire" data-index="0"></span>
+    est composé de plusieurs
+    <span class="blank" data-answer="cellules" data-index="1"></span>
+    qui ne sont pas toutes
+    <span class="blank" data-answer="identiques" data-index="2"></span>.
+    <br><br>
+    Chaque cellule est adaptée à une
+    <span class="blank" data-answer="fonction" data-index="3"></span>
+    précise. C'est ce qu'on appelle la
+    <span class="blank" data-answer="spécialisation" data-index="4"></span>
+    cellulaire.
+    <br><br>
+    Par exemple, la cellule musculaire a pour fonction de se
+    <span class="blank" data-answer="contracter" data-index="5"></span>,
+    tandis que le neurone transmet des
+    <span class="blank" data-answer="signaux" data-index="6"></span>
+    électriques.
+    <br><br>
+    C'est grâce à cette organisation que l'organisme peut
+    <span class="blank" data-answer="fonctionner" data-index="7"></span>
+    correctement.
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button id="btn-check" disabled>Remplis tous les espaces…</button>
+    <button id="btn-reset">🔄 Recommencer</button>
+  </div>
+
+  <div id="score-box"></div>
+  <div id="hint-box">
+    💡 <strong>Rappel :</strong> Dans un organisme pluricellulaire, les cellules sont <em>spécialisées</em> — chacune a une fonction précise qui contribue au bon fonctionnement de l'ensemble.
+  </div>
+
+</div>
+
+<script>
+  const words = [
+    "pluricellulaire", "cellules", "identiques", "fonction",
+    "spécialisation", "contracter", "signaux", "fonctionner"
+  ];
+
+  // Shuffle words for display
+  const shuffled = [...words].sort(() => Math.random() - 0.5);
+
+  let selectedWord = null;
+  let submitted = false;
+
+  const bank = document.getElementById("bank");
+  const blanks = document.querySelectorAll(".blank");
+
+  // Build word bank
+  function buildBank() {
+    bank.innerHTML = "";
+    shuffled.forEach(word => {
+      const chip = document.createElement("div");
+      chip.className = "word-chip";
+      chip.textContent = word;
+      chip.dataset.word = word;
+      chip.addEventListener("click", () => selectWord(chip));
+      bank.appendChild(chip);
+    });
+  }
+
+  function selectWord(chip) {
+    if (submitted) return;
+
+    // Deselect if already selected
+    if (selectedWord === chip) {
+      chip.style.outline = "";
+      chip.style.background = "";
+      selectedWord = null;
+      return;
+    }
+
+    // Deselect previous
+    if (selectedWord) {
+      selectedWord.style.outline = "";
+      selectedWord.style.background = "";
+    }
+
+    selectedWord = chip;
+    chip.style.outline = "2px solid #3b82f6";
+    chip.style.background = "#eff6ff";
+  }
+
+  function getChipByWord(word) {
+    return bank.querySelector(`[data-word="${word}"]`);
+  }
+
+  blanks.forEach(blank => {
+    blank.addEventListener("click", () => {
+      if (submitted) return;
+
+      // If blank is already filled — return word to bank
+      if (blank.dataset.placed) {
+        const word = blank.dataset.placed;
+        blank.textContent = "";
+        blank.dataset.placed = "";
+        blank.classList.remove("filled", "active");
+
+        const chip = getChipByWord(word);
+        if (chip) chip.classList.remove("used");
+
+        updateButton();
+        return;
+      }
+
+      // Place selected word into blank
+      if (!selectedWord) return;
+
+      const word = selectedWord.dataset.word;
+      blank.textContent = word;
+      blank.dataset.placed = word;
+      blank.classList.add("filled");
+      blank.classList.remove("active");
+
+      selectedWord.classList.add("used");
+      selectedWord.style.outline = "";
+      selectedWord.style.background = "";
+      selectedWord = null;
+
+      updateButton();
+    });
+
+    // Highlight active blank on hover when a word is selected
+    blank.addEventListener("mouseenter", () => {
+      if (selectedWord && !blank.dataset.placed) blank.classList.add("active");
+    });
+    blank.addEventListener("mouseleave", () => {
+      blank.classList.remove("active");
+    });
+  });
+
+  function updateButton() {
+    const filled = [...blanks].filter(b => b.dataset.placed).length;
+    const btn = document.getElementById("btn-check");
+    if (filled === blanks.length) {
+      btn.disabled = false;
+      btn.textContent = "Vérifier mes réponses";
+    } else {
+      btn.disabled = true;
+      btn.textContent = `Remplis encore ${blanks.length - filled} espace(s)…`;
+    }
+  }
+
+  document.getElementById("btn-check").addEventListener("click", () => {
+    submitted = true;
+    let score = 0;
+
+    blanks.forEach(blank => {
+      const placed = blank.dataset.placed;
+      const answer = blank.dataset.answer;
+      if (placed === answer) {
+        blank.classList.add("correct");
+        blank.classList.remove("filled");
+        score++;
+      } else {
+        blank.classList.add("wrong");
+        blank.classList.remove("filled");
+        // Show correct answer underneath
+        blank.title = `✅ ${answer}`;
+      }
+    });
+
+    // Disable bank
+    bank.querySelectorAll(".word-chip").forEach(c => c.style.pointerEvents = "none");
+
+    const scoreBox = document.getElementById("score-box");
+    scoreBox.style.display = "block";
+
+    if (score === blanks.length) {
+      scoreBox.className = "perfect";
+      scoreBox.textContent = `🎉 Parfait ! ${score}/${blanks.length} — Bravo !`;
+    } else {
+      scoreBox.className = "partial";
+      scoreBox.textContent = `${score}/${blanks.length} — Presque ! Les cases rouges montrent tes erreurs.`;
+      document.getElementById("hint-box").style.display = "block";
+
+      // Show correct answers in wrong blanks
+      blanks.forEach(blank => {
+        if (blank.classList.contains("wrong")) {
+          blank.textContent = blank.dataset.answer;
+          blank.classList.add("correct");
+          blank.classList.remove("wrong");
+          blank.style.opacity = "0.6";
+        }
+      });
+    }
+
+    document.getElementById("btn-check").style.display = "none";
+  });
+
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    submitted = false;
+    selectedWord = null;
+
+    blanks.forEach(blank => {
+      blank.textContent = "";
+      blank.dataset.placed = "";
+      blank.className = "blank";
+      blank.style.opacity = "";
+      blank.title = "";
+    });
+
+    buildBank();
+    document.getElementById("score-box").style.display = "none";
+    document.getElementById("hint-box").style.display = "none";
+    document.getElementById("btn-check").style.display = "inline-block";
+    updateButton();
+  });
+
+  // Init
+  buildBank();
+  updateButton();
+</script>
+</body>
+</html>

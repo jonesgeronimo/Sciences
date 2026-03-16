@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cellules</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #fdfaf4;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    color: #2c2c2c;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .titles {
+    display: flex;
+    justify-content: space-around;
+    max-width: 620px;
+    margin: 0 auto 8px;
+  }
+  .titles span {
+    font-size: 15px;
+    font-weight: bold;
+  }
+  .vegetal { color: #3a7d44; }
+  .animal  { color: #c0392b; }
+
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  .hoverable { cursor: pointer; transition: opacity 0.15s; }
+  .hoverable:hover { opacity: 0.6; }
+
+  .tooltip-box {
+    max-width: 520px;
+    margin: 18px auto 0;
+    min-height: 64px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .tooltip-box.visible { opacity: 1; }
+  .tooltip-title { font-weight: bold; font-size: 14px; color: #2c2c2c; margin-bottom: 4px; }
+  .tooltip-desc  { font-size: 12px; color: #555; line-height: 1.5; }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #444; }
+  .legend-dot  { width: 13px; height: 13px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>Cellule végétale vs Cellule animale</h1>
+<p class="subtitle">Touche un élément pour en savoir plus</p>
+
+<div class="titles">
+  <span class="vegetal">Cellule végétale</span>
+  <span class="animal">Cellule animale</span>
+</div>
+
+<svg width="620" height="330" viewBox="0 0 620 330" touch-action="none">
+
+  <!-- Background -->
+  <rect width="620" height="330" fill="#fdfaf4"/>
+
+  <!-- ===== CELLULE VÉGÉTALE ===== -->
+
+  <!-- Paroi cellulaire -->
+  <rect class="hoverable" x="20" y="20" width="240" height="280" rx="10" ry="10"
+    fill="#c8e6c9" stroke="#3a7d44" stroke-width="11"
+    data-title="Paroi cellulaire"
+    data-desc="Enveloppe rigide fabriquée en cellulose, une molécule qui forme des fibres très solides. Elle maintient la forme rectangulaire de la cellule et empêche celle-ci de se déformer. Combiné avec la vacuole, c’est elle qui donne à la cellule végétale sa structure fixe et organisée."/>
+
+  <!-- Membrane végétale -->
+  <rect class="hoverable" x="33" y="33" width="214" height="254" rx="6" ry="6"
+    fill="none" stroke="#81c784" stroke-width="2.5"
+    data-title="Membrane cellulaire"
+    data-desc="Fine couche souple qui entoure la cellule. Elle contrôle ce qui entre et sort, mais n’offre aucune rigidité."/>
+
+  <!-- Cytoplasme végétal -->
+  <rect class="hoverable" x="34" y="34" width="212" height="252" rx="5" ry="5"
+    fill="#c8e6c9" fill-opacity="0.35"
+    data-title="Cytoplasme"
+    data-desc="Substance gélatineuse et transparente qui remplit l'intérieur de la cellule, entre la membrane et le noyau. Il contient de l'eau, des sels et des molécules organiques. C'est dans le cytoplasme que baignent tous les organites (noyau, chloroplastes, vacuole…) et que se déroulent de nombreuses réactions chimiques essentielles à la vie de la cellule."/>
+
+  <!-- Vacuole -->
+  <ellipse class="hoverable" cx="140" cy="168" rx="84" ry="92"
+    fill="#b3e5fc" stroke="#4fc3f7" stroke-width="2"
+    data-title="Vacuole"
+    data-desc="Réservoir rempli d’eau qui occupe la majeure partie de la cellule végétale. En se gonflant, elle pousse sur la paroi de l’intérieur ce qui donne la fermeté à la cellule. On appelle ce mécanisme la turgescence."/>
+
+  <!-- Chloroplastes -->
+  <ellipse class="hoverable" cx="52" cy="60" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+  <ellipse class="hoverable" cx="218" cy="70" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+  <ellipse class="hoverable" cx="44" cy="140" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+  <ellipse class="hoverable" cx="228" cy="220" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+  <ellipse class="hoverable" cx="60" cy="262" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+  <ellipse class="hoverable" cx="210" cy="268" rx="16" ry="9" fill="#66bb6a" stroke="#388e3c" stroke-width="1.5"
+    data-title="Chloroplaste"
+    data-desc="Organite vert qui permet à la plante de fabriquer sa nourriture grâce à la lumière (photosynthèse). Absent dans les cellules d'oignon car le bulbe pousse sous terre."/>
+
+  <!-- Noyau végétal -->
+  <ellipse class="hoverable" cx="88" cy="88" rx="32" ry="24"
+    fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"
+    data-title="Noyau"
+    data-desc="Présent dans toutes les cellules (végétales et animales). Il dirige toutes les activités de la cellule et contient l'information génétique (ADN)."/>
+
+  <!-- ===== CELLULE ANIMALE ===== -->
+
+  <!-- Membrane animale -->
+  <path class="hoverable"
+    d="M450,18 C506,13 562,58 568,124 C574,190 546,260 490,278 C434,296 366,280 338,220 C310,160 322,82 368,46 C398,24 416,21 450,18 Z"
+    fill="#ffccbc" stroke="#e64a19" stroke-width="3"
+    data-title="Membrane cellulaire"
+    data-desc="Fine couche souple qui entoure la cellule. Elle contrôle ce qui entre et sort, mais n’offre aucune rigidité."/>
+
+  <!-- Cytoplasme animal -->
+  <path class="hoverable"
+    d="M450,22 C504,17 558,60 564,124 C570,188 543,256 488,274 C433,291 369,276 342,218 C314,160 326,85 371,50 C400,28 418,25 450,22 Z"
+    fill="#ffccbc" fill-opacity="0.35"
+    data-title="Cytoplasme"
+    data-desc="Substance gélatineuse et transparente qui remplit l'intérieur de la cellule, entre la membrane et le noyau. Il contient de l'eau, des sels et des molécules organiques. C'est dans le cytoplasme que baignent tous les organites (noyau…) et que se déroulent de nombreuses réactions chimiques essentielles à la vie de la cellule."/>
+
+  <!-- Noyau animal -->
+  <ellipse class="hoverable" cx="442" cy="148" rx="42" ry="33"
+    fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"
+    data-title="Noyau"
+    data-desc="Présent dans toutes les cellules (végétales et animales). Il dirige toutes les activités de la cellule et contient l'information génétique (ADN)."/>
+
+</svg>
+
+<!-- Tooltip -->
+<div class="tooltip-box" id="tooltip">
+  <div class="tooltip-title" id="tooltip-title"></div>
+  <div class="tooltip-desc" id="tooltip-desc"></div>
+</div>
+
+<!-- Légende -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3a7d44"></div> Paroi cellulaire</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#81c784"></div> Membrane</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div> Vacuole</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div> Chloroplastes</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f9a825"></div> Noyau</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d7ccc8"></div> Cytoplasme</div>
+</div>
+
+<script>
+  const tooltip = document.getElementById('tooltip');
+  const tooltipTitle = document.getElementById('tooltip-title');
+  const tooltipDesc = document.getElementById('tooltip-desc');
+
+  function showTooltip(el) {
+    tooltipTitle.textContent = el.dataset.title;
+    tooltipDesc.textContent = el.dataset.desc;
+    tooltip.classList.add('visible');
+  }
+  function hideTooltip() {
+    tooltip.classList.remove('visible');
+  }
+
+  document.querySelectorAll('.hoverable').forEach(el => {
+    // Mouse
+    el.addEventListener('mouseenter', () => showTooltip(el));
+    el.addEventListener('mouseleave', hideTooltip);
+    // Touch (iPad)
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      showTooltip(el);
+    }, { passive: false });
+  });
+
+  document.addEventListener('touchstart', (e) => {
+    if (!e.target.classList.contains('hoverable')) hideTooltip();
+  });
+</script>
+</body>
+</html>

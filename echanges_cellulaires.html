@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Échanges cellulaires – Respiration cellulaire</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f3ee;
+    min-height: 100vh;
+    padding: 32px 16px;
+    color: #2c2c2c;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .diagram-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  svg { display: block; margin: 0 auto; max-width: 100%; }
+  [data-label] { cursor: pointer; }
+
+  .tooltip-box {
+    max-width: 580px;
+    margin: 20px auto 0;
+    min-height: 56px;
+    background: #fff;
+    border: 1px solid #e4e2db;
+    border-radius: 12px;
+    padding: 16px 22px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .tooltip-box.visible { opacity: 1; transform: translateY(0); }
+  .tooltip-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
+  .tooltip-desc  { font-size: 13px; color: #555; line-height: 1.65; }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #777; }
+  .legend-dot  { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1>Les échanges de la cellule</h1>
+<p class="subtitle">Respiration cellulaire — Clique sur un élément pour en savoir plus</p>
+
+<div class="diagram-wrap">
+<svg id="diagram" width="860" height="490" viewBox="0 0 860 490">
+  <defs>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#388e3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#d84315" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#e65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#00897b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#8e24aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- ====== SANG ARTÉRIEL (capillaire gauche) ====== -->
+  <rect data-label="arteriel" x="10" y="60" width="36" height="380" rx="18" fill="#ffcdd2" stroke="#c62828" stroke-width="2"/>
+  <text data-label="arteriel" x="28" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#b71c1c" transform="rotate(-90 28 250)" style="cursor:pointer">Sang artériel</text>
+
+  <!-- ====== SANG VEINEUX (capillaire droite) ====== -->
+  <rect data-label="veineux" x="814" y="60" width="36" height="380" rx="18" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>
+  <text data-label="veineux" x="832" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#0d47a1" transform="rotate(90 832 250)" style="cursor:pointer">Sang veineux</text>
+
+  <!-- ======= CELLULE (grande, pour tout contenir) ======= -->
+
+  <!-- Cytoplasme -->
+  <path data-label="cyto"
+    d="M400,30 C480,24 570,90 578,195 C586,300 548,410 472,438 C396,466 300,442 262,362 C224,282 240,120 298,72 C336,42 358,34 400,30 Z"
+    fill="#ffe0b2" stroke="none" pointer-events="fill"/>
+
+  <!-- Noyau (haut gauche) -->
+  <ellipse data-label="noyau"
+    cx="335" cy="100" rx="40" ry="30"
+    fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"
+    pointer-events="fill"/>
+  <text x="335" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#f57f17" data-label="noyau" style="cursor:pointer">Noyau</text>
+
+
+  <!-- ======= MITOCHONDRIE (simple ovale bleu) ======= -->
+  <ellipse data-label="mito"
+    cx="400" cy="220" rx="45" ry="32"
+    fill="#bbdefb" stroke="#1976d2" stroke-width="2.5"
+    pointer-events="fill"/>
+  <text x="400" y="218" text-anchor="middle" font-size="10" font-weight="700" fill="#0d47a1" data-label="mito" style="cursor:pointer">Mitochondrie</text>
+  <text x="400" y="232" text-anchor="middle" font-size="8" fill="#1565c0" data-label="mito" style="cursor:pointer">Resp. cellulaire</text>
+
+
+  <!-- Membrane cellulaire -->
+  <path data-label="membrane"
+    d="M400,30 C480,24 570,90 578,195 C586,300 548,410 472,438 C396,466 300,442 262,362 C224,282 240,120 298,72 C336,42 358,34 400,30 Z"
+    fill="none" stroke="#e64a19" stroke-width="4.5"
+    pointer-events="stroke"/>
+
+  <!-- Labels cellule -->
+  <text x="460" y="130" text-anchor="middle" font-size="10" fill="#9e9e9e">Cytoplasme</text>
+  <text x="445" y="50" text-anchor="middle" font-size="10" fill="#d84315" font-weight="500">Membrane</text>
+
+
+  <!-- ====== ENTRÉES (gauche) ====== -->
+
+  <!-- O₂ -->
+  <rect data-label="o2" x="66" y="110" width="82" height="44" rx="10" fill="#bbdefb" stroke="#1976d2" stroke-width="2"/>
+  <text x="107" y="138" text-anchor="middle" font-size="16" font-weight="700" fill="#0d47a1">O₂</text>
+  <!-- Flèche capillaire → O₂ -->
+  <line x1="48" y1="132" x2="64" y2="132" stroke="#c62828" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <!-- Flèche ext → cellule → mito -->
+  <line x1="150" y1="132" x2="280" y2="175" stroke="#1976d2" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+  <line x1="294" y1="180" x2="358" y2="208" stroke="#1976d2" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- Nutriments (glucose) -->
+  <rect data-label="nutriments" x="56" y="268" width="106" height="52" rx="10" fill="#c8e6c9" stroke="#388e3c" stroke-width="2"/>
+  <text x="109" y="293" text-anchor="middle" font-size="14" font-weight="700" fill="#1b5e20">Nutriments</text>
+  <text x="109" y="309" text-anchor="middle" font-size="9" fill="#388e3c">(glucose)</text>
+  <!-- Flèche capillaire → nutriments -->
+  <line x1="48" y1="294" x2="54" y2="294" stroke="#c62828" stroke-width="2" marker-end="url(#arr-green)"/>
+  <!-- Flèche ext → cellule → mito -->
+  <line x1="164" y1="290" x2="280" y2="262" stroke="#388e3c" stroke-width="2.5" marker-end="url(#arr-green)"/>
+  <line x1="294" y1="258" x2="360" y2="238" stroke="#388e3c" stroke-width="2" marker-end="url(#arr-green)"/>
+
+
+  <!-- ====== SORTIES (droite) ====== -->
+
+  <!-- CO₂ -->
+  <rect data-label="co2" x="700" y="96" width="82" height="44" rx="10" fill="#ffccbc" stroke="#d84315" stroke-width="2"/>
+  <text x="741" y="124" text-anchor="middle" font-size="16" font-weight="700" fill="#bf360c">CO₂</text>
+  <!-- Flèche mito → cellule → ext -->
+  <line x1="442" y1="208" x2="536" y2="168" stroke="#d84315" stroke-width="2" marker-end="url(#arr-red)"/>
+  <line x1="548" y1="163" x2="698" y2="118" stroke="#d84315" stroke-width="2.5" marker-end="url(#arr-red)"/>
+  <!-- Flèche CO₂ → capillaire veineux -->
+  <line x1="784" y1="118" x2="812" y2="118" stroke="#d84315" stroke-width="2" marker-end="url(#arr-red)"/>
+
+  <!-- Déchets -->
+  <rect data-label="dechets" x="696" y="222" width="92" height="44" rx="10" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="742" y="250" text-anchor="middle" font-size="14" font-weight="700" fill="#bf360c">Déchets</text>
+  <!-- Flèche mito → cellule → ext -->
+  <line x1="444" y1="224" x2="536" y2="238" stroke="#e65100" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <line x1="548" y1="240" x2="694" y2="244" stroke="#e65100" stroke-width="2.5" marker-end="url(#arr-orange)"/>
+  <!-- Flèche déchets → capillaire veineux -->
+  <line x1="790" y1="244" x2="812" y2="244" stroke="#e65100" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+  <!-- Eau -->
+  <rect data-label="eau" x="706" y="332" width="78" height="40" rx="10" fill="#e0f7fa" stroke="#00897b" stroke-width="1.5"/>
+  <text x="745" y="357" text-anchor="middle" font-size="13" font-weight="700" fill="#00695c">Eau</text>
+  <!-- Flèche mito → cellule → ext -->
+  <line x1="435" y1="246" x2="540" y2="310" stroke="#00897b" stroke-width="1.5" marker-end="url(#arr-teal)" opacity="0.7"/>
+  <line x1="552" y1="320" x2="704" y2="352" stroke="#00897b" stroke-width="1.8" marker-end="url(#arr-teal)" opacity="0.7"/>
+  <!-- Flèche eau → capillaire veineux -->
+  <line x1="786" y1="352" x2="812" y2="352" stroke="#00897b" stroke-width="1.5" marker-end="url(#arr-teal)" opacity="0.7"/>
+
+
+  <!-- ====== ÉNERGIE CHIMIQUE (dans la cellule) ====== -->
+  <rect data-label="energie" x="330" y="330" width="140" height="36" rx="10" fill="#f3e5f5" stroke="#8e24aa" stroke-width="2"/>
+  <text x="400" y="353" text-anchor="middle" font-size="13" font-weight="700" fill="#6a1b9a">Énergie chimique</text>
+  <!-- Flèche depuis mitochondrie -->
+  <line x1="400" y1="252" x2="400" y2="328" stroke="#8e24aa" stroke-width="2.5" marker-end="url(#arr-purple)"/>
+
+  <!-- Fonctions essentielles (dans la cellule) -->
+  <rect data-label="fonctions" x="310" y="380" width="180" height="32" rx="8" fill="rgba(243,229,245,0.45)" stroke="#8e24aa" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="400" y="401" text-anchor="middle" font-size="10" font-weight="500" fill="#8e24aa" data-label="fonctions" style="cursor:pointer">Fonctions essentielles</text>
+  <!-- Flèche énergie → fonctions -->
+  <line x1="400" y1="366" x2="400" y2="378" stroke="#8e24aa" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+</svg>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-box" id="tooltip">
+  <div class="tooltip-title" id="tip-title"></div>
+  <div class="tooltip-desc"  id="tip-desc"></div>
+</div>
+
+<!-- Légende -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#bbdefb; border:2px solid #1976d2"></div>Entrée</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffccbc; border:2px solid #d84315"></div>Sortie</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f3e5f5; border:2px solid #8e24aa"></div>Énergie chimique</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e64a19; border-radius:50%"></div>Membrane</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f9a825; border-radius:50%"></div>Noyau</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#bbdefb; border:2px solid #1976d2; border-radius:50%"></div>Mitochondrie</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffcdd2; border:2px solid #c62828; border-radius:50%"></div>Sang artériel</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#bbdefb; border:2px solid #1565c0; border-radius:50%"></div>Sang veineux</div>
+</div>
+
+<script>
+const info = {
+  membrane: {
+    title: "Membrane cellulaire",
+    desc: "Fine couche souple qui entoure la cellule. Elle contrôle ce qui entre et sort de la cellule."
+  },
+  cyto: {
+    title: "Cytoplasme",
+    desc: "Liquide gélatineux qui remplit la cellule et dans lequel baignent tous les organites (noyau, mitochondries…)."
+  },
+  noyau: {
+    title: "Noyau",
+    desc: "Centre de contrôle de la cellule. Il contient l'information génétique (ADN) et dirige toutes les activités de la cellule."
+  },
+  mito: {
+    title: "Mitochondrie",
+    desc: "Organite où se déroule la respiration cellulaire. C'est ici que le glucose et l'O₂ sont transformés en énergie chimique. Cette réaction produit aussi du CO₂, de l'eau et des déchets."
+  },
+  o2: {
+    title: "Oxygène (O₂) — ENTRÉE",
+    desc: "L'O₂ entre dans la cellule, puis dans la mitochondrie. Il est indispensable à la respiration cellulaire."
+  },
+  nutriments: {
+    title: "Nutriments (glucose) — ENTRÉE",
+    desc: "Le glucose entre dans la cellule, puis dans la mitochondrie. C'est le « carburant » de la respiration cellulaire."
+  },
+  co2: {
+    title: "Dioxyde de carbone (CO₂) — SORTIE",
+    desc: "Déchet gazeux produit par la respiration cellulaire dans la mitochondrie. Il sort de la cellule pour être éliminé."
+  },
+  dechets: {
+    title: "Déchets — SORTIE",
+    desc: "Déchets produits par la respiration cellulaire dans la mitochondrie. Ils sortent de la cellule pour être éliminés."
+  },
+  eau: {
+    title: "Eau — SORTIE",
+    desc: "La respiration cellulaire produit aussi un peu d'eau comme sous-produit."
+  },
+  energie: {
+    title: "Énergie chimique",
+    desc: "C'est le but de la respiration cellulaire ! Le glucose et l'O₂ sont transformés en énergie chimique utilisable par la cellule."
+  },
+  fonctions: {
+    title: "Fonctions essentielles de la cellule",
+    desc: "L'énergie chimique permet à la cellule de : se diviser pour grandir ou se réparer, fabriquer des substances (protéines, hormones…), se déplacer, communiquer avec d'autres cellules, et maintenir son fonctionnement interne."
+  },
+  arteriel: {
+    title: "Sang artériel (capillaire)",
+    desc: "Le sang artériel est riche en O₂ et en nutriments (glucose). Il arrive des poumons et du système digestif via les artères, puis les artérioles, jusqu'aux capillaires où il livre ses ressources aux cellules."
+  },
+  veineux: {
+    title: "Sang veineux (capillaire)",
+    desc: "Le sang veineux est chargé en CO₂ et en déchets récupérés auprès des cellules. Il repart par les veinules puis les veines vers les poumons (pour éliminer le CO₂) et les reins (pour éliminer les déchets)."
+  }
+};
+
+const tooltip  = document.getElementById('tooltip');
+const tipTitle = document.getElementById('tip-title');
+const tipDesc  = document.getElementById('tip-desc');
+
+function show(key) {
+  if (!info[key]) return;
+  tipTitle.textContent = info[key].title;
+  tipDesc.textContent  = info[key].desc;
+  tooltip.classList.add('visible');
+}
+function hide() { tooltip.classList.remove('visible'); }
+
+document.querySelectorAll('[data-label]').forEach(el => {
+  const key = el.dataset.label;
+  el.addEventListener('mouseenter', () => show(key));
+  el.addEventListener('mouseleave', hide);
+  el.addEventListener('click', () => show(key));
+  el.addEventListener('touchstart', e => { e.preventDefault(); show(key); }, { passive: false });
+});
+
+document.addEventListener('touchstart', e => {
+  if (!e.target.closest('[data-label]')) hide();
+});
+</script>
+</body>
+</html>

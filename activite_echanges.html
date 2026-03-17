@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Activité – Complète les échanges cellulaires</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f3ee;
+    min-height: 100vh;
+    padding: 24px 16px 40px;
+    color: #2c2c2c;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  a.home { display:inline-block;margin-bottom:12px;font-size:13px;color:#999;text-decoration:none; }
+  h1 { text-align:center;font-size:20px;font-weight:700;letter-spacing:-0.4px;margin-bottom:4px; }
+  .subtitle { text-align:center;color:#999;font-size:13px;margin-bottom:6px; }
+  .instructions { text-align:center;color:#888;font-size:12px;margin-bottom:20px;line-height:1.5; }
+
+  .game-area { position:relative;max-width:860px;margin:0 auto; }
+  svg { display:block;margin:0 auto;max-width:100%; }
+  svg text { pointer-events:none; }
+
+  .drop-zone { cursor:pointer;transition:opacity 0.15s; }
+  .drop-zone:hover { opacity:0.8; }
+  .drop-zone.highlight { stroke-width:3; stroke:#666; }
+
+  .word-bank {
+    display:flex;justify-content:center;gap:10px;flex-wrap:wrap;
+    margin:20px auto 0;max-width:700px;
+  }
+  .word-chip {
+    padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;
+    cursor:grab;touch-action:none;
+    background:#fff;color:#444;border:2px solid #ccc;
+    transition:transform 0.12s,box-shadow 0.12s,opacity 0.2s;
+  }
+  .word-chip:active { cursor:grabbing;transform:scale(1.08); }
+  .word-chip.dragging {
+    position:fixed;z-index:1000;transform:scale(1.12);
+    box-shadow:0 6px 24px rgba(0,0,0,0.18);pointer-events:none;
+  }
+  .word-chip.placed { opacity:0.25;cursor:default;pointer-events:none; }
+
+  .feedback { text-align:center;margin-top:16px;min-height:36px; }
+  .feedback-msg {
+    display:inline-block;padding:8px 20px;border-radius:10px;
+    font-size:13px;font-weight:600;
+  }
+  .feedback-msg.correct { background:#c8e6c9;color:#2e7d32; }
+  .feedback-msg.wrong { background:#ffcdd2;color:#c62828; }
+  .feedback-msg.done { background:#e8f5e9;color:#1b5e20;font-size:15px; }
+
+  .btn-reset {
+    display:block;margin:16px auto 0;padding:10px 28px;border:none;border-radius:10px;
+    background:#e0e0e0;color:#555;font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;transition:background 0.15s;
+  }
+  .btn-reset:hover { background:#d0d0d0; }
+  .score { text-align:center;margin-top:10px;font-size:12px;color:#aaa; }
+</style>
+</head>
+<body>
+
+<a class="home" href="https://jonesgeronimo.github.io/Sciences">← Accueil</a>
+
+<h1>Complète les échanges cellulaires</h1>
+<p class="subtitle">Glisse chaque étiquette vers la bonne zone du schéma</p>
+<p class="instructions">Les flèches de gauche montrent ce qui <strong>entre</strong> dans la cellule.<br>Les flèches de droite montrent ce qui <strong>sort</strong>.<br>Les flèches du bas restent <strong>dans</strong> la cellule.</p>
+
+<div class="game-area" id="gameArea">
+<svg id="diagram" width="860" height="490" viewBox="0 0 860 490">
+  <defs>
+    <marker id="arr-in" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-out" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-down" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1.5L7.5 5L1 8.5" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- SANG ARTÉRIEL -->
+  <rect x="10" y="60" width="36" height="380" rx="18" fill="#e8e0d8" stroke="#999" stroke-width="2"/>
+  <text x="28" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#777" transform="rotate(-90 28 250)">Sang artériel</text>
+
+  <!-- SANG VEINEUX -->
+  <rect x="814" y="60" width="36" height="380" rx="18" fill="#e0e0e0" stroke="#999" stroke-width="2"/>
+  <text x="832" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#777" transform="rotate(90 832 250)">Sang veineux</text>
+
+  <!-- CELLULE -->
+  <path d="M400,30 C480,24 570,90 578,195 C586,300 548,410 472,438 C396,466 300,442 262,362 C224,282 240,120 298,72 C336,42 358,34 400,30 Z"
+    fill="#ffe0b2" stroke="none"/>
+
+  <!-- Noyau -->
+  <ellipse cx="335" cy="100" rx="40" ry="30" fill="#fff9c4" stroke="#f9a825" stroke-width="2.5"/>
+  <text x="335" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#f57f17">Noyau</text>
+
+  <!-- Mitochondrie -->
+  <ellipse cx="400" cy="220" rx="45" ry="32" fill="#bbdefb" stroke="#1976d2" stroke-width="2.5"/>
+  <text x="400" y="218" text-anchor="middle" font-size="10" font-weight="700" fill="#0d47a1">Mitochondrie</text>
+  <text x="400" y="232" text-anchor="middle" font-size="8" fill="#1565c0">Resp. cellulaire</text>
+
+  <!-- Membrane -->
+  <path d="M400,30 C480,24 570,90 578,195 C586,300 548,410 472,438 C396,466 300,442 262,362 C224,282 240,120 298,72 C336,42 358,34 400,30 Z"
+    fill="none" stroke="#e64a19" stroke-width="4.5"/>
+
+  <text x="460" y="130" text-anchor="middle" font-size="10" fill="#9e9e9e">Cytoplasme</text>
+  <text x="445" y="50" text-anchor="middle" font-size="10" fill="#d84315" font-weight="500">Membrane</text>
+
+  <!-- ====== FLÈCHES NEUTRES ====== -->
+
+  <!-- Entrée haut gauche -->
+  <line x1="48" y1="132" x2="64" y2="132" stroke="#888" stroke-width="2" marker-end="url(#arr-in)"/>
+  <line x1="150" y1="132" x2="280" y2="175" stroke="#888" stroke-width="2.5" marker-end="url(#arr-in)"/>
+  <line x1="294" y1="180" x2="358" y2="208" stroke="#888" stroke-width="2" marker-end="url(#arr-in)"/>
+
+  <!-- Entrée bas gauche -->
+  <line x1="48" y1="294" x2="54" y2="294" stroke="#888" stroke-width="2" marker-end="url(#arr-in)"/>
+  <line x1="164" y1="290" x2="280" y2="262" stroke="#888" stroke-width="2.5" marker-end="url(#arr-in)"/>
+  <line x1="294" y1="258" x2="360" y2="238" stroke="#888" stroke-width="2" marker-end="url(#arr-in)"/>
+
+  <!-- Sortie haut droite -->
+  <line x1="442" y1="208" x2="536" y2="168" stroke="#888" stroke-width="2" marker-end="url(#arr-out)"/>
+  <line x1="548" y1="163" x2="698" y2="118" stroke="#888" stroke-width="2.5" marker-end="url(#arr-out)"/>
+  <line x1="784" y1="118" x2="812" y2="118" stroke="#888" stroke-width="2" marker-end="url(#arr-out)"/>
+
+  <!-- Sortie milieu droite -->
+  <line x1="444" y1="224" x2="536" y2="238" stroke="#888" stroke-width="2" marker-end="url(#arr-out)"/>
+  <line x1="548" y1="240" x2="694" y2="244" stroke="#888" stroke-width="2.5" marker-end="url(#arr-out)"/>
+  <line x1="790" y1="244" x2="812" y2="244" stroke="#888" stroke-width="2" marker-end="url(#arr-out)"/>
+
+  <!-- Sortie bas droite -->
+  <line x1="435" y1="246" x2="540" y2="310" stroke="#888" stroke-width="1.5" marker-end="url(#arr-out)" opacity="0.7"/>
+  <line x1="552" y1="320" x2="704" y2="352" stroke="#888" stroke-width="1.8" marker-end="url(#arr-out)" opacity="0.7"/>
+  <line x1="786" y1="352" x2="812" y2="352" stroke="#888" stroke-width="1.5" marker-end="url(#arr-out)" opacity="0.7"/>
+
+  <!-- Vers le bas (dans la cellule) -->
+  <line x1="400" y1="252" x2="400" y2="328" stroke="#999" stroke-width="2.5" marker-end="url(#arr-down)"/>
+  <line x1="400" y1="366" x2="400" y2="378" stroke="#999" stroke-width="1.5" marker-end="url(#arr-down)"/>
+
+  <!-- ====== LABELS DE GROUPE ====== -->
+  <text x="107" y="98" text-anchor="middle" font-size="9" fill="#999" font-weight="500">ENTRÉE</text>
+  <text x="109" y="258" text-anchor="middle" font-size="9" fill="#999" font-weight="500">ENTRÉE</text>
+  <text x="741" y="86" text-anchor="middle" font-size="9" fill="#999" font-weight="500">SORTIE</text>
+  <text x="742" y="214" text-anchor="middle" font-size="9" fill="#999" font-weight="500">SORTIE</text>
+  <text x="745" y="324" text-anchor="middle" font-size="9" fill="#999" font-weight="500">SORTIE</text>
+
+  <!-- ====== DROP ZONES (toutes neutres/grises) ====== -->
+
+  <!-- Entrée 1 (haut gauche) -->
+  <rect class="drop-zone" data-slot="entry1" x="66" y="110" width="82" height="44" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="entry1" x="107" y="138" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Entrée 2 (bas gauche) -->
+  <rect class="drop-zone" data-slot="entry2" x="56" y="268" width="106" height="52" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="entry2" x="109" y="300" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Sortie 1 (haut droite) -->
+  <rect class="drop-zone" data-slot="exit1" x="700" y="96" width="82" height="44" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="exit1" x="741" y="124" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Sortie 2 (milieu droite) -->
+  <rect class="drop-zone" data-slot="exit2" x="696" y="222" width="92" height="44" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="exit2" x="742" y="250" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Sortie 3 (bas droite) -->
+  <rect class="drop-zone" data-slot="exit3" x="706" y="332" width="78" height="40" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="exit3" x="745" y="358" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Énergie chimique -->
+  <rect class="drop-zone" data-slot="energie" x="330" y="330" width="140" height="36" rx="10"
+    fill="#f0ece6" stroke="#bbb" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="drop-label" data-slot="energie" x="400" y="353" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+  <!-- Fonctions essentielles -->
+  <rect class="drop-zone" data-slot="fonctions" x="310" y="380" width="180" height="32" rx="8"
+    fill="#f0ece6" stroke="#bbb" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text class="drop-label" data-slot="fonctions" x="400" y="401" text-anchor="middle"
+    font-size="14" font-weight="700" fill="#ccc">?</text>
+
+</svg>
+</div>
+
+<div class="word-bank" id="wordBank"></div>
+<div class="feedback" id="feedback"></div>
+<div class="score" id="score"></div>
+<button class="btn-reset" id="btnReset">Recommencer</button>
+
+<script>
+// Groups: entries can go in any entry slot, exits in any exit slot
+const groups = {
+  entry: { chips: ['o2', 'nutriments'], slots: ['entry1', 'entry2'] },
+  exit:  { chips: ['co2', 'dechets', 'eau'], slots: ['exit1', 'exit2', 'exit3'] },
+  fixed: { chips: ['energie', 'fonctions'], slots: ['energie', 'fonctions'] }
+};
+
+const chipDisplay = {
+  o2: 'O₂',
+  nutriments: 'Nutriments (glucose)',
+  co2: 'CO₂',
+  dechets: 'Déchets',
+  eau: 'Eau',
+  energie: 'Énergie chimique',
+  fonctions: 'Fonctions essentielles'
+};
+
+// Which group does a chip belong to?
+function getChipGroup(chipKey) {
+  for (const [g, def] of Object.entries(groups)) {
+    if (def.chips.includes(chipKey)) return g;
+  }
+  return null;
+}
+
+// Which group does a slot belong to?
+function getSlotGroup(slotKey) {
+  for (const [g, def] of Object.entries(groups)) {
+    if (def.slots.includes(slotKey)) return g;
+  }
+  return null;
+}
+
+let placed = {};       // slotKey → chipKey
+let usedChips = {};    // chipKey → true
+let attempts = 0;
+let correct = 0;
+const totalSlots = 7;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildBank() {
+  const bank = document.getElementById('wordBank');
+  bank.innerHTML = '';
+  const keys = shuffle(Object.keys(chipDisplay));
+  keys.forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'word-chip';
+    chip.dataset.chip = key;
+    chip.textContent = chipDisplay[key];
+    chip.addEventListener('touchstart', onTouchStart, { passive: false });
+    chip.addEventListener('touchmove', onTouchMove, { passive: false });
+    chip.addEventListener('touchend', onTouchEnd);
+    chip.addEventListener('mousedown', onMouseDown);
+    bank.appendChild(chip);
+  });
+}
+
+// ---- DRAG ----
+let dragChip = null;
+let dragOffsetX = 0, dragOffsetY = 0;
+
+function onTouchStart(e) {
+  e.preventDefault();
+  const chip = e.currentTarget;
+  if (chip.classList.contains('placed')) return;
+  startDrag(chip, e.touches[0].clientX, e.touches[0].clientY);
+}
+function onTouchMove(e) {
+  if (!dragChip) return;
+  e.preventDefault();
+  moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+}
+function onTouchEnd(e) {
+  if (!dragChip) return;
+  endDrag(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+}
+function onMouseDown(e) {
+  const chip = e.currentTarget;
+  if (chip.classList.contains('placed')) return;
+  startDrag(chip, e.clientX, e.clientY);
+  const onMove = ev => moveDrag(ev.clientX, ev.clientY);
+  const onUp = ev => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    endDrag(ev.clientX, ev.clientY);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function startDrag(chip, cx, cy) {
+  dragChip = chip;
+  const r = chip.getBoundingClientRect();
+  dragOffsetX = cx - r.left;
+  dragOffsetY = cy - r.top;
+  chip.classList.add('dragging');
+  chip.style.left = (cx - dragOffsetX) + 'px';
+  chip.style.top = (cy - dragOffsetY) + 'px';
+  chip.style.width = r.width + 'px';
+}
+
+function moveDrag(cx, cy) {
+  if (!dragChip) return;
+  dragChip.style.left = (cx - dragOffsetX) + 'px';
+  dragChip.style.top = (cy - dragOffsetY) + 'px';
+}
+
+function endDrag(cx, cy) {
+  if (!dragChip) return;
+  tryDrop(cx, cy);
+  dragChip.classList.remove('dragging');
+  dragChip.style.left = '';
+  dragChip.style.top = '';
+  dragChip.style.width = '';
+  dragChip.style.position = '';
+  dragChip = null;
+}
+
+function tryDrop(cx, cy) {
+  if (!dragChip) return;
+  const chipKey = dragChip.dataset.chip;
+  const chipGroup = getChipGroup(chipKey);
+
+  const svg = document.getElementById('diagram');
+  const svgRect = svg.getBoundingClientRect();
+  const scaleX = 860 / svgRect.width;
+  const scaleY = 490 / svgRect.height;
+  const svgX = (cx - svgRect.left) * scaleX;
+  const svgY = (cy - svgRect.top) * scaleY;
+
+  // Find hit slot
+  let hitSlot = null;
+  document.querySelectorAll('.drop-zone').forEach(rect => {
+    const rx = parseFloat(rect.getAttribute('x'));
+    const ry = parseFloat(rect.getAttribute('y'));
+    const rw = parseFloat(rect.getAttribute('width'));
+    const rh = parseFloat(rect.getAttribute('height'));
+    if (svgX >= rx && svgX <= rx + rw && svgY >= ry && svgY <= ry + rh) {
+      hitSlot = rect.dataset.slot;
+    }
+  });
+
+  if (!hitSlot) return;
+  if (placed[hitSlot]) return;
+  if (usedChips[chipKey]) return;
+
+  attempts++;
+  const slotGroup = getSlotGroup(hitSlot);
+
+  if (chipGroup === slotGroup) {
+    // Correct group!
+    correct++;
+    placed[hitSlot] = chipKey;
+    usedChips[chipKey] = true;
+    dragChip.classList.add('placed');
+
+    // Fill slot visually
+    const rect = document.querySelector(`.drop-zone[data-slot="${hitSlot}"]`);
+    rect.setAttribute('stroke-dasharray', '');
+    rect.setAttribute('fill', '#e8e5de');
+    rect.setAttribute('stroke', '#999');
+
+    const label = document.querySelector(`.drop-label[data-slot="${hitSlot}"]`);
+    label.textContent = chipDisplay[chipKey];
+    label.setAttribute('fill', '#444');
+    const fs = chipKey === 'fonctions' ? '10' : chipKey === 'energie' ? '12' : chipKey === 'nutriments' ? '11' : '14';
+    label.setAttribute('font-size', fs);
+
+    showFeedback('correct', 'Bien joué !');
+    updateScore();
+
+    if (correct === totalSlots) {
+      setTimeout(() => showFeedback('done', 'Bravo ! Tu as complété tous les échanges cellulaires !'), 500);
+    }
+  } else {
+    // Wrong group
+    let hint = '';
+    if (chipGroup === 'entry' && slotGroup !== 'entry') {
+      hint = 'Cette substance entre dans la cellule, elle va à gauche !';
+    } else if (chipGroup === 'exit' && slotGroup !== 'exit') {
+      hint = 'Cette substance sort de la cellule, elle va à droite !';
+    } else if (chipGroup === 'fixed' && slotGroup !== 'fixed') {
+      hint = 'Cet élément reste dans la cellule, regarde les flèches du bas !';
+    } else {
+      hint = 'Pas tout à fait… Regarde le sens des flèches !';
+    }
+    showFeedback('wrong', hint);
+    updateScore();
+  }
+}
+
+function showFeedback(type, msg) {
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = `<span class="feedback-msg ${type}">${msg}</span>`;
+  if (type !== 'done') setTimeout(() => { fb.innerHTML = ''; }, 2500);
+}
+
+function updateScore() {
+  document.getElementById('score').textContent =
+    `${correct}/${totalSlots} placés · ${attempts} essai${attempts > 1 ? 's' : ''}`;
+}
+
+// Reset
+document.getElementById('btnReset').addEventListener('click', () => {
+  placed = {};
+  usedChips = {};
+  attempts = 0;
+  correct = 0;
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('score').textContent = '';
+
+  document.querySelectorAll('.drop-zone').forEach(rect => {
+    rect.setAttribute('stroke-dasharray', '5 3');
+    rect.setAttribute('fill', '#f0ece6');
+    rect.setAttribute('stroke', '#bbb');
+  });
+  document.querySelectorAll('.drop-label').forEach(label => {
+    label.textContent = '?';
+    label.setAttribute('fill', '#ccc');
+    label.setAttribute('font-size', '14');
+  });
+
+  buildBank();
+});
+
+buildBank();
+</script>
+</body>
+</html>

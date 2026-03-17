@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Sciences — Activités interactives</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #1a1f2e;
+    --ink-soft:  #4a5168;
+    --paper:     #f7f5f0;
+    --cream:     #efecea;
+    --green:     #2d6a4f;
+    --green-mid: #52b788;
+    --green-pale:#d8f3dc;
+    --amber:     #d4860a;
+    --amber-pale:#fef3dc;
+    --blue:      #1a5f8a;
+    --blue-pale: #dceef9;
+    --rose:      #b5384a;
+    --rose-pale: #fde8ec;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 72px 24px 56px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c5c0b8, transparent);
+  }
+
+  /* Decorative circles */
+  .hero-deco {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .hero-deco-1 { width: 380px; height: 380px; background: var(--green); top: -120px; left: -80px; }
+  .hero-deco-2 { width: 260px; height: 260px; background: var(--amber); bottom: -60px; right: -40px; }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green);
+    border: 1.5px solid var(--green-mid);
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 20px;
+    background: var(--green-pale);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 6vw, 58px);
+    line-height: 1.12;
+    color: var(--ink);
+    margin-bottom: 14px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green);
+  }
+
+  .hero-sub {
+    font-size: clamp(14px, 2vw, 16px);
+    color: var(--ink-soft);
+    font-weight: 500;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 52px; animation: fadeUp 0.5s ease both; }
+  .section:nth-child(1) { animation-delay: 0.3s; }
+  .section:nth-child(2) { animation-delay: 0.4s; }
+  .section:nth-child(3) { animation-delay: 0.5s; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid var(--cream);
+  }
+
+  .section-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--cream);
+    padding: 3px 10px; border-radius: 99px;
+  }
+
+  /* ── ACTIVITY GRID ── */
+  .activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .activity-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    border: 1.5px solid transparent;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+
+  .activity-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+
+  .activity-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.07);
+  }
+  .activity-card:hover::before { opacity: 1; }
+  .activity-card:hover { border-color: var(--border-color, #e0e0e0); }
+
+  /* Color themes per section */
+  .theme-green .activity-card::before { background: linear-gradient(90deg, var(--green), var(--green-mid)); }
+  .theme-green .activity-card:hover   { border-color: #b7dfc5; }
+
+  .theme-amber .activity-card::before { background: linear-gradient(90deg, var(--amber), #f0b430); }
+  .theme-amber .activity-card:hover   { border-color: #f0d49a; }
+
+  .theme-blue .activity-card::before  { background: linear-gradient(90deg, var(--blue), #3a8fc0); }
+  .theme-blue .activity-card:hover    { border-color: #a8d0e8; }
+
+  .activity-top {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  }
+
+  .activity-emoji { font-size: 24px; flex-shrink: 0; }
+
+  .activity-badge {
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 99px;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .badge-quiz    { background: var(--green-pale);  color: var(--green); }
+  .badge-explore { background: var(--amber-pale);  color: var(--amber); }
+  .badge-soon    { background: var(--cream);        color: var(--ink-soft); }
+
+  .activity-name {
+    font-size: 15px; font-weight: 700;
+    color: var(--ink); line-height: 1.3;
+  }
+
+  .activity-desc {
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.5; font-weight: 500;
+  }
+
+  .activity-footer {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; color: var(--ink-soft);
+    margin-top: auto; padding-top: 8px;
+    border-top: 1px solid #f0ede8;
+  }
+  .activity-footer .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-mid); flex-shrink: 0;
+  }
+
+  /* Disabled / coming soon */
+  .activity-card.soon {
+    opacity: 0.55; pointer-events: none;
+  }
+  .activity-card.soon .dot { background: #c0bdb8; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 12px; color: #a8a49e;
+    font-weight: 500;
+    border-top: 1px solid var(--cream);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    .activity-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── NAV ── */
+  nav {
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 20px;
+    border-bottom: 1px solid var(--cream);
+    background: rgba(247,245,240,0.96);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--green-dark); text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 6px; margin-left: auto; }
+  .nav-link {
+    font-size: 13px; font-weight: 700;
+    color: var(--ink-soft); text-decoration: none;
+    padding: 6px 14px; border-radius: 99px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-link:hover { background: var(--green-light); color: var(--green-dark); }
+  .nav-link.active { background: var(--green-light); color: var(--green-dark); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="index.html">🌿 Sciences</a>
+  <div class="nav-links">
+    <a class="nav-link active" href="index.html">Activités</a>
+    <a class="nav-link" href="cours.html">Cours</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-deco hero-deco-1"></div>
+  <div class="hero-deco hero-deco-2"></div>
+  <div class="hero-tag">Sciences de la Vie et de la Terre</div>
+  <h1>Activités<br><em>interactives</em></h1>
+  <p class="hero-sub">Révise, entraîne-toi et teste tes connaissances à ton rythme.</p>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- ── BIOLOGIE CELLULAIRE ── -->
+
+ 
+
+  <div class="section theme-green">
+    <div class="section-header">
+      <div class="section-icon" style="background:#d8f3dc;">🔬</div>
+      <h2 class="section-title">Biologie cellulaire</h2>
+      <span class="section-count">6 activités</span>
+    </div>
+    <div class="activity-grid">
+
+       <a class="activity-card" href="Uni-Pluri.html">
+        <div class="activity-top">
+          <span class="activity-emoji">🔬</span>
+          <span class="activity-badge badge-quiz">Quiz</span>
+        </div>
+        <div class="activity-name">Unicellulaire ou Pluricellulaire?</div>
+        <div class="activity-desc">Classe les organismes selon si ils sont unicellulaires ou pluricellulaires.</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          Quiz
+        </div>
+      </a>
+
+        <a class="activity-card" href="fillblanks.html">
+        <div class="activity-top">
+          <span class="activity-emoji">🔬</span>
+          <span class="activity-badge badge-quiz">Texte</span>
+        </div>
+        <div class="activity-name">Texte Unicellulaire vs Pluricellulaire</div>
+        <div class="activity-desc">Texte à trous</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          Texte à trous · 8 mots
+        </div>
+      </a>
+
+      <a class="activity-card" href="cellules_interactif.html">
+        <div class="activity-top">
+          <span class="activity-emoji">📚</span>
+          <span class="activity-badge badge-explore">Explorer</span>
+        </div>
+        <div class="activity-name">Découvrir la cellule végétale</div>
+        <div class="activity-desc">Touche chaque partie de la cellule pour découvrir son rôle.</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          Activité introductive
+        </div>
+      </a>
+
+      
+
+      <a class="activity-card" href="cellules_quiz.html">
+        <div class="activity-top">
+          <span class="activity-emoji">🌿</span>
+          <span class="activity-badge badge-quiz">Quiz</span>
+        </div>
+        <div class="activity-name">Quiz — Cellule végétale</div>
+        <div class="activity-desc">Identifie les structures de la cellule végétale — 2 niveaux de difficulté.</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          10 questions · Niveaux 1 &amp; 2
+        </div>
+      </a>
+
+       <a class="activity-card" href="echanges_cellulaires.html">
+        <div class="activity-top">
+          <span class="activity-emoji">📚</span>
+          <span class="activity-badge badge-explore">Explorer</span>
+        </div>
+        <div class="activity-name">Découvrir les échanges cellulaires</div>
+        <div class="activity-desc">Touche chaque élément pour découvrir son rôle.</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          Activité introductive
+        </div>
+      </a>
+
+      <a class="activity-card" href="activite_echanges.html">
+        <div class="activity-top">
+          <span class="activity-emoji">🧩</span>
+          <span class="activity-badge badge-quiz">Puzzle</span>
+        </div>
+        <div class="activity-name">Reconstruis les échanges cellulaires</div>
+        <div class="activity-desc">Place chaque élément au bon endroit.</div>
+        <div class="activity-footer">
+          <span class="dot"></span>
+          Glisser-déposer · 7 éléments
+        </div>
+      </a>
+     
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026
+</footer>
+
+</body>
+</html>

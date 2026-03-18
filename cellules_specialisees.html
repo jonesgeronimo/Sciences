@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cellules spécialisées</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=DM+Serif+Display&display=swap');
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'DM Sans',sans-serif;
+    background:#f7f5f0;
+    color:#1a1f2e;
+    min-height:100vh;
+    padding:24px 16px 60px;
+  }
+  a.home { display:inline-block;margin-bottom:16px;font-size:13px;color:#999;text-decoration:none; }
+  h1 { font-family:'DM Serif Display',serif;text-align:center;font-size:26px;margin-bottom:4px; }
+  .subtitle { text-align:center;color:#4a5168;font-size:14px;margin-bottom:28px; }
+
+  .cells-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  @media(max-width:640px) { .cells-grid { grid-template-columns:1fr; } }
+
+  .cell-card {
+    background:#fff;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .cell-card h2 {
+    font-family:'DM Serif Display',serif;
+    font-size:18px;
+    margin-bottom:4px;
+    text-align:center;
+  }
+  .cell-type { text-align:center;font-size:11px;color:#4a5168;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px; }
+
+  .cell-svg-wrap {
+    position:relative;
+    width:100%;
+    margin-bottom:12px;
+  }
+  .cell-svg-wrap svg { display:block;width:100%;height:auto; }
+
+  [data-part] { cursor:pointer; }
+  [data-part]:hover { opacity:0.85; }
+
+  .info-box {
+    min-height:56px;
+    background:#f7f5f0;
+    border-radius:10px;
+    padding:12px 16px;
+    transition:opacity 0.2s;
+    margin-bottom:12px;
+  }
+  .info-box.empty { opacity:0.5; }
+  .info-title { font-weight:700;font-size:13px;margin-bottom:3px; }
+  .info-desc { font-size:12px;color:#4a5168;line-height:1.55; }
+  .info-hint { font-size:11px;color:#aaa;font-style:italic; }
+
+  .btn-animate {
+    display:block;
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background 0.15s,transform 0.1s;
+    margin-top:auto;
+  }
+  .btn-animate:active { transform:scale(0.97); }
+  .btn-muscle { background:#fde8ec;color:#c0392b; }
+  .btn-muscle:hover { background:#f9d0d6; }
+  .btn-neurone { background:#fef3dc;color:#b8860b; }
+  .btn-neurone:hover { background:#fce8b8; }
+
+  /* Muscle contraction animation */
+  #muscleCell {
+    transition: transform 0.4s ease;
+  }
+  #muscleCell.contracted {
+    transform: scaleX(0.65) scaleY(1.25);
+  }
+
+  /* Neuron signal — animated via JS */
+  #signalDot {
+    opacity:0;
+  }
+
+</style>
+</head>
+<body>
+
+<a class="home" href="https://jonesgeronimo.github.io/Sciences">← Accueil</a>
+<h1>Cellules spécialisées</h1>
+<p class="subtitle">Touche chaque partie pour découvrir son rôle</p>
+<p style="text-align:center;margin-bottom:24px;"><a href="documents.pdf" style="font-size:13px;color:#4a5168;font-weight:600;text-decoration:none;padding:6px 16px;border:1.5px solid #ddd;border-radius:99px;display:inline-block;">Documents texte (PDF)</a></p>
+
+<div class="cells-grid">
+
+  <!-- ====== CELLULE MUSCULAIRE ====== -->
+  <div class="cell-card">
+    <h2>Cellule musculaire</h2>
+    <div class="cell-type">Tissu musculaire squelettique</div>
+    <div class="cell-svg-wrap">
+      <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+        <g id="muscleCell" style="transform-origin:200px 100px">
+          <!-- Cytoplasme — remplissage intérieur -->
+          <path data-part="m-cyto" d="
+            M40,70
+            C40,50 65,38 100,38
+            L300,38
+            C335,38 360,50 360,70
+            L360,130
+            C360,150 335,162 300,162
+            L100,162
+            C65,162 40,150 40,130 Z"
+            fill="#f2c4c4" stroke="none"/>
+
+          <!-- Membrane — contour uniquement -->
+          <path data-part="m-membrane" d="
+            M40,70
+            C40,50 65,38 100,38
+            L300,38
+            C335,38 360,50 360,70
+            L360,130
+            C360,150 335,162 300,162
+            L100,162
+            C65,162 40,150 40,130 Z"
+            fill="none" stroke="#c0392b" stroke-width="3" pointer-events="stroke"/>
+
+          <!-- Stries verticales -->
+          <line data-part="m-stries" x1="80" y1="44" x2="80" y2="156" stroke="#d4686e" stroke-width="1.2" opacity="0.45"/>
+          <line data-part="m-stries" x1="110" y1="40" x2="110" y2="160" stroke="#c0392b" stroke-width="1.6" opacity="0.35"/>
+          <line data-part="m-stries" x1="140" y1="39" x2="140" y2="161" stroke="#d4686e" stroke-width="1.2" opacity="0.45"/>
+          <line data-part="m-stries" x1="170" y1="38" x2="170" y2="162" stroke="#c0392b" stroke-width="1.6" opacity="0.35"/>
+          <line data-part="m-stries" x1="200" y1="38" x2="200" y2="162" stroke="#d4686e" stroke-width="1.2" opacity="0.45"/>
+          <line data-part="m-stries" x1="230" y1="38" x2="230" y2="162" stroke="#c0392b" stroke-width="1.6" opacity="0.35"/>
+          <line data-part="m-stries" x1="260" y1="39" x2="260" y2="161" stroke="#d4686e" stroke-width="1.2" opacity="0.45"/>
+          <line data-part="m-stries" x1="290" y1="40" x2="290" y2="160" stroke="#c0392b" stroke-width="1.6" opacity="0.35"/>
+          <line data-part="m-stries" x1="320" y1="44" x2="320" y2="156" stroke="#d4686e" stroke-width="1.2" opacity="0.45"/>
+
+          <!-- Myofibrilles (bandes horizontales) -->
+          <rect data-part="m-myofibrilles" x="50" y="55" width="300" height="10" rx="5" fill="#e07a7a" opacity="0.5"/>
+          <rect data-part="m-myofibrilles" x="48" y="78" width="304" height="10" rx="5" fill="#d95c5c" opacity="0.45"/>
+          <rect data-part="m-myofibrilles" x="46" y="101" width="308" height="10" rx="5" fill="#e07a7a" opacity="0.5"/>
+          <rect data-part="m-myofibrilles" x="48" y="124" width="304" height="10" rx="5" fill="#d95c5c" opacity="0.45"/>
+          <rect data-part="m-myofibrilles" x="50" y="147" width="300" height="10" rx="5" fill="#e07a7a" opacity="0.5"/>
+
+          <!-- Noyau unique -->
+          <ellipse data-part="m-noyau" cx="200" cy="100" rx="22" ry="14" fill="#5b2c6f" opacity="0.65"/>
+        </g>
+      </svg>
+    </div>
+    <div class="info-box empty" id="info-muscle">
+      <div class="info-hint">Touche une partie de la cellule</div>
+    </div>
+    <button class="btn-animate btn-muscle" id="btnMuscle">Voir la contraction</button>
+  </div>
+
+  <!-- ====== NEURONE ====== -->
+  <div class="cell-card">
+    <h2>Neurone</h2>
+    <div class="cell-type">Tissu nerveux</div>
+    <div class="cell-svg-wrap">
+      <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Dendrites -->
+        <g data-part="n-dendrites">
+          <path d="M85,100 L50,55 L28,35" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M85,100 L42,75 L18,65" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M85,100 L48,100 L22,95" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M85,100 L42,125 L18,135" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M85,100 L50,145 L28,165" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Petites ramifications -->
+          <path d="M28,35 L15,24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M28,35 L38,22" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M18,65 L6,58" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M18,135 L6,142" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M28,165 L15,176" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M28,165 L38,178" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round"/>
+        </g>
+
+        <!-- Corps cellulaire -->
+        <ellipse data-part="n-corps" cx="110" cy="100" rx="30" ry="28"
+          fill="#f5deb3" stroke="#d4a843" stroke-width="2.5"/>
+        <!-- Noyau -->
+        <ellipse data-part="n-noyau" cx="110" cy="100" rx="14" ry="13"
+          fill="#5b2c6f" opacity="0.55"/>
+
+        <!-- Axone — simple trait long sans myéline -->
+        <line data-part="n-axone" x1="140" y1="100" x2="345" y2="100"
+          stroke="#d4a843" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- Terminaisons axonales -->
+        <g data-part="n-terminaisons">
+          <path d="M345,100 L368,78 L382,72" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M345,100 L370,100 L385,100" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M345,100 L368,122 L382,128" fill="none" stroke="#d4a843" stroke-width="2.5" stroke-linecap="round"/>
+          <circle class="terminal" cx="382" cy="72" r="5" fill="#d4a843" opacity="0.7"/>
+          <circle class="terminal" cx="385" cy="100" r="5" fill="#d4a843" opacity="0.7"/>
+          <circle class="terminal" cx="382" cy="128" r="5" fill="#d4a843" opacity="0.7"/>
+        </g>
+
+        <!-- Signal dot (invisible by default) -->
+        <circle id="signalDot" cx="0" cy="100" r="9" fill="#ff5500" opacity="0">
+          <animate id="signalAnim" attributeName="cx" dur="1.2s" fill="freeze" begin="indefinite"
+            values="30;85;110;140;170;200;230;260;290;320;345;365;380"
+            keyTimes="0;0.08;0.15;0.22;0.30;0.38;0.46;0.54;0.62;0.70;0.80;0.90;1"/>
+          <animate id="signalOpacity" attributeName="opacity" dur="1.2s" fill="freeze" begin="indefinite"
+            values="1;1;1;1;1;1;1;1;1;1;1;1;0"
+            keyTimes="0;0.08;0.15;0.22;0.30;0.38;0.46;0.54;0.62;0.70;0.80;0.90;1"/>
+        </circle>
+
+      </svg>
+    </div>
+    <div class="info-box empty" id="info-neurone">
+      <div class="info-hint">Touche une partie de la cellule</div>
+    </div>
+    <button class="btn-animate btn-neurone" id="btnNeurone">Voir le signal nerveux</button>
+  </div>
+
+</div>
+
+<!-- SYNTHÈSE -->
+<div style="max-width:640px;margin:32px auto 0;background:#fff;border-radius:16px;padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);">
+  <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#2d6a4f;background:#d8f3dc;display:inline-block;padding:4px 12px;border-radius:99px;margin-bottom:12px;">Synthèse</div>
+  <p style="font-family:'DM Serif Display',serif;font-size:18px;line-height:1.5;margin-bottom:10px;">Pourquoi les cellules ne sont-elles pas toutes identiques ?</p>
+  <p style="font-size:14px;color:#4a5168;line-height:1.7;">Les organismes pluricellulaires sont composés de cellules <strong>différentes</strong> avec des fonctions <strong>spécifiques</strong>. On dit qu'elles sont <strong>spécialisées</strong>.</p>
+  <p style="font-size:13px;color:#4a5168;line-height:1.7;margin-top:10px;">La cellule musculaire est spécialisée dans la <strong>contraction</strong> — sa forme allongée et ses filaments lui permettent de se raccourcir pour produire un mouvement.</p>
+  <p style="font-size:13px;color:#4a5168;line-height:1.7;margin-top:6px;">Le neurone est spécialisé dans la <strong>transmission de signaux électriques</strong> — ses dendrites reçoivent l'information, et son long axone la transmet à distance, jusqu'à un muscle ou un autre neurone.</p>
+  <p style="font-size:13px;color:#4a5168;line-height:1.7;margin-top:10px;">C'est cette spécialisation qui permet à un organisme pluricellulaire de fonctionner correctement : chaque type de cellule a un rôle précis, et toutes travaillent ensemble.</p>
+</div>
+
+<script>
+// ---- INFO ON CLICK ----
+
+const muscleInfo = {
+  'm-cyto': {
+    title: 'Cytoplasme',
+    desc: 'Liquide qui remplit l\'intérieur de la cellule. Il contient les myofibrilles et le noyau.'
+  },
+  'm-membrane': {
+    title: 'Membrane',
+    desc: 'Enveloppe de la cellule musculaire. Sa forme très allongée est adaptée à sa fonction de contraction.'
+  },
+  'm-stries': {
+    title: 'Stries',
+    desc: 'Bandes claires et sombres alternées, visibles au microscope. Elles sont dues à l\'organisation des protéines de contraction.'
+  },
+  'm-myofibrilles': {
+    title: 'Myofibrilles',
+    desc: 'Filaments qui remplissent la cellule. Ce sont eux qui se raccourcissent pour produire la contraction musculaire.'
+  },
+  'm-noyau': {
+    title: 'Noyau',
+    desc: 'Contient l\'information génétique (ADN) et contrôle les activités de la cellule.'
+  }
+};
+
+const neuroneInfo = {
+  'n-dendrites': {
+    title: 'Dendrites',
+    desc: 'Prolongements ramifiés qui reçoivent les signaux électriques provenant d\'autres neurones ou de récepteurs sensoriels.'
+  },
+  'n-corps': {
+    title: 'Corps cellulaire',
+    desc: 'Partie centrale du neurone. Il contient le noyau et coordonne l\'activité de la cellule.'
+  },
+  'n-noyau': {
+    title: 'Noyau',
+    desc: 'Contient l\'information génétique (ADN) et contrôle les activités du neurone.'
+  },
+  'n-axone': {
+    title: 'Axone',
+    desc: 'Long prolongement qui transmet le signal électrique. Peut mesurer jusqu\'à 1 mètre chez l\'humain. Les signaux y circulent jusqu\'à 430 km/h.'
+  },
+  'n-terminaisons': {
+    title: 'Terminaisons axonales',
+    desc: 'Petits boutons à l\'extrémité de l\'axone. Ils transmettent le signal au neurone suivant ou à un muscle.'
+  }
+};
+
+function showInfo(boxId, info, key) {
+  const box = document.getElementById(boxId);
+  const data = info[key];
+  if (!data) return;
+  box.classList.remove('empty');
+  box.innerHTML = '<div class="info-title">'+data.title+'</div><div class="info-desc">'+data.desc+'</div>';
+}
+
+document.querySelectorAll('[data-part]').forEach(el => {
+  const part = el.dataset.part;
+  const handler = () => {
+    if (part.startsWith('m-')) showInfo('info-muscle', muscleInfo, part);
+    else if (part.startsWith('n-')) showInfo('info-neurone', neuroneInfo, part);
+  };
+  el.addEventListener('click', handler);
+  el.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive: false });
+});
+
+// ---- MUSCLE CONTRACTION ANIMATION ----
+
+let muscleAnimating = false;
+document.getElementById('btnMuscle').addEventListener('click', () => {
+  if (muscleAnimating) return;
+  muscleAnimating = true;
+  const cell = document.getElementById('muscleCell');
+  const btn = document.getElementById('btnMuscle');
+  btn.textContent = 'Contraction !';
+
+  // Contract
+  cell.classList.add('contracted');
+  setTimeout(() => {
+    // Relax
+    cell.classList.remove('contracted');
+    setTimeout(() => {
+      // Contract again
+      cell.classList.add('contracted');
+      setTimeout(() => {
+        // Relax
+        cell.classList.remove('contracted');
+        btn.textContent = 'Voir la contraction';
+        muscleAnimating = false;
+      }, 500);
+    }, 400);
+  }, 500);
+
+  // Show info
+  showInfo('info-muscle', {
+    'contraction': {
+      title: 'Contraction musculaire',
+      desc: 'La cellule se raccourcit en largeur et s\'épaissit. C\'est cette propriété qui permet le mouvement. La contraction est rapide, volontaire et précise.'
+    }
+  }, 'contraction');
+});
+
+// ---- NEURON SIGNAL ANIMATION ----
+
+let neuronAnimating = false;
+document.getElementById('btnNeurone').addEventListener('click', () => {
+  if (neuronAnimating) return;
+  neuronAnimating = true;
+  const btn = document.getElementById('btnNeurone');
+  const terminals = document.querySelectorAll('.terminal');
+  btn.textContent = 'Signal en cours…';
+
+  // Trigger SMIL animation
+  document.getElementById('signalAnim').beginElement();
+  document.getElementById('signalOpacity').beginElement();
+
+  // Glow terminals when signal arrives
+  setTimeout(() => {
+    terminals.forEach(t => {
+      t.setAttribute('fill', '#ffaa00');
+      t.setAttribute('r', '8');
+    });
+  }, 1050);
+
+  // Reset
+  setTimeout(() => {
+    terminals.forEach(t => {
+      t.setAttribute('fill', '#d4a843');
+      t.setAttribute('r', '5');
+    });
+    btn.textContent = 'Voir le signal nerveux';
+    neuronAnimating = false;
+  }, 1600);
+
+  // Show info
+  showInfo('info-neurone', {
+    'signal': {
+      title: 'Transmission du signal',
+      desc: 'Le signal électrique part des dendrites, traverse le corps cellulaire, parcourt l\'axone à grande vitesse, et arrive aux terminaisons pour être transmis au neurone suivant ou à un muscle.'
+    }
+  }, 'signal');
+});
+</script>
+</body>
+</html>

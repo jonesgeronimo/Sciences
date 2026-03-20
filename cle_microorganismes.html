@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clé d'identification — Microorganismes</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    nav {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e8e8e8;
+      background: white;
+    }
+
+    nav a {
+      color: #2d6a4f;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    nav a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: #1a1a2e;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .step { display: none; }
+    .step.active { display: block; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .breadcrumb {
+      font-size: 0.8rem;
+      color: #999;
+      margin-bottom: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e8e8e8;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #2d6a4f;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .question {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .choice-btn {
+      background: white;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #1a1a2e;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .choice-btn:hover {
+      border-color: #2d6a4f;
+      background: #f0faf5;
+      transform: translateX(3px);
+    }
+
+    .choice-btn:active { transform: scale(0.99); }
+
+    .result-card {
+      background: white;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .organism-emoji {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .organism-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+
+    .organism-latin {
+      font-size: 0.9rem;
+      color: #888;
+      font-style: italic;
+      margin-bottom: 1.25rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+    }
+
+    .badge-animal { background: #fff3e0; color: #e65100; }
+    .badge-protiste { background: #e8f5e9; color: #2e7d32; }
+    .badge-algue { background: #e3f2fd; color: #1565c0; }
+    .badge-bacterie { background: #fce4ec; color: #880e4f; }
+
+    .traits {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+
+    .trait-row {
+      display: flex;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .trait-label {
+      color: #999;
+      min-width: 85px;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .trait-val { color: #1a1a2e; line-height: 1.4; }
+
+    .fun-fact {
+      background: #f0faf5;
+      border-left: 3px solid #2d6a4f;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      color: #444;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .fun-fact strong { color: #2d6a4f; }
+
+    .btn-restart {
+      display: inline-block;
+      background: white;
+      border: 1.5px solid #2d6a4f;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #2d6a4f;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-restart:hover { background: #f0faf5; }
+
+    .btn-back {
+      display: inline-block;
+      background: none;
+      border: none;
+      font-size: 0.85rem;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-back:hover { color: #555; }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.4rem; }
+      .question { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="https://jonesgeronimo.github.io/Sciences">← Accueil</a>
+</nav>
+
+<div class="container">
+  <h1>🔬 Clé d'identification</h1>
+  <p class="subtitle">Réponds aux questions selon ce que tu observes au microscope.</p>
+
+  <!-- STEP 1 -->
+  <div id="step-1" class="step active">
+    <div class="progress-bar"><div class="progress-fill" style="width: 10%"></div></div>
+    <div class="breadcrumb">Question 1</div>
+    <div class="question">Est-ce que l'organisme bouge ?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="go('step-2')">✅ Oui — il se déplace, nage ou se contracte</button>
+      <button class="choice-btn" onclick="go('step-immobile')">⛔ Non — il semble immobile</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step-2" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 35%"></div></div>
+    <button class="btn-back" onclick="go('step-1')">← Retour</button>
+    <div class="breadcrumb">Question 2</div>
+    <div class="question">Comment est-ce qu'il bouge ?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="go('step-3a')">⚡ Il se contracte et s'étire brusquement, comme un ressort</button>
+      <button class="choice-btn" onclick="show('paramecie')">🌀 Il glisse doucement en tournant sur lui-même</button>
+      <button class="choice-btn" onclick="show('nematode')">〰️ Il ondule comme un serpent — très allongé</button>
+      <button class="choice-btn" onclick="show('amibe')">🫧 Il avance très lentement en changeant de forme</button>
+      <button class="choice-btn" onclick="show('euglene')">🍃 Il nage en spirale, forme allongée et verte</button>
+    </div>
+  </div>
+
+  <!-- STEP 3A : contracte/étire → rotifère ou tardigrade -->
+  <div id="step-3a" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 65%"></div></div>
+    <button class="btn-back" onclick="go('step-2')">← Retour</button>
+    <div class="breadcrumb">Question 3</div>
+    <div class="question">Est-ce qu'on voit des cils ou comme des "roues" qui tourbillonnent à l'avant ?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="show('rotifere')">Oui — il y a des cils ou des antennes qui tourbillonnent</button>
+      <button class="choice-btn" onclick="show('tardigrade')">Non — on voit plutôt de petites pattes courtes et trapues</button>
+    </div>
+  </div>
+
+  <!-- STEP IMMOBILE -->
+  <div id="step-immobile" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 35%"></div></div>
+    <button class="btn-back" onclick="go('step-1')">← Retour</button>
+    <div class="breadcrumb">Question 2</div>
+    <div class="question">Quelle est sa couleur et sa forme ?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="show('algue')">🌿 Vert, filamenteux ou en chaîne de cellules</button>
+      <button class="choice-btn" onclick="show('diatomee')">💎 Transparent, forme géométrique symétrique (comme un bijou)</button>
+      <button class="choice-btn" onclick="show('bacterie')">🔵 Minuscule, à peine visible — bâtonnet ou point</button>
+    </div>
+  </div>
+
+  <!-- RÉSULTATS -->
+
+  <div id="rotifere" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-3a')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">⚙️</span>
+      <div class="organism-name">Rotifère</div>
+      <div class="organism-latin">Rotifera</div>
+      <span class="badge badge-animal">Animal microscopique</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Corps trapu avec une couronne de cils à l'avant</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Se contracte et s'étire brusquement, les cils tournent comme des roues</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,1 à 0,5 mm — bien visible à 40×</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un vrai animal avec estomac, muscles et "yeux"</span></div>
+      </div>
+      <div class="fun-fact">💡 Il peut se <strong>dessécher complètement</strong> et survivre des années sous forme de poussière, puis reprendre vie au contact de l'eau. C'est pour ça qu'on en trouve dans la mousse !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="tardigrade" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-3a')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🐻</span>
+      <div class="organism-name">Tardigrade</div>
+      <div class="organism-latin">Tardigrada</div>
+      <span class="badge badge-animal">Animal microscopique</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Petit "ourson" avec 8 pattes courtes et griffues</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Marche lentement, se contracte en boule quand il est stressé</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,1 à 1,5 mm — visible à 40×</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">L'animal le plus résistant de la planète</span></div>
+      </div>
+      <div class="fun-fact">💡 Il survit dans le vide de l'espace, dans l'azote liquide, et sous des radiations qui tueraient un humain 1000 fois. La NASA en a envoyé dans l'espace — <strong>il a survécu</strong> !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="paramecie" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-2')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🥿</span>
+      <div class="organism-name">Paramécie</div>
+      <div class="organism-latin">Paramecium sp.</div>
+      <span class="badge badge-protiste">Protiste</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Ovale, comme une pantoufle arrondie</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Glisse vite en tournant sur elle-même grâce à des milliers de cils invisibles</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,1 à 0,3 mm — visible à 40×</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un protiste unicellulaire — ni animal, ni végétal</span></div>
+      </div>
+      <div class="fun-fact">💡 Elle mange des bactéries en les aspirant avec un <strong>sillon buccal</strong>. Elle peut se diviser en deux en moins de 2h !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="nematode" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-2')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">〰️</span>
+      <div class="organism-name">Nématode</div>
+      <div class="organism-latin">Nematoda</div>
+      <span class="badge badge-animal">Animal microscopique</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Très allongé, cylindrique, comme un fil épais</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Ondule en S ou en C — ne tourne jamais en rond</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,5 à 2 mm — souvent visible à 10×</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un ver rond microscopique (animal pluricellulaire)</span></div>
+      </div>
+      <div class="fun-fact">💡 Il y a plus de nématodes sur Terre que n'importe quel autre animal. <strong>Un seul gramme de mousse</strong> peut en contenir des milliers !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="amibe" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-2')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🫧</span>
+      <div class="organism-name">Amibe</div>
+      <div class="organism-latin">Amoeba sp.</div>
+      <span class="badge badge-protiste">Protiste</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Irrégulière, change constamment — émet des "pseudopodes"</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Très lent, comme une goutte de liquide qui s'étire</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,1 à 0,5 mm — visible à 40×</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un protiste unicellulaire sans forme fixe</span></div>
+      </div>
+      <div class="fun-fact">💡 Elle "avale" les bactéries en les englobant avec ses pseudopodes. Son corps entier est comme du <strong>liquide épais</strong> — elle n'a aucune forme fixe.</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="euglene" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-2')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🍃</span>
+      <div class="organism-name">Euglène</div>
+      <div class="organism-latin">Euglena sp.</div>
+      <span class="badge badge-protiste">Protiste</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Allongée en fuseau, souvent verte</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Nage en spirale grâce à un flagelle (fouet) à l'avant</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,05 à 0,1 mm</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un protiste qui fait la photosynthèse ET se déplace</span></div>
+      </div>
+      <div class="fun-fact">💡 Elle est à la fois "plante" et "animal" selon les critères classiques — c'est pour ça qu'elle a longtemps <strong>rendu fous les biologistes</strong> !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="algue" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-immobile')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🌿</span>
+      <div class="organism-name">Algue verte</div>
+      <div class="organism-latin">Chlorophyta</div>
+      <span class="badge badge-algue">Algue</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Longs filaments verts, parfois en chaînes de cellules</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Immobile — elle fait la photosynthèse</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Une algue unicellulaire ou filamenteuse</span></div>
+      </div>
+      <div class="fun-fact">💡 C'est la <strong>base de la chaîne alimentaire</strong> dans ta goutte d'eau — les paramécies et rotifères s'en nourrissent !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="diatomee" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-immobile')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">💎</span>
+      <div class="organism-name">Diatomée</div>
+      <div class="organism-latin">Bacillariophyta</div>
+      <span class="badge badge-algue">Algue</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Symétrique, comme un bijou en verre — ronde, ovale ou en bateau</span></div>
+        <div class="trait-row"><span class="trait-label">Mouvement</span><span class="trait-val">Peut glisser très lentement</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Une algue avec une coquille en silice (verre naturel !)</span></div>
+      </div>
+      <div class="fun-fact">💡 Sa coquille est faite de <strong>verre naturel</strong>. Les diatomées mortes forment la "terre de diatomées" utilisée dans les filtres à piscine et certains dentifrices !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <div id="bacterie" class="step">
+    <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+    <button class="btn-back" onclick="go('step-immobile')">← Retour</button>
+    <div class="result-card">
+      <span class="organism-emoji">🔵</span>
+      <div class="organism-name">Bactérie</div>
+      <div class="organism-latin">Bacteria</div>
+      <span class="badge badge-bacterie">Bactérie</span>
+      <div class="traits">
+        <div class="trait-row"><span class="trait-label">Forme</span><span class="trait-val">Minuscule bâtonnet ou sphère, à la limite du visible</span></div>
+        <div class="trait-row"><span class="trait-label">Taille</span><span class="trait-val">0,001 à 0,01 mm — grossissement maximum nécessaire</span></div>
+        <div class="trait-row"><span class="trait-label">C'est quoi ?</span><span class="trait-val">Un organisme unicellulaire sans noyau (procaryote)</span></div>
+      </div>
+      <div class="fun-fact">💡 Ce que tu vois, c'est probablement <strong>des millions de bactéries</strong>. Elles sont la nourriture principale des paramécies et rotifères dans ta goutte !</div>
+      <button class="btn-restart" onclick="restart()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function go(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function show(id) { go(id); }
+  function restart() { go('step-1'); }
+</script>
+
+</body>
+</html>

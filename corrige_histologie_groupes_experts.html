@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corrigé — Groupes experts histologie</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=DM+Serif+Display&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f3ee;
+    color: #2c3e50;
+    padding: 2rem;
+    line-height: 1.5;
+  }
+
+  @media print {
+    body { padding: 0.5cm; background: white; }
+    .tissue-card { break-inside: avoid; page-break-inside: avoid; }
+    .page-break { page-break-before: always; }
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    color: #2c3e50;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+
+  .intro-box {
+    background: #2c3e50;
+    color: white;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .intro-box strong { color: #f1c40f; }
+
+  .tissue-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 2px solid #ecf0f1;
+  }
+
+  .tissue-header {
+    padding: 1rem 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tissue-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .tissue-header .emoji {
+    font-size: 1.8rem;
+  }
+
+  .tissue-body {
+    padding: 1.5rem;
+  }
+
+  .lame-link {
+    display: inline-block;
+    background: #ecf0f1;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #2c3e50;
+    text-decoration: none;
+    margin-bottom: 1.2rem;
+    transition: background 0.2s;
+  }
+  .lame-link:hover { background: #d5dbdb; }
+  .lame-link::before { content: "🔬 "; }
+
+  .questions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  @media (max-width: 700px) {
+    .questions-grid { grid-template-columns: 1fr; }
+  }
+
+  .question-box {
+    border: 1.5px solid #ecf0f1;
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .question-label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .q-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .option {
+    padding: 0.35rem 0.6rem;
+    margin: 0.25rem 0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .option .letter {
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 1.2rem;
+  }
+
+  .option.correct {
+    font-weight: 600;
+    border: 2px solid;
+  }
+
+  .explanation {
+    background: #fef9e7;
+    border-left: 4px solid #f1c40f;
+    border-radius: 0 8px 8px 0;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .explanation strong { color: #2c3e50; }
+
+  .tissue-peau .tissue-header { background: #e67e22; }
+  .tissue-peau .q-number { background: #e67e22; }
+  .tissue-peau .option.correct { background: #fef0e4; border-color: #e67e22; color: #b35c10; }
+  .tissue-peau .question-label { color: #e67e22; }
+
+  .tissue-muscle .tissue-header { background: #e74c3c; }
+  .tissue-muscle .q-number { background: #e74c3c; }
+  .tissue-muscle .option.correct { background: #fde8e6; border-color: #e74c3c; color: #a93226; }
+  .tissue-muscle .question-label { color: #e74c3c; }
+
+  .tissue-os .tissue-header { background: #2980b9; }
+  .tissue-os .q-number { background: #2980b9; }
+  .tissue-os .option.correct { background: #e4f0f9; border-color: #2980b9; color: #1a5276; }
+  .tissue-os .question-label { color: #2980b9; }
+
+  .tissue-neuro .tissue-header { background: #8e44ad; }
+  .tissue-neuro .q-number { background: #8e44ad; }
+  .tissue-neuro .option.correct { background: #f2e6f7; border-color: #8e44ad; color: #6c3483; }
+  .tissue-neuro .question-label { color: #8e44ad; }
+
+  .footer {
+    text-align: center;
+    color: #bdc3c7;
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ecf0f1;
+  }
+</style>
+</head>
+<body>
+
+<h1>CORRIGÉ — Groupes experts en histologie</h1>
+<p class="subtitle">Document enseignant — Sciences 9e</p>
+
+<div class="intro-box">
+  <strong>Rappel :</strong> Chaque groupe observe une lame virtuelle de son tissu et coche la proposition qui correspond le mieux à ce qu'il voit. Les options reprennent les caractéristiques des 4 tissus étudiés — les élèves doivent discriminer.
+  <br><br>
+  <strong>Les 4 tissus :</strong> Peau (épiderme) · Muscle strié · Os compact · Neurones (cerveau)
+</div>
+
+
+<!-- ============ PEAU ============ -->
+<div class="tissue-card tissue-peau">
+  <div class="tissue-header">
+    <span class="emoji">🧴</span>
+    <h2>Tissu de la peau (épiderme)</h2>
+  </div>
+  <div class="tissue-body">
+    <a class="lame-link" href="https://histologielv.umontpellier.fr/index.php?module=detail&vue=6&itm=199&g=1&d=1" target="_blank">
+      Lame : histologielv.umontpellier.fr > Peau
+    </a>
+
+    <div class="questions-grid">
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">1</span> Forme des cellules</div>
+        <div class="option"><span class="letter">A.</span> Des étoiles avec des bras</div>
+        <div class="option correct"><span class="letter">B.</span> Aplaties en surface, plus arrondies en profondeur</div>
+        <div class="option"><span class="letter">C.</span> Des fibres très allongées</div>
+        <div class="option"><span class="letter">D.</span> Difficiles à distinguer, piégées dans des anneaux</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">2</span> Disposition des cellules</div>
+        <div class="option"><span class="letter">A.</span> Dispersées un peu partout, sans ordre précis</div>
+        <div class="option"><span class="letter">B.</span> Alignées en parallèle, toutes dans la même direction</div>
+        <div class="option correct"><span class="letter">C.</span> Empilées en plusieurs couches superposées</div>
+        <div class="option"><span class="letter">D.</span> En cercles concentriques, comme une cible</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">3</span> Entre et autour des cellules, on voit...</div>
+        <div class="option"><span class="letter">A.</span> Des anneaux avec un trou au centre</div>
+        <div class="option"><span class="letter">B.</span> Des filaments qui partent dans tous les sens</div>
+        <div class="option"><span class="letter">C.</span> Des stries régulières, comme des rayures</div>
+        <div class="option correct"><span class="letter">D.</span> Presque rien, les cellules sont collées les unes aux autres</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">4</span> Le détail qui saute aux yeux...</div>
+        <div class="option correct"><span class="letter">A.</span> Les cellules du dessus semblent mortes et aplaties</div>
+        <div class="option"><span class="letter">B.</span> On voit des ronds dans des ronds, comme des rondelles de bois</div>
+        <div class="option"><span class="letter">C.</span> Les cellules ont des bras qui se touchent entre elles</div>
+        <div class="option"><span class="letter">D.</span> Les noyaux sont repoussés sur le bord des cellules</div>
+      </div>
+    </div>
+
+    <div class="explanation">
+      <strong>Réponses : B · C · D · A</strong><br><br>
+      <strong>Pourquoi ça ressemble à ça :</strong> La peau est une barrière de protection. Les cellules profondes (vivantes, rondes) se divisent et poussent les anciennes vers la surface. En montant, elles s'aplatissent, meurent et forment une couche dure qui nous protège. C'est pour ça qu'on voit des couches empilées avec des cellules de plus en plus plates vers le haut.
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ MUSCLE ============ -->
+<div class="tissue-card tissue-muscle">
+  <div class="tissue-header">
+    <span class="emoji">💪</span>
+    <h2>Tissu musculaire strié</h2>
+  </div>
+  <div class="tissue-body">
+    <a class="lame-link" href="https://histologielv.umontpellier.fr/index.php?g=0&itm=84&lame=60&module=detail&vue=3" target="_blank">
+      Lame : histologielv.umontpellier.fr > Appareil locomoteur > Muscle strié
+    </a>
+
+    <div class="questions-grid">
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">1</span> Forme des cellules</div>
+        <div class="option"><span class="letter">A.</span> Difficiles à distinguer, piégées dans des anneaux</div>
+        <div class="option"><span class="letter">B.</span> Des étoiles avec des bras</div>
+        <div class="option"><span class="letter">C.</span> Aplaties en surface, plus arrondies en profondeur</div>
+        <div class="option correct"><span class="letter">D.</span> Des fibres très allongées</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">2</span> Disposition des cellules</div>
+        <div class="option correct"><span class="letter">A.</span> Alignées en parallèle, toutes dans la même direction</div>
+        <div class="option"><span class="letter">B.</span> En cercles concentriques, comme une cible</div>
+        <div class="option"><span class="letter">C.</span> Empilées en plusieurs couches superposées</div>
+        <div class="option"><span class="letter">D.</span> Dispersées un peu partout, sans ordre précis</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">3</span> Entre et autour des cellules, on voit...</div>
+        <div class="option"><span class="letter">A.</span> Des filaments qui partent dans tous les sens</div>
+        <div class="option correct"><span class="letter">B.</span> Des stries régulières, comme des rayures</div>
+        <div class="option"><span class="letter">C.</span> Presque rien, les cellules sont collées les unes aux autres</div>
+        <div class="option"><span class="letter">D.</span> Des anneaux avec un trou au centre</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">4</span> Le détail qui saute aux yeux...</div>
+        <div class="option"><span class="letter">A.</span> Les cellules ont des bras qui se touchent entre elles</div>
+        <div class="option"><span class="letter">B.</span> Les cellules du dessus semblent mortes et aplaties</div>
+        <div class="option correct"><span class="letter">C.</span> Les noyaux sont repoussés sur le bord des cellules</div>
+        <div class="option"><span class="letter">D.</span> On voit des ronds dans des ronds, comme des rondelles de bois</div>
+      </div>
+    </div>
+
+    <div class="explanation">
+      <strong>Réponses : D · A · B · C</strong><br><br>
+      <strong>Pourquoi ça ressemble à ça :</strong> Les muscles doivent se contracter (raccourcir) pour produire un mouvement. Les cellules sont allongées et alignées dans la même direction pour tirer ensemble. Les stries correspondent aux unités de contraction qui se rapprochent quand le muscle se contracte. Le noyau est repoussé sur le côté pour laisser toute la place aux fibres contractiles.
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ OS ============ -->
+<div class="tissue-card tissue-os page-break">
+  <div class="tissue-header">
+    <span class="emoji">🦴</span>
+    <h2>Tissu osseux</h2>
+  </div>
+  <div class="tissue-body">
+    <a class="lame-link" href="https://histologielv.umontpellier.fr/index.php?module=detail&vue=4&itm=125&g=1&d=1" target="_blank">
+      Lame : histologielv.umontpellier.fr > Appareil locomoteur > Os compact
+    </a>
+
+    <div class="questions-grid">
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">1</span> Forme des cellules</div>
+        <div class="option"><span class="letter">A.</span> Aplaties en surface, plus arrondies en profondeur</div>
+        <div class="option"><span class="letter">B.</span> Des fibres très allongées</div>
+        <div class="option correct"><span class="letter">C.</span> Difficiles à distinguer, piégées dans des anneaux</div>
+        <div class="option"><span class="letter">D.</span> Des étoiles avec des bras</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">2</span> Disposition des cellules</div>
+        <div class="option"><span class="letter">A.</span> Empilées en plusieurs couches superposées</div>
+        <div class="option correct"><span class="letter">B.</span> En cercles concentriques, comme une cible</div>
+        <div class="option"><span class="letter">C.</span> Dispersées un peu partout, sans ordre précis</div>
+        <div class="option"><span class="letter">D.</span> Alignées en parallèle, toutes dans la même direction</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">3</span> Entre et autour des cellules, on voit...</div>
+        <div class="option correct"><span class="letter">A.</span> Des anneaux avec un trou au centre</div>
+        <div class="option"><span class="letter">B.</span> Des stries régulières, comme des rayures</div>
+        <div class="option"><span class="letter">C.</span> Des filaments qui partent dans tous les sens</div>
+        <div class="option"><span class="letter">D.</span> Presque rien, les cellules sont collées les unes aux autres</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">4</span> Le détail qui saute aux yeux...</div>
+        <div class="option"><span class="letter">A.</span> Les noyaux sont repoussés sur le bord des cellules</div>
+        <div class="option"><span class="letter">B.</span> Les cellules ont des bras qui se touchent entre elles</div>
+        <div class="option"><span class="letter">C.</span> Les cellules du dessus semblent mortes et aplaties</div>
+        <div class="option correct"><span class="letter">D.</span> On voit des ronds dans des ronds, comme des rondelles de bois</div>
+      </div>
+    </div>
+
+    <div class="explanation">
+      <strong>Réponses : C · B · A · D</strong><br><br>
+      <strong>Pourquoi ça ressemble à ça :</strong> L'os doit être extrêmement solide pour supporter le poids du corps. Les cellules osseuses (ostéocytes) fabriquent une substance minérale très dure autour d'elles — elles se retrouvent emprisonnées dedans ! Elles s'organisent en anneaux concentriques (les ostéons) autour d'un canal central qui contient les vaisseaux sanguins qui les nourrissent. Cette structure en « rondins » rend l'os très résistant.
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ NEURONES ============ -->
+<div class="tissue-card tissue-neuro">
+  <div class="tissue-header">
+    <span class="emoji">🧠</span>
+    <h2>Tissu nerveux (neurones)</h2>
+  </div>
+  <div class="tissue-body">
+    <a class="lame-link" href="https://histologielv.umontpellier.fr/index.php?g=0&itm=24&module=detail&vue=1" target="_blank">
+      Lame : histologielv.umontpellier.fr > Système nerveux > Cortex cérébral
+    </a>
+
+    <div class="questions-grid">
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">1</span> Forme des cellules</div>
+        <div class="option"><span class="letter">A.</span> Des fibres très allongées</div>
+        <div class="option correct"><span class="letter">B.</span> Des étoiles avec des bras</div>
+        <div class="option"><span class="letter">C.</span> Difficiles à distinguer, piégées dans des anneaux</div>
+        <div class="option"><span class="letter">D.</span> Aplaties en surface, plus arrondies en profondeur</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">2</span> Disposition des cellules</div>
+        <div class="option"><span class="letter">A.</span> En cercles concentriques, comme une cible</div>
+        <div class="option"><span class="letter">B.</span> Alignées en parallèle, toutes dans la même direction</div>
+        <div class="option"><span class="letter">C.</span> Empilées en plusieurs couches superposées</div>
+        <div class="option correct"><span class="letter">D.</span> Dispersées un peu partout, sans ordre précis</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">3</span> Entre et autour des cellules, on voit...</div>
+        <div class="option"><span class="letter">A.</span> Presque rien, les cellules sont collées les unes aux autres</div>
+        <div class="option"><span class="letter">B.</span> Des anneaux avec un trou au centre</div>
+        <div class="option correct"><span class="letter">C.</span> Des filaments qui partent dans tous les sens</div>
+        <div class="option"><span class="letter">D.</span> Des stries régulières, comme des rayures</div>
+      </div>
+      <div class="question-box">
+        <div class="question-label"><span class="q-number">4</span> Le détail qui saute aux yeux...</div>
+        <div class="option"><span class="letter">A.</span> On voit des ronds dans des ronds, comme des rondelles de bois</div>
+        <div class="option correct"><span class="letter">B.</span> Les cellules ont des bras qui se touchent entre elles</div>
+        <div class="option"><span class="letter">C.</span> Les noyaux sont repoussés sur le bord des cellules</div>
+        <div class="option"><span class="letter">D.</span> Les cellules du dessus semblent mortes et aplaties</div>
+      </div>
+    </div>
+
+    <div class="explanation">
+      <strong>Réponses : B · D · C · B</strong><br><br>
+      <strong>Pourquoi ça ressemble à ça :</strong> Les neurones doivent transmettre des messages électriques à travers tout le corps. Leurs prolongements (dendrites et axone) leur permettent de se connecter à de nombreuses autres cellules, comme un réseau. La forme en étoile avec des ramifications maximise le nombre de connexions possibles. C'est pour ça qu'ils sont dispersés avec beaucoup d'espace entre eux — il faut de la place pour tous ces « câbles ».
+    </div>
+  </div>
+</div>
+
+
+<div class="footer">
+  Corrigé — Activité « Groupes experts en histologie » — Sciences 9e<br>
+  Lames virtuelles : histologielv.umontpellier.fr (Université de Montpellier)
+</div>
+
+</body>
+</html>

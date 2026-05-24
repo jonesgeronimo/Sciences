@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cellules Souches — Explorateur</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --ink: #1a1a2e;
+    --muted: #6b6b7b;
+    --stem: #2d6a4f;
+    --ecto: #1d3557;
+    --meso: #9b2226;
+    --endo: #6a4c93;
+    --germ: #b5652a;
+    --line: #c8c3ba;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-weight: 300;
+  }
+
+  .tree-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* STEM NODE */
+  .node-stem {
+    background: var(--stem);
+    color: white;
+    border-radius: 50%;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(45,106,79,0.3);
+    text-align: center;
+    padding: 12px;
+  }
+
+  .node-stem:hover { transform: scale(1.06); }
+
+  .node-stem .label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .node-stem .hint {
+    font-size: 0.63rem;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-weight: 300;
+  }
+
+  .stem-pulse { animation: pulse 2s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(45,106,79,0.3); }
+    50% { box-shadow: 0 4px 36px rgba(45,106,79,0.55); }
+  }
+
+  /* STEM INFO */
+  .stem-info {
+    background: white;
+    border-left: 3px solid var(--stem);
+    border-radius: 10px;
+    padding: 12px 18px;
+    max-width: 340px;
+    font-size: 0.87rem;
+    line-height: 1.6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    margin-top: 14px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 0.35s, transform 0.35s;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .stem-info.visible { opacity: 1; transform: translateY(0); }
+
+  /* SVG BRANCHES */
+  .branches-svg {
+    opacity: 0;
+    transition: opacity 0.5s 0.2s;
+    overflow: visible;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .branches-svg.visible { opacity: 1; }
+
+  /* LEVEL 2 ROW */
+  .level2-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s 0.35s, transform 0.5s 0.35s;
+    pointer-events: none;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .level2-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .germ-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .node-germ {
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    text-align: center;
+    padding: 10px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .node-germ:hover { transform: scale(1.07); }
+  .node-germ.done { cursor: default; }
+  .node-germ.done:hover { transform: none; }
+
+  .node-germ .label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.73rem;
+    line-height: 1.3;
+  }
+
+  .node-germ .hint {
+    font-size: 0.57rem;
+    opacity: 0.85;
+    margin-top: 3px;
+  }
+
+  .ecto-bg { background: var(--ecto); box-shadow: 0 4px 14px rgba(29,53,87,0.28); }
+  .meso-bg { background: var(--meso); box-shadow: 0 4px 14px rgba(155,34,38,0.28); }
+  .endo-bg { background: var(--endo); box-shadow: 0 4px 14px rgba(106,76,147,0.28); }
+  .germ-bg { background: var(--germ); box-shadow: 0 4px 14px rgba(181,101,42,0.28); }
+
+  /* GERM INFO */
+  .germ-info {
+    background: white;
+    border-radius: 9px;
+    padding: 9px 11px;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-top: 10px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--ink);
+  }
+
+  .germ-info.visible { opacity: 1; transform: translateY(0); }
+
+  .ecto-border { border-left: 3px solid var(--ecto); }
+  .meso-border { border-left: 3px solid var(--meso); }
+  .endo-border { border-left: 3px solid var(--endo); }
+  .germ-border { border-left: 3px solid var(--germ); }
+
+  /* LEVEL 3 CELLS */
+  .cells {
+    margin-top: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.4s 0.1s, transform 0.4s 0.1s;
+    pointer-events: none;
+  }
+
+  .cells.visible { opacity: 1; transform: translateY(0); }
+
+  .cell-card {
+    background: white;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 0.72rem;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    transition: transform 0.15s;
+  }
+
+  .cell-card:hover { transform: translateX(3px); }
+
+  .cell-name {
+    font-weight: 500;
+    font-size: 0.75rem;
+    margin-bottom: 1px;
+  }
+
+  .cell-desc { color: var(--muted); font-weight: 300; }
+
+  .ecto-name { color: var(--ecto); }
+  .meso-name { color: var(--meso); }
+  .endo-name { color: var(--endo); }
+  .germ-name { color: var(--germ); }
+
+  /* REFLECTION */
+  .reflection {
+    max-width: 540px;
+    margin: 44px auto 0;
+    background: var(--ink);
+    color: white;
+    border-radius: 14px;
+    padding: 26px 30px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s, transform 0.6s;
+    pointer-events: none;
+  }
+
+  .reflection.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .reflection h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+    color: #a8d5b5;
+  }
+
+  .reflection p {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    font-weight: 300;
+    color: #e0ddd8;
+  }
+
+  /* PROGRESS */
+  .progress {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.77rem;
+    color: var(--muted);
+    font-weight: 300;
+    min-height: 20px;
+  }
+
+  /* RESET BUTTON */
+  .reset-btn {
+    display: block;
+    margin: 20px auto 0;
+    background: transparent;
+    border: 1.5px solid var(--line);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    padding: 9px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--stem);
+    color: var(--stem);
+    background: rgba(45,106,79,0.05);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>La cellule souche</h1>
+  <p>Clique sur chaque cellule pour explorer sa spécialisation</p>
+</header>
+
+<div class="tree-wrap">
+
+  <!-- LEVEL 1 -->
+  <div class="node-stem stem-pulse" id="stemNode" onclick="clickStem()">
+    <span class="label">Cellule souche</span>
+    <span class="hint">Clique pour commencer</span>
+  </div>
+
+  <div class="stem-info" id="stemInfo">
+    Elle n'est pas encore spécialisée — elle pourrait devenir presque n'importe quelle cellule du corps.
+  </div>
+
+  <!-- SVG BRANCHING: vertical stem → horizontal bar → 4 drops -->
+  <svg class="branches-svg" id="branchesSvg" viewBox="0 0 780 56" preserveAspectRatio="xMidYMid meet" height="56">
+    <line x1="390" y1="0"  x2="390" y2="28" stroke="#c8c3ba" stroke-width="2"/>
+    <line x1="97"  y1="28" x2="683" y2="28" stroke="#c8c3ba" stroke-width="2"/>
+    <line x1="97"  y1="28" x2="97"  y2="56" stroke="#1d3557" stroke-width="2"/>
+    <line x1="293" y1="28" x2="293" y2="56" stroke="#9b2226" stroke-width="2"/>
+    <line x1="487" y1="28" x2="487" y2="56" stroke="#6a4c93" stroke-width="2"/>
+    <line x1="683" y1="28" x2="683" y2="56" stroke="#b5652a" stroke-width="2"/>
+  </svg>
+
+  <!-- LEVEL 2 -->
+  <div class="level2-row" id="level2Row">
+
+    <!-- ECTODERM -->
+    <div class="germ-col">
+      <div class="node-germ ecto-bg" id="ectoNode" onclick="clickGerm('ecto')">
+        <span class="label">Ectoderme</span>
+        <span class="hint">Clique pour explorer</span>
+      </div>
+      <div class="germ-info ecto-border" id="ectoInfo">
+        Formera les couches externes : la peau et le système nerveux.
+      </div>
+      <div class="cells" id="ectoCells">
+        <div class="cell-card">
+          <div class="cell-name ecto-name">Cellule de la peau</div>
+          <div class="cell-desc">Protège le corps contre l'environnement extérieur.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name ecto-name">Neurone</div>
+          <div class="cell-desc">Transmet des signaux dans le cerveau et le corps.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESODERM -->
+    <div class="germ-col">
+      <div class="node-germ meso-bg" id="mesoNode" onclick="clickGerm('meso')">
+        <span class="label">Mésoderme</span>
+        <span class="hint">Clique pour explorer</span>
+      </div>
+      <div class="germ-info meso-border" id="mesoInfo">
+        Formera le soutien et le mouvement du corps : les muscles, le sang, les os.
+      </div>
+      <div class="cells" id="mesoCells">
+        <div class="cell-card">
+          <div class="cell-name meso-name">Cellule musculaire</div>
+          <div class="cell-desc">Permet le mouvement du corps.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name meso-name">Globule rouge</div>
+          <div class="cell-desc">Transporte l'oxygène dans le sang.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name meso-name">Cellule osseuse</div>
+          <div class="cell-desc">Donne sa structure au corps.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENDODERM -->
+    <div class="germ-col">
+      <div class="node-germ endo-bg" id="endoNode" onclick="clickGerm('endo')">
+        <span class="label">Endoderme</span>
+        <span class="hint">Clique pour explorer</span>
+      </div>
+      <div class="germ-info endo-border" id="endoInfo">
+        Formera les organes internes : les poumons, l'intestin, le foie.
+      </div>
+      <div class="cells" id="endoCells">
+        <div class="cell-card">
+          <div class="cell-name endo-name">Cellule pulmonaire</div>
+          <div class="cell-desc">Échange l'oxygène entre l'air et le sang.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name endo-name">Cellule hépatique</div>
+          <div class="cell-desc">Filtre les toxines dans le foie.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name endo-name">Cellule intestinale</div>
+          <div class="cell-desc">Absorbe les nutriments provenant des aliments.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GERMLINE -->
+    <div class="germ-col">
+      <div class="node-germ germ-bg" id="germNode" onclick="clickGerm('germ')">
+        <span class="label">Lignée germinale</span>
+        <span class="hint">Clique pour explorer</span>
+      </div>
+      <div class="germ-info germ-border" id="germInfo">
+        Formera les cellules reproductrices : les spermatozoïdes et les ovules.
+      </div>
+      <div class="cells" id="germCells">
+        <div class="cell-card">
+          <div class="cell-name germ-name">Spermatozoïde</div>
+          <div class="cell-desc">Transporte l'information génétique vers l'ovule.</div>
+        </div>
+        <div class="cell-card">
+          <div class="cell-name germ-name">Ovule</div>
+          <div class="cell-desc">S'unit au spermatozoïde pour former une nouvelle vie.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- REFLECTION -->
+  <div class="reflection" id="reflection">
+    <h3>🔬 À toi de réfléchir</h3>
+    <p>Tu viens d'explorer comment une seule cellule souche peut devenir plus de 10 types de cellules différents. Est-ce qu'une cellule de la peau pourrait redevenir une cellule souche ? Est-ce qu'une cellule musculaire pourrait devenir un globule rouge ? Qu'est-ce que tu en penses — et pourquoi ?</p>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <button class="reset-btn" onclick="reset()">↺ Recommencer</button>
+
+</div>
+
+<script>
+  const state = { stem: false, ecto: false, meso: false, endo: false, germ: false };
+
+  function clickStem() {
+    if (state.stem) return;
+    state.stem = true;
+
+    const n = document.getElementById('stemNode');
+    n.classList.remove('stem-pulse');
+    n.style.cursor = 'default';
+    n.onclick = null;
+
+    document.getElementById('stemInfo').classList.add('visible');
+
+    setTimeout(() => {
+      document.getElementById('branchesSvg').classList.add('visible');
+      document.getElementById('level2Row').classList.add('visible');
+    }, 300);
+  }
+
+  function clickGerm(type) {
+    if (state[type]) return;
+    state[type] = true;
+
+    document.getElementById(type + 'Node').classList.add('done');
+    document.getElementById(type + 'Info').classList.add('visible');
+
+    setTimeout(() => {
+      document.getElementById(type + 'Cells').classList.add('visible');
+    }, 200);
+
+    checkProgress();
+  }
+
+  function checkProgress() {
+    const done = ['ecto','meso','endo','germ'].filter(t => state[t]).length;
+    const prog = document.getElementById('progress');
+    prog.textContent = done < 4 ? `${done} / 4 groupes explorés` : '';
+    if (done === 4) {
+      setTimeout(() => {
+        document.getElementById('reflection').classList.add('visible');
+      }, 300);
+    }
+  }
+
+  function reset() {
+    Object.keys(state).forEach(k => state[k] = false);
+
+    const n = document.getElementById('stemNode');
+    n.classList.add('stem-pulse');
+    n.style.cursor = 'pointer';
+    n.onclick = clickStem;
+
+    document.getElementById('stemInfo').classList.remove('visible');
+    document.getElementById('branchesSvg').classList.remove('visible');
+    document.getElementById('level2Row').classList.remove('visible');
+    document.getElementById('reflection').classList.remove('visible');
+    document.getElementById('progress').textContent = '';
+
+    ['ecto','meso','endo','germ'].forEach(t => {
+      document.getElementById(t + 'Node').classList.remove('done');
+      document.getElementById(t + 'Info').classList.remove('visible');
+      document.getElementById(t + 'Cells').classList.remove('visible');
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

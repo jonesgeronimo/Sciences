@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cellules Souches — Explorateur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --ink: #1b1b2f;
+    --muted: #7a7a8c;
+    --stem: #1a6b47;
+    --ecto: #1d3557;
+    --meso: #9b2226;
+    --endo: #6a4c93;
+    --germ: #b5652a;
+    --line: #d0cbc2;
+    --zone-embryo: #e8f0e4;
+    --zone-adult: #eae4f0;
+    --zone-spec: #fef3e6;
+    --zone-embryo-border: #9dc49a;
+    --zone-adult-border: #b8a4d0;
+    --zone-spec-border: #e0c097;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(26,107,71,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 85% 70%, rgba(106,76,147,0.04) 0%, transparent 50%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-weight: 300;
+  }
+
+  .tree-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ─── ZONE BANDS ─── */
+  .zone-band {
+    width: 100%;
+    border-radius: 16px;
+    padding: 22px 18px;
+    margin-bottom: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .zone-embryo { background: var(--zone-embryo); border: 1.5px solid var(--zone-embryo-border); }
+  .zone-adult { background: var(--zone-adult); border: 1.5px solid var(--zone-adult-border); border-top: none; border-radius: 0 0 16px 16px; margin-top: -1px; }
+  .zone-spec { background: var(--zone-spec); border: 1.5px solid var(--zone-spec-border); border-radius: 16px; margin-top: 0; }
+
+  .zone-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-self: flex-start;
+  }
+
+  .zone-tag {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: white;
+  }
+
+  .zone-tag-embryo { background: var(--stem); }
+  .zone-tag-adult { background: #7b5ea7; }
+  .zone-tag-spec { background: #c49245; }
+
+  .zone-desc {
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* ─── CONNECTOR LINES ─── */
+  .connector {
+    width: 2px;
+    background: var(--line);
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  .connector-short { height: 20px; }
+  .connector-medium { height: 28px; }
+
+  .connector-hidden {
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .connector-hidden.visible { opacity: 1; }
+
+  /* ─── STEM NODE ─── */
+  .node-stem {
+    background: var(--stem);
+    color: white;
+    border-radius: 50%;
+    width: 125px;
+    height: 125px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.25s, box-shadow 0.25s;
+    box-shadow: 0 6px 24px rgba(26,107,71,0.3);
+    text-align: center;
+    padding: 12px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .node-stem:hover { transform: scale(1.06); }
+  .node-stem.done { cursor: default; }
+  .node-stem.done:hover { transform: none; }
+
+  .node-stem .label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .node-stem .sublabel {
+    font-size: 0.58rem;
+    opacity: 0.8;
+    margin-top: 3px;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  .node-stem .hint {
+    font-size: 0.58rem;
+    opacity: 0.7;
+    margin-top: 5px;
+    font-weight: 300;
+  }
+
+  .stem-pulse { animation: pulse 2.2s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 6px 24px rgba(26,107,71,0.3); }
+    50% { box-shadow: 0 6px 40px rgba(26,107,71,0.55); }
+  }
+
+  /* ─── STEM INFO ─── */
+  .stem-info {
+    background: white;
+    border-left: 3px solid var(--stem);
+    border-radius: 10px;
+    padding: 11px 16px;
+    max-width: 380px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    margin-top: 12px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 0.35s, transform 0.35s;
+    pointer-events: none;
+    text-align: center;
+    font-weight: 300;
+  }
+
+  .stem-info.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .stem-info strong { font-weight: 600; color: var(--stem); }
+
+  /* ─── SVG BRANCHES ─── */
+  .branches-svg {
+    opacity: 0;
+    transition: opacity 0.5s 0.2s;
+    overflow: visible;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .branches-svg.visible { opacity: 1; }
+
+  /* ─── LEVEL 2 ROW ─── */
+  .level2-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s 0.35s, transform 0.5s 0.35s;
+    pointer-events: none;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .level2-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .germ-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .node-germ {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+    padding: 10px;
+    color: white;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .node-germ:hover { transform: scale(1.07); }
+  .node-germ.done { cursor: default; }
+  .node-germ.done:hover { transform: none; }
+
+  .node-germ .label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.68rem;
+    line-height: 1.25;
+  }
+
+  .node-germ .sublabel {
+    font-size: 0.5rem;
+    opacity: 0.85;
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .node-germ .hint {
+    font-size: 0.52rem;
+    opacity: 0.7;
+    margin-top: 3px;
+  }
+
+  .ecto-bg { background: var(--ecto); box-shadow: 0 4px 16px rgba(29,53,87,0.28); }
+  .meso-bg { background: var(--meso); box-shadow: 0 4px 16px rgba(155,34,38,0.28); }
+  .endo-bg { background: var(--endo); box-shadow: 0 4px 16px rgba(106,76,147,0.28); }
+  .germ-bg { background: var(--germ); box-shadow: 0 4px 16px rgba(181,101,42,0.28); }
+
+  /* ─── GERM INFO ─── */
+  .germ-info {
+    background: white;
+    border-radius: 9px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-top: 8px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    font-weight: 300;
+    color: var(--ink);
+  }
+
+  .germ-info.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .ecto-border { border-left: 3px solid var(--ecto); }
+  .meso-border { border-left: 3px solid var(--meso); }
+  .endo-border { border-left: 3px solid var(--endo); }
+  .germ-border { border-left: 3px solid var(--germ); }
+
+  /* ─── ZONE SPEC WRAPPER ─── */
+  .spec-zone-wrapper {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+  }
+
+  .spec-zone-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* ─── LEVEL 3 CELLS ─── */
+  .spec-columns {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .spec-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.4s 0.15s, transform 0.4s 0.15s;
+    pointer-events: none;
+  }
+
+  .spec-col.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .spec-col-header {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 6px;
+    color: white;
+    margin-bottom: 3px;
+  }
+
+  .cell-card {
+    background: white;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .cell-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+
+  .cell-name {
+    font-weight: 600;
+    font-size: 0.72rem;
+    margin-bottom: 1px;
+  }
+
+  .cell-desc { color: var(--muted); font-weight: 300; font-size: 0.68rem; }
+
+  .ecto-name { color: var(--ecto); }
+  .meso-name { color: var(--meso); }
+  .endo-name { color: var(--endo); }
+  .germ-name { color: var(--germ); }
+
+  /* ─── ARROW CONNECTOR BETWEEN ZONES ─── */
+  .zone-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .zone-connector.visible { opacity: 1; }
+
+  .zone-connector svg { display: block; }
+
+  /* ─── REFLECTION ─── */
+  .reflection {
+    max-width: 560px;
+    margin: 36px auto 0;
+    background: var(--ink);
+    color: white;
+    border-radius: 14px;
+    padding: 24px 28px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s, transform 0.6s;
+    pointer-events: none;
+  }
+
+  .reflection.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .reflection h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #a8d5b5;
+  }
+
+  .reflection p {
+    font-size: 0.85rem;
+    line-height: 1.75;
+    font-weight: 300;
+    color: #e0ddd8;
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 300;
+    min-height: 20px;
+  }
+
+  /* ─── RESET BUTTON ─── */
+  .reset-btn {
+    display: block;
+    margin: 16px auto 0;
+    background: transparent;
+    border: 1.5px solid var(--line);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    padding: 8px 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--stem);
+    color: var(--stem);
+    background: rgba(26,107,71,0.05);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.6rem; }
+    .node-stem { width: 105px; height: 105px; }
+    .node-germ { width: 80px; height: 80px; }
+    .node-germ .label { font-size: 0.58rem; }
+    .node-germ .sublabel { font-size: 0.44rem; }
+    .level2-row { gap: 6px; }
+    .spec-columns { gap: 6px; }
+    .cell-card { padding: 5px 7px; }
+    .cell-name { font-size: 0.62rem; }
+    .cell-desc { font-size: 0.58rem; }
+    .zone-band { padding: 16px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>La cellule souche</h1>
+  <p>Clique sur chaque cellule pour explorer la différenciation cellulaire</p>
+</header>
+
+<div class="tree-wrap">
+
+  <!-- ══════════ ZONE 1 : TOTIPOTENTE / EMBRYONNAIRE ══════════ -->
+  <div class="zone-band zone-embryo" id="zoneEmbryo">
+    <div class="zone-label">
+      <span class="zone-tag zone-tag-embryo">Cellules souches embryonnaires</span>
+      <span class="zone-desc">Présentes au début de la formation d'un être vivant</span>
+    </div>
+
+    <div class="node-stem stem-pulse" id="stemNode" onclick="clickStem()">
+      <span class="label">Cellule souche</span>
+      <span class="sublabel">Totipotente</span>
+      <span class="hint">Clique pour commencer</span>
+    </div>
+
+    <div class="stem-info" id="stemInfo">
+      La cellule souche <strong>totipotente</strong> n'est pas encore spécialisée — elle peut devenir <strong>n'importe quelle</strong> cellule du corps, y compris le placenta. C'est le tout premier type de cellule après la fécondation.
+    </div>
+  </div>
+
+  <!-- CONNECTOR ZONE 1 → ZONE 2 -->
+  <div class="zone-connector connector-hidden" id="connectorZone12">
+    <svg width="40" height="32" viewBox="0 0 40 32">
+      <line x1="20" y1="0" x2="20" y2="24" stroke="#b8a4d0" stroke-width="2"/>
+      <polygon points="14,22 20,30 26,22" fill="#b8a4d0"/>
+    </svg>
+  </div>
+
+  <!-- ══════════ ZONE 2 : MULTIPOTENTES / ADULTES ══════════ -->
+  <div class="zone-band zone-adult" id="zoneAdult" style="opacity:0; transform:translateY(10px); transition: opacity 0.5s, transform 0.5s;">
+    <div class="zone-label">
+      <span class="zone-tag zone-tag-adult">Cellules souches adultes</span>
+      <span class="zone-desc">Présentes dans tout le corps, elles sont multipotentes</span>
+    </div>
+
+    <svg class="branches-svg" id="branchesSvg" viewBox="0 0 780 50" preserveAspectRatio="xMidYMid meet" height="50">
+      <line x1="390" y1="0"  x2="390" y2="22" stroke="#d0cbc2" stroke-width="2"/>
+      <line x1="97"  y1="22" x2="683" y2="22" stroke="#d0cbc2" stroke-width="2"/>
+      <line x1="97"  y1="22" x2="97"  y2="50" stroke="#1d3557" stroke-width="2"/>
+      <line x1="293" y1="22" x2="293" y2="50" stroke="#9b2226" stroke-width="2"/>
+      <line x1="487" y1="22" x2="487" y2="50" stroke="#6a4c93" stroke-width="2"/>
+      <line x1="683" y1="22" x2="683" y2="50" stroke="#b5652a" stroke-width="2"/>
+    </svg>
+
+    <div class="level2-row" id="level2Row">
+      <!-- ECTODERME -->
+      <div class="germ-col">
+        <div class="node-germ ecto-bg" id="ectoNode" onclick="clickGerm('ecto')">
+          <span class="label">Ectoderme</span>
+          <span class="sublabel">Multipotente</span>
+          <span class="hint">Clique</span>
+        </div>
+        <div class="germ-info ecto-border" id="ectoInfo">
+          Cellule souche qui ne peut donner que des cellules de la peau et du système nerveux.
+        </div>
+      </div>
+
+      <!-- MÉSODERME -->
+      <div class="germ-col">
+        <div class="node-germ meso-bg" id="mesoNode" onclick="clickGerm('meso')">
+          <span class="label">Mésoderme</span>
+          <span class="sublabel">Multipotente</span>
+          <span class="hint">Clique</span>
+        </div>
+        <div class="germ-info meso-border" id="mesoInfo">
+          Cellule souche qui ne peut donner que des cellules du sang, des muscles et des os.
+        </div>
+      </div>
+
+      <!-- ENDODERME -->
+      <div class="germ-col">
+        <div class="node-germ endo-bg" id="endoNode" onclick="clickGerm('endo')">
+          <span class="label">Endoderme</span>
+          <span class="sublabel">Multipotente</span>
+          <span class="hint">Clique</span>
+        </div>
+        <div class="germ-info endo-border" id="endoInfo">
+          Cellule souche qui ne peut donner que des cellules des organes internes : poumons, intestin, foie.
+        </div>
+      </div>
+
+      <!-- LIGNÉE GERMINALE -->
+      <div class="germ-col">
+        <div class="node-germ germ-bg" id="germNode" onclick="clickGerm('germ')">
+          <span class="label">Germinale</span>
+          <span class="sublabel">Multipotente</span>
+          <span class="hint">Clique</span>
+        </div>
+        <div class="germ-info germ-border" id="germInfo">
+          Cellule souche qui ne peut donner que des cellules reproductrices : spermatozoïdes et ovules.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR ZONE 2 → ZONE 3 -->
+  <div class="zone-connector connector-hidden" id="connectorZone23">
+    <svg width="40" height="32" viewBox="0 0 40 32">
+      <line x1="20" y1="0" x2="20" y2="24" stroke="#e0c097" stroke-width="2"/>
+      <polygon points="14,22 20,30 26,22" fill="#e0c097"/>
+    </svg>
+  </div>
+
+  <!-- ══════════ ZONE 3 : CELLULES SPÉCIALISÉES ══════════ -->
+  <div class="spec-zone-wrapper" id="specZoneWrapper">
+    <div class="zone-band zone-spec">
+      <div class="zone-label">
+        <span class="zone-tag zone-tag-spec">Cellules spécialisées</span>
+        <span class="zone-desc">Elles ont une forme et une fonction précises — elles ne changent plus</span>
+      </div>
+
+      <div class="spec-columns">
+        <!-- ECTO CELLS -->
+        <div class="spec-col" id="ectoCells">
+          <div class="spec-col-header" style="background:var(--ecto);">Ectoderme</div>
+          <div class="cell-card">
+            <div class="cell-name ecto-name">Cellule de la peau</div>
+            <div class="cell-desc">Protège le corps contre l'environnement extérieur.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name ecto-name">Neurone</div>
+            <div class="cell-desc">Transmet des signaux dans le cerveau et le corps.</div>
+          </div>
+        </div>
+
+        <!-- MESO CELLS -->
+        <div class="spec-col" id="mesoCells">
+          <div class="spec-col-header" style="background:var(--meso);">Mésoderme</div>
+          <div class="cell-card">
+            <div class="cell-name meso-name">Cellule musculaire</div>
+            <div class="cell-desc">Permet le mouvement du corps.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name meso-name">Globule rouge</div>
+            <div class="cell-desc">Transporte l'oxygène dans le sang.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name meso-name">Cellule osseuse</div>
+            <div class="cell-desc">Donne sa structure au corps.</div>
+          </div>
+        </div>
+
+        <!-- ENDO CELLS -->
+        <div class="spec-col" id="endoCells">
+          <div class="spec-col-header" style="background:var(--endo);">Endoderme</div>
+          <div class="cell-card">
+            <div class="cell-name endo-name">Cellule pulmonaire</div>
+            <div class="cell-desc">Échange l'oxygène entre l'air et le sang.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name endo-name">Cellule hépatique</div>
+            <div class="cell-desc">Filtre les toxines dans le foie.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name endo-name">Cellule intestinale</div>
+            <div class="cell-desc">Absorbe les nutriments des aliments.</div>
+          </div>
+        </div>
+
+        <!-- GERM CELLS -->
+        <div class="spec-col" id="germCells">
+          <div class="spec-col-header" style="background:var(--germ);">Germinale</div>
+          <div class="cell-card">
+            <div class="cell-name germ-name">Spermatozoïde</div>
+            <div class="cell-desc">Transporte l'info génétique vers l'ovule.</div>
+          </div>
+          <div class="cell-card">
+            <div class="cell-name germ-name">Ovule</div>
+            <div class="cell-desc">S'unit au spermatozoïde pour former une nouvelle vie.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFLECTION -->
+  <div class="reflection" id="reflection">
+    <h3>🔬 À toi de réfléchir</h3>
+    <p>Tu viens d'explorer comment une seule cellule souche <em>totipotente</em> se spécialise en passant par des cellules souches <em>multipotentes</em>, puis en cellules <em>spécialisées</em>. Est-ce qu'une cellule de la peau pourrait redevenir une cellule souche ? Est-ce qu'une cellule musculaire pourrait devenir un globule rouge ? Qu'est-ce que tu en penses — et pourquoi ?</p>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <button class="reset-btn" onclick="reset()">↺ Recommencer</button>
+
+</div>
+
+<script>
+  const state = { stem: false, ecto: false, meso: false, endo: false, germ: false };
+
+  function clickStem() {
+    if (state.stem) return;
+    state.stem = true;
+
+    const n = document.getElementById('stemNode');
+    n.classList.remove('stem-pulse');
+    n.style.cursor = 'default';
+    n.onclick = null;
+
+    document.getElementById('stemInfo').classList.add('visible');
+
+    setTimeout(() => {
+      document.getElementById('connectorZone12').classList.add('visible');
+      const zone = document.getElementById('zoneAdult');
+      zone.style.opacity = '1';
+      zone.style.transform = 'translateY(0)';
+    }, 350);
+
+    setTimeout(() => {
+      document.getElementById('branchesSvg').classList.add('visible');
+      document.getElementById('level2Row').classList.add('visible');
+    }, 600);
+  }
+
+  function clickGerm(type) {
+    if (state[type]) return;
+    state[type] = true;
+
+    const node = document.getElementById(type + 'Node');
+    node.classList.add('done');
+    document.getElementById(type + 'Info').classList.add('visible');
+
+    checkProgress();
+  }
+
+  function checkProgress() {
+    const done = ['ecto','meso','endo','germ'].filter(t => state[t]).length;
+    const prog = document.getElementById('progress');
+    prog.textContent = done < 4 ? `${done} / 4 groupes explorés` : '';
+
+    if (done >= 1) {
+      // Show spec zone as soon as at least one is clicked
+      document.getElementById('connectorZone23').classList.add('visible');
+      document.getElementById('specZoneWrapper').classList.add('visible');
+    }
+
+    // Reveal individual spec columns
+    ['ecto','meso','endo','germ'].forEach(t => {
+      if (state[t]) {
+        setTimeout(() => {
+          document.getElementById(t + 'Cells').classList.add('visible');
+        }, 200);
+      }
+    });
+
+    if (done === 4) {
+      setTimeout(() => {
+        document.getElementById('reflection').classList.add('visible');
+      }, 400);
+    }
+  }
+
+  function reset() {
+    Object.keys(state).forEach(k => state[k] = false);
+
+    const n = document.getElementById('stemNode');
+    n.classList.add('stem-pulse');
+    n.style.cursor = 'pointer';
+    n.onclick = clickStem;
+
+    document.getElementById('stemInfo').classList.remove('visible');
+    document.getElementById('connectorZone12').classList.remove('visible');
+
+    const zone = document.getElementById('zoneAdult');
+    zone.style.opacity = '0';
+    zone.style.transform = 'translateY(10px)';
+
+    document.getElementById('branchesSvg').classList.remove('visible');
+    document.getElementById('level2Row').classList.remove('visible');
+    document.getElementById('connectorZone23').classList.remove('visible');
+    document.getElementById('specZoneWrapper').classList.remove('visible');
+    document.getElementById('reflection').classList.remove('visible');
+    document.getElementById('progress').textContent = '';
+
+    ['ecto','meso','endo','germ'].forEach(t => {
+      document.getElementById(t + 'Node').classList.remove('done');
+      document.getElementById(t + 'Info').classList.remove('visible');
+      document.getElementById(t + 'Cells').classList.remove('visible');
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Identifie la molécule — Sciences</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1f2e;
+    --ink-soft:   #4a5168;
+    --paper:      #f7f5f0;
+    --cream:      #efecea;
+    --green:      #2d6a4f;
+    --green-mid:  #52b788;
+    --green-pale: #d8f3dc;
+    --rose:       #b5384a;
+    --rose-mid:   #d9607a;
+    --rose-pale:  #fde8ec;
+    --color-h:    #ffffff;
+    --color-h-stroke: #333333;
+    --color-c:    #111111;
+    --color-o:    #e2001a;
+    --color-o-stroke: #a30012;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  nav {
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--cream);
+    background: rgba(247,245,240,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  nav a { text-decoration: none; font-size: 13px; font-weight: 600; color: var(--ink-soft); transition: color 0.15s; }
+  nav a:hover { color: var(--green); }
+  nav a.home { color: var(--green); font-weight: 700; }
+  .nav-sep { color: #ccc; font-size: 12px; }
+  .nav-current { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+  .hero {
+    position: relative;
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--cream);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(181,56,74,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--rose);
+    border: 1.5px solid var(--rose-mid);
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 18px;
+    background: var(--rose-pale);
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .hero h1 em { font-style: italic; color: var(--rose); }
+  .hero-sub {
+    font-size: 14px; color: var(--ink-soft); font-weight: 500;
+    max-width: 440px; margin: 0 auto; line-height: 1.6;
+  }
+
+  main { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; padding: 36px 20px 60px; }
+
+  .card {
+    background: white; border-radius: 18px; padding: 24px; margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--rose), var(--rose-mid));
+  }
+
+  .rappel-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--rose); margin-bottom: 12px; text-align: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+  .dot-h { background: var(--color-h); border: 2px solid var(--color-h-stroke); }
+  .dot-c { background: var(--color-c); }
+  .dot-o { background: var(--color-o); }
+  .rappel-tip { width: 100%; text-align: center; color: var(--ink-soft); font-size: 12.5px; font-weight: 500; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cream); }
+
+  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  .progress-bar-bg { background: var(--cream); border-radius: 8px; height: 7px; overflow: hidden; margin-bottom: 20px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--rose-mid)); border-radius: 8px; transition: width 0.3s ease; }
+
+  .formula-display {
+    text-align: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.1rem;
+    color: var(--ink);
+    background: var(--rose-pale);
+    border-radius: 14px;
+    padding: 14px 10px;
+    margin-bottom: 14px;
+  }
+
+  .question-label { text-align: center; font-weight: 600; color: var(--ink-soft); margin-bottom: 12px; font-size: 13.5px; }
+
+  .options-img { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 400px) { .options-img { grid-template-columns: 1fr; } }
+
+  .img-option {
+    background: var(--paper);
+    border: 1.5px solid var(--cream);
+    border-radius: 14px;
+    padding: 8px;
+    cursor: pointer;
+    height: 140px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .img-option svg { max-width: 100%; max-height: 100%; }
+  .img-option:hover:not(.disabled) { border-color: var(--rose-mid); transform: translateY(-2px); }
+  .img-option:active:not(.disabled) { transform: translateY(0); }
+  .img-option.disabled { cursor: default; }
+  .img-option.correct { background: var(--green-pale); border-color: var(--green-mid); }
+  .img-option.wrong { background: var(--rose-pale); border-color: var(--rose-mid); }
+
+  .bond { stroke: #cfc9c2; stroke-width: 6; stroke-linecap: round; }
+  .atom-h { fill: var(--color-h); stroke: var(--color-h-stroke); stroke-width: 3; }
+  .atom-c { fill: var(--color-c); stroke: var(--color-c); }
+  .atom-o { fill: var(--color-o); stroke: var(--color-o-stroke); stroke-width: 2; }
+
+  .feedback { text-align: center; font-weight: 700; margin-top: 16px; min-height: 1.3em; font-size: 14.5px; }
+  .feedback.correct { color: var(--green); }
+  .feedback.wrong { color: var(--rose); }
+
+  .btn-row { display: flex; justify-content: center; margin-top: 16px; }
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: white;
+    background: var(--rose); padding: 12px 30px; border-radius: 99px; border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(181,56,74,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+  }
+  .pill-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(181,56,74,0.35); background: #94293a; }
+  .next-btn { opacity: 0; pointer-events: none; }
+  .next-btn.show { opacity: 1; pointer-events: auto; }
+
+  .final { text-align: center; }
+  .score-circle {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-mid), var(--rose));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 6px auto 16px; box-shadow: 0 6px 24px rgba(181,56,74,0.28); color: white;
+  }
+  .score-circle .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
+  .score-circle .score-denom { font-size: 13px; font-weight: 700; opacity: 0.85; }
+  .final-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+  .final p { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
+
+  .hidden { display: none; }
+
+  footer { text-align: center; padding: 28px 24px; font-size: 12px; color: #a8a49e; font-weight: 500; border-top: 1px solid var(--cream); position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="home" href="index.html">🌿 Sciences</a>
+  <span class="nav-sep">/</span>
+  <a href="activites.html#chimie">Activités</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-current">Identifie la molécule</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Chimie</div>
+  <h1>Identifie <em>la molécule</em></h1>
+  <p class="hero-sub">Une formule chimique s'affiche : choisis l'image qui la représente correctement.</p>
+</div>
+
+<main>
+
+  <div class="card">
+    <div class="rappel-title">Rappel des couleurs</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot dot-h"></span> Hydrogène (H)</div>
+      <div class="legend-item"><span class="legend-dot dot-c"></span> Carbone (C)</div>
+      <div class="legend-item"><span class="legend-dot dot-o"></span> Oxygène (O)</div>
+    </div>
+    <div class="rappel-tip">Compte bien le nombre de billes de chaque couleur avant de choisir !</div>
+  </div>
+
+  <div id="quiz-card" class="card">
+    <div class="progress-row">
+      <span id="progress-text">Molécule 1 / 8</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+
+    <div class="formula-display" id="formula-display"></div>
+    <div class="question-label">Quelle image représente cette molécule ?</div>
+
+    <div class="options-img" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row"><button class="pill-btn next-btn" id="next-btn">Suivant →</button></div>
+  </div>
+
+  <div id="final-card" class="card final hidden">
+    <div class="final-title">Activité terminée !</div>
+    <div class="score-circle">
+      <span class="score-num" id="final-score-num">0</span>
+      <span class="score-denom" id="final-score-denom">/ 8</span>
+    </div>
+    <p id="final-msg"></p>
+    <button class="pill-btn" id="restart-btn">Recommencer</button>
+  </div>
+
+</main>
+
+<footer>Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026</footer>
+
+<script>
+// ── Molécules : nom affiché + composition {H, C, O} ──
+const questions = [
+  { formula: "H₂O",      correct: {H:2, C:0, O:1} },
+  { formula: "CO₂",      correct: {H:0, C:1, O:2} },
+  { formula: "CH₄",      correct: {H:4, C:1, O:0} },
+  { formula: "H₂O₂",     correct: {H:2, C:0, O:2} },
+  { formula: "CH₄O",     correct: {H:4, C:1, O:1} },
+  { formula: "C₂H₆",     correct: {H:6, C:2, O:0} },
+  { formula: "C₂H₆O",    correct: {H:6, C:2, O:1} },
+  { formula: "CH₄COO",   correct: {H:4, C:2, O:2} },
+];
+
+// wrong variants generated by nudging one element count by ±1
+function wrongVariants(c){
+  const variants = [];
+  const tryAdd = (dh, dc, doo) => {
+    const v = {H: c.H+dh, C: c.C+dc, O: c.O+doo};
+    if(v.H < 0 || v.C < 0 || v.O < 0) return;
+    if(v.H === c.H && v.C === c.C && v.O === c.O) return;
+    const key = `${v.H}-${v.C}-${v.O}`;
+    if(variants.some(x => `${x.H}-${x.C}-${x.O}` === key)) return;
+    variants.push(v);
+  };
+  tryAdd(-1, 0, 0);
+  tryAdd(0, 0, 1);
+  tryAdd(1, 0, 0);
+  tryAdd(0, 1, 0);
+  tryAdd(0, 0, -1);
+  return variants.slice(0, 3);
+}
+
+// ── Génération d'un nuage d'atomes en SVG ──
+const RADIUS = { H: 14, C: 22, O: 20 };
+
+function buildTypesList(counts){
+  const list = [];
+  for(let i=0;i<counts.C;i++) list.push('C');
+  for(let i=0;i<counts.O;i++) list.push('O');
+  for(let i=0;i<counts.H;i++) list.push('H');
+  if(list.length === 0) list.push('H');
+  return list;
+}
+
+function packAtoms(types){
+  const gap = 6;
+  const atoms = [];
+  const bonds = [];
+  types.forEach((t, i) => {
+    const r = RADIUS[t];
+    if(i === 0){ atoms.push({type:t, x:0, y:0, r}); return; }
+    let placed = false, attempts = 0;
+    while(!placed && attempts < 100){
+      attempts++;
+      const anchor = atoms[Math.floor(Math.random()*atoms.length)];
+      const angle = Math.random()*Math.PI*2;
+      const dist = anchor.r + r + gap;
+      const x = anchor.x + Math.cos(angle)*dist;
+      const y = anchor.y + Math.sin(angle)*dist;
+      let ok = true;
+      for(const a of atoms){
+        const dx = a.x-x, dy = a.y-y;
+        if(Math.sqrt(dx*dx+dy*dy) < a.r + r + 3){ ok = false; break; }
+      }
+      if(ok){ atoms.push({type:t, x, y, r}); bonds.push({x1:anchor.x, y1:anchor.y, x2:x, y2:y}); placed = true; }
+    }
+    if(!placed){
+      const angle = Math.random()*Math.PI*2;
+      const x = Math.cos(angle)*160, y = Math.sin(angle)*160;
+      atoms.push({type:t, x, y, r});
+      bonds.push({x1:0, y1:0, x2:x, y2:y});
+    }
+  });
+  return {atoms, bonds};
+}
+
+function moleculeSVG(counts){
+  const types = buildTypesList(counts);
+  const {atoms, bonds} = packAtoms(types);
+  const pad = 18;
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  atoms.forEach(a => {
+    minX = Math.min(minX, a.x-a.r); maxX = Math.max(maxX, a.x+a.r);
+    minY = Math.min(minY, a.y-a.r); maxY = Math.max(maxY, a.y+a.r);
+  });
+  const w = (maxX-minX) + pad*2;
+  const h = (maxY-minY) + pad*2;
+  const ox = -minX + pad, oy = -minY + pad;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+  bonds.forEach(b => { svg += `<line x1="${b.x1+ox}" y1="${b.y1+oy}" x2="${b.x2+ox}" y2="${b.y2+oy}" class="bond"/>`; });
+  atoms.forEach(a => {
+    const cls = a.type === 'H' ? 'atom-h' : a.type === 'C' ? 'atom-c' : 'atom-o';
+    svg += `<circle cx="${a.x+ox}" cy="${a.y+oy}" r="${a.r}" class="${cls}"/>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let order = [], current = 0, score = 0, answered = false;
+
+function startQuiz(){
+  order = shuffle([...Array(questions.length).keys()]);
+  current = 0; score = 0;
+  document.getElementById('final-card').classList.add('hidden');
+  document.getElementById('quiz-card').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = questions[order[current]];
+  document.getElementById('progress-text').textContent = `Molécule ${current+1} / ${questions.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current/questions.length)*100}%`;
+  document.getElementById('formula-display').textContent = q.formula;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const wrongs = wrongVariants(q.correct);
+  const optionData = shuffle([
+    {counts: q.correct, isCorrect: true},
+    ...wrongs.map(w => ({counts: w, isCorrect: false}))
+  ]);
+
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  optionData.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'img-option';
+    el.innerHTML = moleculeSVG(opt.counts);
+    el.addEventListener('click', () => selectOption(el, opt.isCorrect));
+    optionsDiv.appendChild(el);
+  });
+}
+
+function selectOption(el, isCorrect){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll('.img-option').forEach(o => o.classList.add('disabled'));
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const feedback = document.getElementById('feedback');
+  if(isCorrect){
+    score++;
+    feedback.textContent = 'Bravo, c\'est la bonne représentation !';
+    feedback.classList.add('correct');
+  } else {
+    feedback.textContent = 'Pas tout à fait... regarde bien le nombre d\'atomes de chaque couleur.';
+    feedback.classList.add('wrong');
+  }
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= questions.length){ showFinal(); } else { renderQuestion(); }
+}
+
+function showFinal(){
+  document.getElementById('quiz-card').classList.add('hidden');
+  document.getElementById('final-card').classList.remove('hidden');
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = `/ ${questions.length}`;
+  let msg = '';
+  if(score === questions.length) msg = 'Parfait, toutes les molécules sont reconnues !';
+  else if(score >= questions.length - 2) msg = 'Très bien joué, presque sans faute.';
+  else if(score >= questions.length/2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois le rappel des couleurs et réessaie.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

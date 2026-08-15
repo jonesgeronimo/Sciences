@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Formules moléculaires — Sciences</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1f2e;
+    --ink-soft:   #4a5168;
+    --paper:      #f7f5f0;
+    --cream:      #efecea;
+    --green:      #2d6a4f;
+    --green-mid:  #52b788;
+    --green-pale: #d8f3dc;
+    --rose:       #b5384a;
+    --rose-mid:   #d9607a;
+    --rose-pale:  #fde8ec;
+    --color-h:    #ffffff;
+    --color-h-stroke: #333333;
+    --color-c:    #111111;
+    --color-o:    #e2001a;
+    --color-o-stroke: #a30012;
+    --color-n:    #1b7f9c;
+    --color-n-stroke: #125a70;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--cream);
+    background: rgba(247,245,240,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  nav a {
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+    transition: color 0.15s;
+  }
+  nav a:hover { color: var(--green); }
+  nav a.home { color: var(--green); font-weight: 700; }
+  .nav-sep { color: #ccc; font-size: 12px; }
+  .nav-current { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--cream);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(181,56,74,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--rose);
+    border: 1.5px solid var(--rose-mid);
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 18px;
+    background: var(--rose-pale);
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .hero h1 em { font-style: italic; color: var(--rose); }
+  .hero-sub {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── MAIN ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 36px 20px 60px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--rose), var(--rose-mid));
+  }
+
+  /* Rappel / legend */
+  .rappel-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--rose);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+  .dot-h { background: var(--color-h); border: 2px solid var(--color-h-stroke); }
+  .dot-c { background: var(--color-c); }
+  .dot-o { background: var(--color-o); }
+  .dot-n { background: var(--color-n); }
+  .rappel-tip {
+    width: 100%;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 500;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--cream);
+  }
+
+  /* Progress */
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12.5px; font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .progress-bar-bg {
+    background: var(--cream);
+    border-radius: 8px;
+    height: 7px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rose), var(--rose-mid));
+    border-radius: 8px;
+    transition: width 0.3s ease;
+  }
+
+  .molecule-box {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 16px;
+  }
+  .molecule-box svg { width: 100%; max-width: 250px; height: auto; }
+  .bond { stroke: #cfc9c2; stroke-width: 6; stroke-linecap: round; }
+  .atom-h { fill: var(--color-h); stroke: var(--color-h-stroke); stroke-width: 3; }
+  .atom-c { fill: var(--color-c); stroke: var(--color-c); }
+  .atom-o { fill: var(--color-o); stroke: var(--color-o-stroke); stroke-width: 2; }
+  .atom-n { fill: var(--color-n); stroke: var(--color-n-stroke); stroke-width: 2; }
+
+  .question-label {
+    text-align: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  @media (max-width: 400px) { .options { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--paper);
+    border: 1.5px solid var(--cream);
+    border-radius: 14px;
+    padding: 16px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--rose-mid);
+    transform: translateY(-2px);
+  }
+  .option-btn:active:not(:disabled) { transform: translateY(0); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    background: var(--green-pale);
+    border-color: var(--green-mid);
+    color: var(--green);
+  }
+  .option-btn.wrong {
+    background: var(--rose-pale);
+    border-color: var(--rose-mid);
+    color: var(--rose);
+  }
+
+  .feedback {
+    text-align: center;
+    font-weight: 700;
+    margin-top: 16px;
+    min-height: 1.3em;
+    font-size: 14.5px;
+  }
+  .feedback.correct { color: var(--green); }
+  .feedback.wrong { color: var(--rose); }
+
+  .btn-row { display: flex; justify-content: center; margin-top: 16px; }
+
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: white;
+    background: var(--rose);
+    padding: 12px 30px; border-radius: 99px;
+    border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(181,56,74,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+  }
+  .pill-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(181,56,74,0.35);
+    background: #94293a;
+  }
+
+  .next-btn { opacity: 0; pointer-events: none; }
+  .next-btn.show { opacity: 1; pointer-events: auto; }
+
+  /* Final screen */
+  .final { text-align: center; }
+  .score-circle {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-mid), var(--rose));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 6px auto 16px;
+    box-shadow: 0 6px 24px rgba(181,56,74,0.28);
+    color: white;
+  }
+  .score-circle .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
+  .score-circle .score-denom { font-size: 13px; font-weight: 700; opacity: 0.85; }
+  .final-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .final p { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
+
+  .hidden { display: none; }
+
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 12px; color: #a8a49e;
+    font-weight: 500;
+    border-top: 1px solid var(--cream);
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="home" href="index.html">🌿 Sciences</a>
+  <span class="nav-sep">/</span>
+  <a href="activites.html#chimie">Activités</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-current">Formules moléculaires</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Chimie</div>
+  <h1>Formules <em>moléculaires</em></h1>
+  <p class="hero-sub">Observe la molécule, puis choisis sa formule chimique parmi les 4 propositions.</p>
+</div>
+
+<main>
+
+  <div class="card">
+    <div class="rappel-title">Rappel des couleurs</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot dot-h"></span> Hydrogène (H)</div>
+      <div class="legend-item"><span class="legend-dot dot-c"></span> Carbone (C)</div>
+      <div class="legend-item"><span class="legend-dot dot-o"></span> Oxygène (O)</div>
+      <div class="legend-item"><span class="legend-dot dot-n"></span> Azote (N)</div>
+    </div>
+    <div class="rappel-tip">Le petit chiffre après une lettre indique le nombre d'atomes de cet élément (ex. H₂ = 2 atomes d'hydrogène).</div>
+  </div>
+
+  <div id="quiz-card" class="card">
+    <div class="progress-row">
+      <span id="progress-text">Molécule 1 / 6</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div>
+    </div>
+
+    <div class="molecule-box" id="molecule-box"></div>
+    <div class="question-label">Quelle est la formule de cette molécule ?</div>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row">
+      <button class="pill-btn next-btn" id="next-btn">Suivant →</button>
+    </div>
+  </div>
+
+  <div id="final-card" class="card final hidden">
+    <div class="final-title">Activité terminée !</div>
+    <div class="score-circle">
+      <span class="score-num" id="final-score-num">0</span>
+      <span class="score-denom" id="final-score-denom">/ 6</span>
+    </div>
+    <p id="final-msg"></p>
+    <button class="pill-btn" id="restart-btn">Recommencer</button>
+  </div>
+
+</main>
+
+<footer>
+  Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026
+</footer>
+
+<script>
+const questions = [
+  {
+    correct: "H₂",
+    options: ["H₂", "H", "O₂", "H₃"],
+    svg: `<svg viewBox="0 0 240 170" xmlns="http://www.w3.org/2000/svg">
+      <line x1="94" y1="85" x2="146" y2="85" class="bond"/>
+      <circle cx="82" cy="85" r="32" class="atom-h"/>
+      <circle cx="158" cy="85" r="32" class="atom-h"/>
+    </svg>`
+  },
+  {
+    correct: "O₂",
+    options: ["O₂", "O", "N₂", "CO₂"],
+    svg: `<svg viewBox="0 0 240 170" xmlns="http://www.w3.org/2000/svg">
+      <line x1="96" y1="85" x2="144" y2="85" class="bond"/>
+      <circle cx="82" cy="85" r="34" class="atom-o"/>
+      <circle cx="158" cy="85" r="34" class="atom-o"/>
+    </svg>`
+  },
+  {
+    correct: "H₂O",
+    options: ["H₂O", "HO₂", "H₂O₂", "OH"],
+    svg: `<svg viewBox="0 0 240 170" xmlns="http://www.w3.org/2000/svg">
+      <line x1="108" y1="72" x2="86" y2="105" class="bond"/>
+      <line x1="132" y1="72" x2="154" y2="105" class="bond"/>
+      <circle cx="120" cy="55" r="34" class="atom-o"/>
+      <circle cx="76" cy="118" r="24" class="atom-h"/>
+      <circle cx="164" cy="118" r="24" class="atom-h"/>
+    </svg>`
+  },
+  {
+    correct: "CH₄",
+    options: ["CH₄", "CH₃", "C₂H₄", "CH₂"],
+    svg: `<svg viewBox="0 0 240 200" xmlns="http://www.w3.org/2000/svg">
+      <line x1="120" y1="65" x2="120" y2="48" class="bond"/>
+      <line x1="120" y1="125" x2="120" y2="142" class="bond"/>
+      <line x1="90" y1="95" x2="68" y2="95" class="bond"/>
+      <line x1="150" y1="95" x2="172" y2="95" class="bond"/>
+      <circle cx="120" cy="95" r="30" class="atom-c"/>
+      <circle cx="120" cy="30" r="18" class="atom-h"/>
+      <circle cx="120" cy="160" r="18" class="atom-h"/>
+      <circle cx="50" cy="95" r="18" class="atom-h"/>
+      <circle cx="190" cy="95" r="18" class="atom-h"/>
+    </svg>`
+  },
+  {
+    correct: "CO₂",
+    options: ["CO₂", "CO", "C₂O", "CO₄"],
+    svg: `<svg viewBox="0 0 240 190" xmlns="http://www.w3.org/2000/svg">
+      <line x1="85" y1="95" x2="94" y2="95" class="bond"/>
+      <line x1="146" y1="95" x2="155" y2="95" class="bond"/>
+      <circle cx="55" cy="95" r="30" class="atom-o"/>
+      <circle cx="120" cy="95" r="26" class="atom-c"/>
+      <circle cx="185" cy="95" r="30" class="atom-o"/>
+    </svg>`
+  },
+  {
+    correct: "NO₂",
+    options: ["NO₂", "NO", "N₂O", "NO₃"],
+    svg: `<svg viewBox="0 0 240 190" xmlns="http://www.w3.org/2000/svg">
+      <line x1="105" y1="72" x2="85" y2="108" class="bond"/>
+      <line x1="135" y1="72" x2="155" y2="108" class="bond"/>
+      <circle cx="120" cy="50" r="30" class="atom-n"/>
+      <circle cx="70" cy="130" r="28" class="atom-o"/>
+      <circle cx="170" cy="130" r="28" class="atom-o"/>
+    </svg>`
+  }
+];
+
+let order = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(){
+  order = shuffle([...Array(questions.length).keys()]);
+  current = 0;
+  score = 0;
+  document.getElementById('final-card').classList.add('hidden');
+  document.getElementById('quiz-card').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = questions[order[current]];
+  document.getElementById('progress-text').textContent = `Molécule ${current + 1} / ${questions.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('molecule-box').innerHTML = q.svg;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const shuffledOptions = shuffle(q.options);
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  shuffledOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => selectOption(btn, opt, q.correct));
+    optionsDiv.appendChild(btn);
+  });
+}
+
+function selectOption(btn, chosen, correct){
+  if(answered) return;
+  answered = true;
+
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if(b.textContent === correct){
+      b.classList.add('correct');
+    } else if(b === btn){
+      b.classList.add('wrong');
+    }
+  });
+
+  const feedback = document.getElementById('feedback');
+  if(chosen === correct){
+    score++;
+    feedback.textContent = 'Bravo, c\'est la bonne formule !';
+    feedback.classList.add('correct');
+  } else {
+    feedback.textContent = `Pas tout à fait... la bonne réponse était ${correct}.`;
+    feedback.classList.add('wrong');
+  }
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= questions.length){
+    showFinal();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showFinal(){
+  document.getElementById('quiz-card').classList.add('hidden');
+  const finalCard = document.getElementById('final-card');
+  finalCard.classList.remove('hidden');
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = `/ ${questions.length}`;
+  let msg = '';
+  if(score === questions.length) msg = 'Parfait, toutes les formules sont maîtrisées !';
+  else if(score >= questions.length - 2) msg = 'Très bien joué, presque sans faute.';
+  else if(score >= questions.length / 2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois le rappel des couleurs et réessaie.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

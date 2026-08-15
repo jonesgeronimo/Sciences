@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Équilibrage des réactions — Sciences</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1f2e;
+    --ink-soft:   #4a5168;
+    --paper:      #f7f5f0;
+    --cream:      #efecea;
+    --green:      #2d6a4f;
+    --green-mid:  #52b788;
+    --green-pale: #d8f3dc;
+    --rose:       #b5384a;
+    --rose-mid:   #d9607a;
+    --rose-pale:  #fde8ec;
+    --color-h:    #ffffff;
+    --color-h-stroke: #333333;
+    --color-c:    #111111;
+    --color-o:    #e2001a;
+    --color-o-stroke: #a30012;
+    --color-n:    #1b7f9c;
+    --color-n-stroke: #125a70;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  nav {
+    padding: 14px 24px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--cream);
+    background: rgba(247,245,240,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  nav a { text-decoration: none; font-size: 13px; font-weight: 600; color: var(--ink-soft); transition: color 0.15s; }
+  nav a:hover { color: var(--green); }
+  nav a.home { color: var(--green); font-weight: 700; }
+  .nav-sep { color: #ccc; font-size: 12px; }
+  .nav-current { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+  .hero {
+    position: relative; padding: 52px 24px 36px; text-align: center;
+    border-bottom: 1px solid var(--cream); overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(181,56,74,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--rose);
+    border: 1.5px solid var(--rose-mid); padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 18px; background: var(--rose-pale);
+  }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(26px, 5vw, 38px); line-height: 1.15; color: var(--ink); margin-bottom: 10px; }
+  .hero h1 em { font-style: italic; color: var(--rose); }
+  .hero-sub { font-size: 14px; color: var(--ink-soft); font-weight: 500; max-width: 460px; margin: 0 auto; line-height: 1.6; }
+
+  main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding: 36px 20px 60px; }
+
+  .card {
+    background: white; border-radius: 18px; padding: 24px; margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--rose), var(--rose-mid));
+  }
+
+  .rappel-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--rose); margin-bottom: 12px; text-align: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+  .dot-h { background: var(--color-h); border: 2px solid var(--color-h-stroke); }
+  .dot-c { background: var(--color-c); }
+  .dot-o { background: var(--color-o); }
+  .dot-n { background: var(--color-n); }
+  .rappel-tip { width: 100%; text-align: center; color: var(--ink-soft); font-size: 12.5px; font-weight: 500; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cream); }
+
+  .phase-banner {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rose); background: var(--rose-pale); padding: 4px 12px; border-radius: 99px; margin-bottom: 10px;
+  }
+
+  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  .progress-bar-bg { background: var(--cream); border-radius: 8px; height: 7px; overflow: hidden; margin-bottom: 18px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--rose-mid)); border-radius: 8px; transition: width 0.3s ease; }
+
+  .question-label { text-align: center; font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--ink); margin-bottom: 16px; }
+
+  /* stacked equation options */
+  .options-eq { display: flex; flex-direction: column; gap: 10px; }
+  .eq-option {
+    background: var(--paper); border: 1.5px solid var(--cream); border-radius: 14px;
+    padding: 14px 12px; cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .eq-option:hover:not(.disabled) { border-color: var(--rose-mid); transform: translateY(-2px); }
+  .eq-option:active:not(.disabled) { transform: translateY(0); }
+  .eq-option.disabled { cursor: default; }
+  .eq-option.correct { background: var(--green-pale); border-color: var(--green-mid); }
+  .eq-option.wrong { background: var(--rose-pale); border-color: var(--rose-mid); }
+
+  /* visual equation row */
+  .eq-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
+  .eq-group { display: flex; align-items: center; gap: 1px; }
+  .eq-group svg { width: 44px; height: auto; display: block; }
+  .eq-plus { font-weight: 800; font-size: 17px; color: var(--ink-soft); margin: 0 4px; }
+  .eq-arrow { font-weight: 800; font-size: 19px; color: var(--rose); margin: 0 8px; }
+
+  /* formula text equation */
+  .formula-eq { text-align: center; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--ink); }
+
+  .bond { stroke: #cfc9c2; stroke-width: 5; stroke-linecap: round; }
+  .atom-h { fill: var(--color-h); stroke: var(--color-h-stroke); stroke-width: 2.5; }
+  .atom-c { fill: var(--color-c); stroke: var(--color-c); }
+  .atom-o { fill: var(--color-o); stroke: var(--color-o-stroke); stroke-width: 2; }
+  .atom-n { fill: var(--color-n); stroke: var(--color-n-stroke); stroke-width: 2; }
+
+  .feedback { text-align: center; font-weight: 700; margin-top: 16px; min-height: 1.3em; font-size: 14.5px; }
+  .feedback.correct { color: var(--green); }
+  .feedback.wrong { color: var(--rose); }
+
+  .btn-row { display: flex; justify-content: center; margin-top: 16px; }
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: white;
+    background: var(--rose); padding: 12px 30px; border-radius: 99px; border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(181,56,74,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+  }
+  .pill-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(181,56,74,0.35); background: #94293a; }
+  .next-btn { opacity: 0; pointer-events: none; }
+  .next-btn.show { opacity: 1; pointer-events: auto; }
+
+  .final { text-align: center; }
+  .score-circle {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-mid), var(--rose));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 6px auto 16px; box-shadow: 0 6px 24px rgba(181,56,74,0.28); color: white;
+  }
+  .score-circle .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
+  .score-circle .score-denom { font-size: 13px; font-weight: 700; opacity: 0.85; }
+  .final-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+  .final p { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
+
+  .hidden { display: none; }
+
+  footer { text-align: center; padding: 28px 24px; font-size: 12px; color: #a8a49e; font-weight: 500; border-top: 1px solid var(--cream); position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="home" href="index.html">🌿 Sciences</a>
+  <span class="nav-sep">/</span>
+  <a href="activites.html#chimie">Activités</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-current">Équilibrage des réactions</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Chimie</div>
+  <h1>Équilibrage <em>des réactions</em></h1>
+  <p class="hero-sub">Choisis, parmi 4 propositions, la réaction qui est correctement équilibrée : autant d'atomes de chaque couleur à gauche qu'à droite.</p>
+</div>
+
+<main>
+
+  <div class="card">
+    <div class="rappel-title">Rappel des couleurs</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot dot-h"></span> Hydrogène (H)</div>
+      <div class="legend-item"><span class="legend-dot dot-c"></span> Carbone (C)</div>
+      <div class="legend-item"><span class="legend-dot dot-o"></span> Oxygène (O)</div>
+      <div class="legend-item"><span class="legend-dot dot-n"></span> Azote (N)</div>
+    </div>
+    <div class="rappel-tip">Une réaction est équilibrée quand il y a le même nombre d'atomes de chaque élément avant (→) et après la flèche.</div>
+  </div>
+
+  <div id="quiz-card" class="card">
+    <div class="progress-row">
+      <span id="progress-text">Question 1 / 8</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+
+    <div class="phase-banner" id="phase-banner">Partie 1 · En images</div>
+    <div class="question-label">Quelle réaction est correctement équilibrée ?</div>
+
+    <div class="options-eq" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row"><button class="pill-btn next-btn" id="next-btn">Suivant →</button></div>
+  </div>
+
+  <div id="final-card" class="card final hidden">
+    <div class="final-title">Activité terminée !</div>
+    <div class="score-circle">
+      <span class="score-num" id="final-score-num">0</span>
+      <span class="score-denom" id="final-score-denom">/ 8</span>
+    </div>
+    <p id="final-msg"></p>
+    <button class="pill-btn" id="restart-btn">Recommencer</button>
+  </div>
+
+</main>
+
+<footer>Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026</footer>
+
+<script>
+// ── Icônes moléculaires fixes (viewBox commun 0 0 80 56) ──
+const MOLECULE_ICONS = {
+  H2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="27" cy="28" r="11" class="atom-h"/><circle cx="53" cy="28" r="11" class="atom-h"/></svg>`,
+  O2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="26" cy="28" r="12" class="atom-o"/><circle cx="54" cy="28" r="12" class="atom-o"/></svg>`,
+  N2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="26" cy="28" r="12" class="atom-n"/><circle cx="54" cy="28" r="12" class="atom-n"/></svg>`,
+  C:  `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="13" class="atom-c"/></svg>`,
+  CO: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="36" y1="28" x2="42" y2="28" class="bond"/><circle cx="24" cy="28" r="12" class="atom-c"/><circle cx="54" cy="28" r="12" class="atom-o"/></svg>`,
+  CO2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="24" y1="28" x2="27" y2="28" class="bond"/><line x1="53" y1="28" x2="56" y2="28" class="bond"/><circle cx="14" cy="28" r="10" class="atom-o"/><circle cx="40" cy="28" r="13" class="atom-c"/><circle cx="66" cy="28" r="10" class="atom-o"/></svg>`,
+  H2O: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="36" y1="22" x2="28" y2="36" class="bond"/><line x1="44" y1="22" x2="52" y2="36" class="bond"/><circle cx="40" cy="16" r="11" class="atom-o"/><circle cx="26" cy="40" r="8" class="atom-h"/><circle cx="54" cy="40" r="8" class="atom-h"/></svg>`,
+  NH3: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="24" x2="24" y2="38" class="bond"/><line x1="40" y1="24" x2="40" y2="44" class="bond"/><line x1="40" y1="24" x2="56" y2="38" class="bond"/><circle cx="40" cy="16" r="11" class="atom-n"/><circle cx="20" cy="42" r="7" class="atom-h"/><circle cx="40" cy="48" r="7" class="atom-h"/><circle cx="60" cy="42" r="7" class="atom-h"/></svg>`,
+};
+
+function moleculeTerm(term){
+  let icons = '';
+  for(let i = 0; i < term.coef; i++){
+    icons += MOLECULE_ICONS[term.mol];
+  }
+  return `<span class="eq-group">${icons}</span>`;
+}
+
+function renderEquationRow(eq){
+  const reactants = eq.reactants.map(moleculeTerm).join('<span class="eq-plus">+</span>');
+  const products = eq.products.map(moleculeTerm).join('<span class="eq-plus">+</span>');
+  return `<div class="eq-row">${reactants}<span class="eq-arrow">→</span>${products}</div>`;
+}
+
+// ── Questions : 4 visuelles (mode:'visual') puis 4 en formules (mode:'text') ──
+const questions = [
+  // ── PARTIE 1 : VISUELLE ──
+  { mode: 'visual', options: [
+    { correct: true,  reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:2}] },
+    { correct: false, reactants: [{mol:'H2', coef:1}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:2}], products: [{mol:'H2O', coef:2}] },
+  ]},
+  { mode: 'visual', options: [
+    { correct: true,  reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'C', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:1}] },
+  ]},
+  { mode: 'visual', options: [
+    { correct: true,  reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:2}] },
+    { correct: false, reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:1}], products: [{mol:'NH3', coef:1}] },
+    { correct: false, reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:1}] },
+    { correct: false, reactants: [{mol:'N2', coef:2}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:2}] },
+  ]},
+  { mode: 'visual', options: [
+    { correct: true,  reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'CO', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:2}] },
+  ]},
+  // ── PARTIE 2 : FORMULES ──
+  { mode: 'text', options: [
+    { correct: true,  text: "CH₄ + 2 O₂ → CO₂ + 2 H₂O" },
+    { correct: false, text: "CH₄ + O₂ → CO₂ + H₂O" },
+    { correct: false, text: "CH₄ + 2 O₂ → CO₂ + H₂O" },
+    { correct: false, text: "2 CH₄ + 2 O₂ → CO₂ + 2 H₂O" },
+  ]},
+  { mode: 'text', options: [
+    { correct: true,  text: "C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O" },
+    { correct: false, text: "C₃H₈ + 5 O₂ → 3 CO₂ + 3 H₂O" },
+    { correct: false, text: "C₃H₈ + 4 O₂ → 3 CO₂ + 4 H₂O" },
+    { correct: false, text: "3 C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O" },
+  ]},
+  { mode: 'text', options: [
+    { correct: true,  text: "2 C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O" },
+    { correct: false, text: "C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O" },
+    { correct: false, text: "2 C₂H₆ + 7 O₂ → 4 CO₂ + 3 H₂O" },
+    { correct: false, text: "2 C₂H₆ + 5 O₂ → 4 CO₂ + 6 H₂O" },
+  ]},
+  { mode: 'text', options: [
+    { correct: true,  text: "2 H₂O₂ → 2 H₂O + O₂" },
+    { correct: false, text: "H₂O₂ → H₂O + O₂" },
+    { correct: false, text: "2 H₂O₂ → 2 H₂O" },
+    { correct: false, text: "2 H₂O₂ → H₂O + O₂" },
+  ]},
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let current = 0, score = 0, answered = false;
+
+function startQuiz(){
+  current = 0; score = 0;
+  document.getElementById('final-card').classList.add('hidden');
+  document.getElementById('quiz-card').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = questions[current];
+  document.getElementById('progress-text').textContent = `Question ${current+1} / ${questions.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current/questions.length)*100}%`;
+  document.getElementById('phase-banner').textContent = q.mode === 'visual' ? 'Partie 1 · En images' : 'Partie 2 · En formules';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const shuffled = shuffle(q.options);
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  shuffled.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'eq-option';
+    el.innerHTML = q.mode === 'visual'
+      ? renderEquationRow(opt)
+      : `<div class="formula-eq">${opt.text}</div>`;
+    el.addEventListener('click', () => selectOption(el, opt.correct));
+    optionsDiv.appendChild(el);
+  });
+}
+
+function selectOption(el, isCorrect){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll('.eq-option').forEach(o => o.classList.add('disabled'));
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const feedback = document.getElementById('feedback');
+  if(isCorrect){
+    score++;
+    feedback.textContent = 'Bravo, cette réaction est bien équilibrée !';
+    feedback.classList.add('correct');
+  } else {
+    feedback.textContent = 'Pas tout à fait... compare le nombre d\'atomes de chaque côté de la flèche.';
+    feedback.classList.add('wrong');
+  }
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= questions.length){ showFinal(); } else { renderQuestion(); }
+}
+
+function showFinal(){
+  document.getElementById('quiz-card').classList.add('hidden');
+  document.getElementById('final-card').classList.remove('hidden');
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = `/ ${questions.length}`;
+  let msg = '';
+  if(score === questions.length) msg = 'Parfait, toutes les réactions sont bien équilibrées !';
+  else if(score >= questions.length - 2) msg = 'Très bien joué, presque sans faute.';
+  else if(score >= questions.length/2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois le rappel et compte bien les atomes des deux côtés.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

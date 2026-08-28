@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculer une vitesse – Calcul guidé</title>
+<style>
+  :root {
+    --bleu: #2b6cb0;
+    --bleu-clair: #ebf4ff;
+    --vert: #2f855a;
+    --vert-clair: #f0fff4;
+    --rouge: #c53030;
+    --rouge-clair: #fff5f5;
+    --violet: #6b46c1;
+    --violet-clair: #faf5ff;
+    --gris: #4a5568;
+    --gris-clair: #f7fafc;
+    --bord: #cbd5e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--gris-clair);
+    color: #1a202c;
+    font-family: "Segoe UI", Verdana, Arial, sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+  header { text-align: center; margin-bottom: 20px; }
+  header h1 {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 800;
+    color: var(--bleu);
+  }
+  header p { margin-top: 6px; color: var(--gris); font-size: 0.95rem; }
+
+  .home-link { display:block; text-align:center; margin-bottom:16px; font-size:14px; color:var(--gris); text-decoration:none; }
+  .home-link:hover { text-decoration: underline; }
+
+  .formula-reminder {
+    max-width: 580px; margin: 0 auto 20px; background: var(--bleu-clair);
+    border-left: 5px solid var(--bleu); border-radius: 8px; padding: 12px 16px;
+    text-align: center; font-size: 1rem; color: #2c5282;
+  }
+
+  .progress-bar-wrap { max-width: 580px; margin: 0 auto 28px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--gris); margin-bottom: 6px; }
+  .progress-bar { height: 10px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--bleu); border-radius: 99px; transition: width 0.4s ease; }
+
+  .card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 26px 24px 24px;
+  }
+  .badge-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .step-badge {
+    display: inline-block; background: var(--gris-clair); color: var(--gris);
+    font-size: 0.8rem; padding: 4px 12px;
+    border-radius: 99px; border: 1px solid var(--bord); font-weight: 600;
+  }
+  .niveau-badge {
+    display: inline-block; font-size: 0.8rem;
+    padding: 4px 12px; border-radius: 99px; color: #1a202c; font-weight: 700;
+  }
+  .card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.4; }
+  .statement { font-size: 1.05rem; color: #1a202c; margin-bottom: 20px; line-height: 1.6; }
+  .statement .val { color: var(--bleu); font-weight: 700; }
+
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-size: 0.85rem; color: var(--gris); font-weight: 600; }
+  .input-group label span { color: var(--bleu); }
+  .input-group input {
+    background: #ffffff; border: 2px solid var(--bord); border-radius: 12px;
+    padding: 12px 14px; color: #1a202c;
+    font-size: 1.15rem; outline: none; transition: border-color 0.2s; width: 100%;
+    text-align: center;
+    font-family: inherit;
+  }
+  .input-group input:focus { border-color: var(--bleu); }
+  .input-group input.ok { border-color: var(--vert); background: var(--vert-clair); }
+  .input-group input.err { border-color: var(--rouge); background: var(--rouge-clair); }
+  .inline-feedback { font-size: 0.85rem; min-height: 16px; font-weight: 600; }
+  .inline-feedback.ok { color: var(--vert); }
+  .inline-feedback.err { color: var(--rouge); }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  button {
+    font-family: inherit; font-weight: 700; font-size: 1rem;
+    border: none; border-radius: 14px; padding: 14px 22px; cursor: pointer;
+  }
+  .btn-check { background: var(--bleu); color: #ffffff; flex: 1; }
+  .btn-hint { background: var(--gris-clair); color: var(--gris); border: 2px solid var(--bord); }
+  .btn-next { background: var(--vert); color: #ffffff; flex: 1; display: none; }
+  .btn-next.visible { display: block; }
+
+  .global-feedback {
+    margin-top: 16px; padding: 14px; border-radius: 12px;
+    font-size: 0.95rem; display: none;
+    line-height: 1.6;
+  }
+  .global-feedback.ok { background: var(--vert-clair); border: 1px solid var(--vert); color: #22543d; display: block; }
+  .global-feedback.err { background: var(--rouge-clair); border: 1px solid var(--rouge); color: #822727; display: block; }
+  .global-feedback.info { background: var(--violet-clair); border: 1px solid var(--violet); color: #44337a; display: block; }
+
+  #score-screen { display: none; text-align: center; max-width: 560px; margin: 0 auto; padding: 32px 24px; }
+  #score-screen h2 {
+    font-size: 1.8rem; font-weight: 800;
+    color: var(--bleu);
+    margin-bottom: 8px;
+  }
+  #score-screen p { color: var(--gris); font-size: 1rem; margin-bottom: 26px; }
+  .score-circle {
+    width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--bleu);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px; font-size: 1.9rem; font-weight: 800; color: var(--bleu);
+    background: var(--bleu-clair);
+  }
+  .btn-restart { background: var(--vert); color: #ffffff; padding: 14px 32px; font-size: 1.05rem; border-radius: 14px; }
+
+  #gate-screen { display: none; text-align: center; }
+  #gate-screen .gate-icon { font-size: 2.6rem; margin-bottom: 10px; }
+  #gate-screen h2 { font-size: 1.4rem; font-weight: 800; color: var(--bleu); margin-bottom: 14px; }
+  #gate-screen p { color: var(--gris); font-size: 1rem; margin-bottom: 22px; line-height: 1.6; }
+  #gate-screen .gate-warn { color: var(--rouge); font-weight: 700; }
+  .btn-gate { background: var(--bleu); color: #ffffff; width: 100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Calculer une vitesse</h1>
+  <p>15 exercices, du plus simple au plus difficile — toutes les réponses en m/s</p>
+</header>
+<a href="https://jonesgeronimo.github.io/Sciences" class="home-link">← Accueil</a>
+
+<div class="formula-reminder">v = d ÷ t &nbsp; · &nbsp; 1 km = 1000 m &nbsp; · &nbsp; 1 m = 100 cm &nbsp; · &nbsp; 1 h = 3600 s &nbsp; · &nbsp; 1 min = 60 s</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label">
+    <span id="prog-label">Exercice 1 / 15</span>
+    <span id="prog-score">0 point(s)</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div id="exercise-card" class="card">
+  <div class="badge-row">
+    <div class="step-badge" id="step-badge">Étape 1</div>
+    <div class="niveau-badge" id="niveau-badge">Niveau 1</div>
+  </div>
+  <h2 id="ex-title"></h2>
+  <div class="statement" id="ex-statement"></div>
+  <div class="inputs-grid">
+    <div class="input-group">
+      <label for="inp_ans"><span>v (m/s)</span></label>
+      <input id="inp_ans" type="number" step="any" placeholder="… m/s" autocomplete="off">
+      <div class="inline-feedback" id="fb_ans"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-hint" onclick="showHint()">💡 Indice</button>
+    <button class="btn-check" onclick="checkAnswers()">Vérifier</button>
+    <button class="btn-next visible" id="btn-next" onclick="nextExercise()" style="display:none">Suivant →</button>
+  </div>
+  <div class="global-feedback" id="global-fb"></div>
+</div>
+
+<div id="gate-screen" class="card">
+  <div class="gate-icon">🚀</div>
+  <h2>Tu passes au niveau supérieur !</h2>
+  <p>
+    À partir d'ici, les exercices demandent des <b>conversions</b> (cm, km, min, h…) avant de calculer.<br>
+    <span class="gate-warn">Il n'y aura pas ça au TS</span> — c'est un entraînement bonus pour aller plus loin !
+  </p>
+  <button class="btn-gate" onclick="validateGate()">J'ai compris, on continue →</button>
+</div>
+
+<div id="score-screen">
+  <div class="score-circle" id="final-score-circle"></div>
+  <h2>Terminé !</h2>
+  <p id="final-msg"></p>
+  <button class="btn-restart" onclick="restart()">Recommencer</button>
+</div>
+
+<script>
+const NIVEAU_COLORS = {
+  1: "#8fd6a3",
+  2: "#7fd0e0",
+  3: "#b7aef0",
+  4: "#f2c07a",
+  5: "#f29a9a"
+};
+
+const exercises = [
+  // ---------- Niveau 1 : échauffement ----------
+  {
+    niveau: 1, etoiles: "★",
+    icon: "🚗",
+    title: "Échauffement — une voiture",
+    statement: "Une voiture parcourt <span class='val'>5 m</span> en <span class='val'>5 s</span>. Calcule sa vitesse en m/s.",
+    hint: "v = d ÷ t. Ici tout est déjà en m et en s, pas de conversion à faire.",
+    hint2: "v = 5 ÷ 5",
+    answer: 1, tol: 0.05,
+    explanation: "v = 5 ÷ 5 = <b>1 m/s</b>"
+  },
+  {
+    niveau: 1, etoiles: "★",
+    icon: "🚴",
+    title: "Échauffement — un cycliste",
+    statement: "Un cycliste parcourt <span class='val'>20 m</span> en <span class='val'>4 s</span>. Calcule sa vitesse en m/s.",
+    hint: "v = d ÷ t.",
+    hint2: "v = 20 ÷ 4",
+    answer: 5, tol: 0.1,
+    explanation: "v = 20 ÷ 4 = <b>5 m/s</b>"
+  },
+  {
+    niveau: 1, etoiles: "★",
+    icon: "🏃",
+    title: "Échauffement — un coureur",
+    statement: "Un coureur parcourt <span class='val'>100 m</span> en <span class='val'>10 s</span>. Calcule sa vitesse en m/s.",
+    hint: "v = d ÷ t.",
+    hint2: "v = 100 ÷ 10",
+    answer: 10, tol: 0.1,
+    explanation: "v = 100 ÷ 10 = <b>10 m/s</b>"
+  },
+
+  // ---------- Niveau 2 : nombres moins ronds ----------
+  {
+    niveau: 2, etoiles: "★★",
+    icon: "🚙",
+    title: "Nombres moins ronds — une voiture",
+    statement: "Une voiture parcourt <span class='val'>150 m</span> en <span class='val'>6 s</span>. Calcule sa vitesse en m/s.",
+    hint: "Toujours la même formule, mais la division est un peu moins évidente.",
+    hint2: "v = 150 ÷ 6",
+    answer: 25, tol: 0.2,
+    explanation: "v = 150 ÷ 6 = <b>25 m/s</b>"
+  },
+  {
+    niveau: 2, etoiles: "★★",
+    icon: "🐌",
+    title: "Nombres moins ronds — un escargot",
+    statement: "Un escargot parcourt <span class='val'>0,9 m</span> en <span class='val'>3 s</span>. Calcule sa vitesse en m/s.",
+    hint: "Le résultat peut être un nombre décimal, c'est normal.",
+    hint2: "v = 0,9 ÷ 3",
+    answer: 0.3, tol: 0.02,
+    explanation: "v = 0,9 ÷ 3 = <b>0,3 m/s</b>"
+  },
+  {
+    niveau: 2, etoiles: "★★",
+    icon: "🚄",
+    title: "Nombres moins ronds — un TGV",
+    statement: "Un TGV parcourt <span class='val'>300 m</span> en <span class='val'>12 s</span>. Calcule sa vitesse en m/s.",
+    hint: "v = d ÷ t.",
+    hint2: "v = 300 ÷ 12",
+    answer: 25, tol: 0.2,
+    explanation: "v = 300 ÷ 12 = <b>25 m/s</b>"
+  },
+
+  // ---------- Niveau 3 : une seule conversion (variée) ----------
+  {
+    niveau: 3, etoiles: "★★★",
+    icon: "🐌",
+    title: "Une conversion — une limace",
+    statement: "Une limace avance de <span class='val'>180 cm</span> en <span class='val'>6 s</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis d'abord les cm en m.",
+    hint2: "180 cm = 1,8 m → v = 1,8 ÷ 6",
+    answer: 0.3, tol: 0.02,
+    explanation: "180 cm = 1,8 m → v = 1,8 ÷ 6 = <b>0,3 m/s</b>"
+  },
+  {
+    niveau: 3, etoiles: "★★★",
+    icon: "🛵",
+    title: "Une conversion — un scooter",
+    statement: "Un scooter parcourt <span class='val'>900 m</span> en <span class='val'>1 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis d'abord la minute en secondes.",
+    hint2: "1 min = 60 s → v = 900 ÷ 60",
+    answer: 15, tol: 0.3,
+    explanation: "1 min = 60 s → v = 900 ÷ 60 = <b>15 m/s</b>"
+  },
+  {
+    niveau: 3, etoiles: "★★★",
+    icon: "🚗",
+    title: "Une conversion — une voiture",
+    statement: "Une voiture parcourt <span class='val'>2 km</span> en <span class='val'>100 s</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis d'abord les km en m.",
+    hint2: "2 km = 2000 m → v = 2000 ÷ 100",
+    answer: 20, tol: 0.3,
+    explanation: "2 km = 2000 m → v = 2000 ÷ 100 = <b>20 m/s</b>"
+  },
+
+  // ---------- Niveau 4 : deux conversions ----------
+  {
+    niveau: 4, etoiles: "★★★★",
+    icon: "🚴",
+    title: "Deux conversions — un cycliste",
+    statement: "Un cycliste parcourt <span class='val'>3 km</span> en <span class='val'>5 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis les km en m ET les min en s avant de diviser.",
+    hint2: "3 km = 3000 m · 5 min = 300 s → v = 3000 ÷ 300",
+    answer: 10, tol: 0.2,
+    explanation: "3 km = 3000 m, 5 min = 300 s → v = 3000 ÷ 300 = <b>10 m/s</b>"
+  },
+  {
+    niveau: 4, etoiles: "★★★★",
+    icon: "🚌",
+    title: "Deux conversions — un bus",
+    statement: "Un bus parcourt <span class='val'>1,8 km</span> en <span class='val'>2 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis les km en m ET les min en s.",
+    hint2: "1,8 km = 1800 m · 2 min = 120 s → v = 1800 ÷ 120",
+    answer: 15, tol: 0.3,
+    explanation: "1,8 km = 1800 m, 2 min = 120 s → v = 1800 ÷ 120 = <b>15 m/s</b>"
+  },
+  {
+    niveau: 4, etoiles: "★★★★",
+    icon: "🚆",
+    title: "Deux conversions — un train",
+    statement: "Un train parcourt <span class='val'>15 km</span> en <span class='val'>10 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis les km en m ET les min en s.",
+    hint2: "15 km = 15 000 m · 10 min = 600 s → v = 15 000 ÷ 600",
+    answer: 25, tol: 0.3,
+    explanation: "15 km = 15 000 m, 10 min = 600 s → v = 15 000 ÷ 600 = <b>25 m/s</b>"
+  },
+
+  // ---------- Niveau 5 : défi (heures + minutes) ----------
+  {
+    niveau: 5, etoiles: "★★★★★",
+    icon: "🚘",
+    title: "Défi — une voiture (h + min)",
+    statement: "Une voiture parcourt <span class='val'>300 km</span> en <span class='val'>3 h et 20 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis TOUT en unités de base : les km en m, et les h + min en secondes (1 h = 3600 s).",
+    hint2: "300 km = 300 000 m · 3h20 = 3×3600 + 20×60 = 12 000 s → v = 300 000 ÷ 12 000",
+    answer: 25, tol: 0.5,
+    explanation: "300 km = 300 000 m, 3 h 20 min = 12 000 s → v = 300 000 ÷ 12 000 = <b>25 m/s</b> (= 90 km/h)"
+  },
+  {
+    niveau: 5, etoiles: "★★★★★",
+    icon: "🚛",
+    title: "Défi — un camion (h + min)",
+    statement: "Un camion parcourt <span class='val'>180 km</span> en <span class='val'>2 h et 30 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis les km en m, et les h + min en secondes.",
+    hint2: "180 km = 180 000 m · 2h30 = 2×3600 + 30×60 = 9 000 s → v = 180 000 ÷ 9 000",
+    answer: 20, tol: 0.5,
+    explanation: "180 km = 180 000 m, 2 h 30 min = 9 000 s → v = 180 000 ÷ 9 000 = <b>20 m/s</b> (= 72 km/h)"
+  },
+  {
+    niveau: 5, etoiles: "★★★★★",
+    icon: "✈️",
+    title: "Défi — un avion (h + min)",
+    statement: "Un avion parcourt <span class='val'>630 km</span> en <span class='val'>1 h et 45 min</span>. Calcule sa vitesse en m/s.",
+    hint: "Convertis les km en m, et les h + min en secondes.",
+    hint2: "630 km = 630 000 m · 1h45 = 3600 + 45×60 = 6 300 s → v = 630 000 ÷ 6 300",
+    answer: 100, tol: 1,
+    explanation: "630 km = 630 000 m, 1 h 45 min = 6 300 s → v = 630 000 ÷ 6 300 = <b>100 m/s</b> (= 360 km/h)"
+  }
+];
+
+let current = 0, score = 0, checked = false, hintLevel = 0;
+const GATE_INDEX = 6; // premier exercice qui demande une conversion (niveau 3)
+let gateShown = false;
+
+function renderExercise() {
+  const ex = exercises[current];
+  checked = false; hintLevel = 0;
+  document.getElementById('step-badge').textContent = `Étape ${current+1}`;
+  const nb = document.getElementById('niveau-badge');
+  nb.textContent = `Niveau ${ex.niveau} ${ex.etoiles}`;
+  nb.style.background = NIVEAU_COLORS[ex.niveau];
+  document.getElementById('ex-title').textContent = `${ex.icon} ${ex.title}`;
+  document.getElementById('ex-statement').innerHTML = ex.statement;
+
+  const inp = document.getElementById('inp_ans');
+  inp.value = '';
+  inp.classList.remove('ok','err');
+  document.getElementById('fb_ans').textContent = '';
+  document.getElementById('fb_ans').className = 'inline-feedback';
+
+  document.getElementById('global-fb').className = 'global-feedback';
+  document.getElementById('global-fb').textContent = '';
+  document.getElementById('btn-next').style.display = 'none';
+  updateProgress();
+  inp.focus();
+}
+
+function updateProgress() {
+  document.getElementById('prog-label').textContent = `Exercice ${current+1} / ${exercises.length}`;
+  document.getElementById('prog-score').textContent = `${score} point(s)`;
+  document.getElementById('prog-fill').style.width = `${(current/exercises.length)*100}%`;
+}
+
+function checkAnswers() {
+  if (checked) return;
+  const ex = exercises[current];
+  const inp = document.getElementById('inp_ans');
+  const fb = document.getElementById('fb_ans');
+  const v = parseFloat(inp.value);
+  const gfb = document.getElementById('global-fb');
+
+  if (!isNaN(v) && Math.abs(v - ex.answer) <= ex.tol) {
+    inp.classList.add('ok'); inp.classList.remove('err');
+    fb.textContent = '✓ Correct !'; fb.className = 'inline-feedback ok';
+    score++; checked = true;
+    gfb.innerHTML = '🎉 Bravo ! ' + ex.explanation;
+    gfb.className = 'global-feedback ok';
+    document.getElementById('btn-next').style.display = 'block';
+    updateProgress();
+  } else {
+    inp.classList.add('err'); inp.classList.remove('ok');
+    fb.textContent = isNaN(v) ? '⚠ Entre une valeur' : '✗ Pas encore…';
+    fb.className = 'inline-feedback err';
+    gfb.textContent = "🤔 Pas encore… Relis l'indice et réessaie !";
+    gfb.className = 'global-feedback err';
+  }
+}
+
+function showHint() {
+  const ex = exercises[current];
+  const gfb = document.getElementById('global-fb');
+  gfb.innerHTML = '💡 ' + (hintLevel === 0 ? ex.hint : ex.hint2);
+  gfb.className = 'global-feedback info';
+  hintLevel = (hintLevel + 1) % 2;
+}
+
+function nextExercise() {
+  current++;
+  if (current >= exercises.length) { showScore(); return; }
+  if (current === GATE_INDEX && !gateShown) { showGate(); return; }
+  renderExercise();
+}
+
+function showGate() {
+  document.getElementById('exercise-card').style.display = 'none';
+  document.getElementById('gate-screen').style.display = 'block';
+}
+
+function validateGate() {
+  gateShown = true;
+  document.getElementById('gate-screen').style.display = 'none';
+  document.getElementById('exercise-card').style.display = 'block';
+  renderExercise();
+}
+
+function showScore() {
+  document.getElementById('exercise-card').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+  const pct = Math.round((score / exercises.length) * 100);
+  document.getElementById('final-score-circle').textContent = `${score}/${exercises.length}`;
+  const msg = pct >= 80 ? "Excellent ! Tu maîtrises le calcul de vitesse 🚀"
+             : pct >= 50 ? "Bien ! Relis les exemples pour consolider les conversions."
+             : "Continue à t'entraîner, tu vas y arriver ! 💪";
+  document.getElementById('final-msg').textContent = msg;
+  document.getElementById('prog-fill').style.width = '100%';
+  document.getElementById('prog-score').textContent = `${score} point(s)`;
+}
+
+function restart() {
+  current = 0; score = 0; gateShown = false;
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('gate-screen').style.display = 'none';
+  document.getElementById('exercise-card').style.display = 'block';
+  renderExercise();
+}
+
+renderExercise();
+</script>
+</body>
+</html>

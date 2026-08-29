@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Identifie les os — Sciences</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1f2e;
+    --ink-soft:   #4a5168;
+    --paper:      #f7f5f0;
+    --cream:      #efecea;
+    --green:      #2d6a4f;
+    --green-mid:  #52b788;
+    --green-pale: #d8f3dc;
+    --rose:       #b5384a;
+    --rose-mid:   #d9607a;
+    --rose-pale:  #fde8ec;
+    --terracotta:      #a35a2e;
+    --terracotta-mid:  #c9814f;
+    --terracotta-pale: #f5e3d3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  nav {
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--cream);
+    background: rgba(247,245,240,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  nav a { text-decoration: none; font-size: 13px; font-weight: 600; color: var(--ink-soft); transition: color 0.15s; }
+  nav a:hover { color: var(--terracotta); }
+  nav a.home { color: var(--terracotta); font-weight: 700; }
+  .nav-sep { color: #ccc; font-size: 12px; }
+  .nav-current { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+  .hero {
+    position: relative;
+    padding: 52px 24px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--cream);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(163,90,46,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--terracotta);
+    border: 1.5px solid var(--terracotta-mid);
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 18px;
+    background: var(--terracotta-pale);
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 38px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .hero h1 em { font-style: italic; color: var(--terracotta); }
+  .hero-sub {
+    font-size: 14px; color: var(--ink-soft); font-weight: 500;
+    max-width: 440px; margin: 0 auto; line-height: 1.6;
+  }
+
+  main { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; padding: 36px 20px 60px; }
+
+  .card {
+    background: white; border-radius: 18px; padding: 24px; margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--terracotta), var(--terracotta-mid));
+  }
+
+  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  .progress-bar-bg { background: var(--cream); border-radius: 8px; height: 7px; overflow: hidden; margin-bottom: 20px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--terracotta), var(--terracotta-mid)); border-radius: 8px; transition: width 0.3s ease; }
+
+  .question-label { text-align: center; font-weight: 600; color: var(--ink-soft); margin-bottom: 14px; font-size: 13.5px; }
+
+  /* ── SKELETON IMAGE + MARKER ── */
+  .skeleton-wrap { display: flex; justify-content: center; margin: 4px 0 6px; }
+  .skeleton-frame { position: relative; display: inline-block; }
+  .skeleton-frame img { display: block; max-height: 480px; width: auto; border-radius: 10px; }
+
+  .bone-marker {
+    position: absolute;
+    height: 10px;
+    border-radius: 99px;
+    background: var(--terracotta);
+    box-shadow: 0 0 0 3px var(--terracotta-pale);
+    transform: translateY(-50%);
+    pointer-events: none;
+    animation: bonePulse 1.15s ease-in-out infinite;
+  }
+
+  @keyframes bonePulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 3px var(--terracotta-pale), 0 0 10px 2px rgba(163,90,46,0.7); }
+    50%      { opacity: 0.55; box-shadow: 0 0 0 3px var(--terracotta-pale), 0 0 4px 0px rgba(163,90,46,0.3); }
+  }
+
+  .skeleton-caption { text-align: center; font-size: 11.5px; color: #a8a49e; font-weight: 500; margin-bottom: 18px; }
+  .skeleton-caption a { color: #a8a49e; }
+
+  /* ── OPTIONS ── */
+  .options-text { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 400px) { .options-text { grid-template-columns: 1fr; } }
+
+  .text-option {
+    background: var(--paper);
+    border: 1.5px solid var(--cream);
+    border-radius: 14px;
+    padding: 16px 10px;
+    cursor: pointer;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .text-option:hover:not(.disabled) { border-color: var(--terracotta-mid); transform: translateY(-2px); }
+  .text-option:active:not(.disabled) { transform: translateY(0); }
+  .text-option.disabled { cursor: default; }
+  .text-option.correct { background: var(--green-pale); border-color: var(--green-mid); color: var(--green); }
+  .text-option.wrong { background: var(--rose-pale); border-color: var(--rose-mid); color: var(--rose); }
+
+  .feedback { text-align: center; font-weight: 700; margin-top: 16px; min-height: 1.3em; font-size: 14.5px; }
+  .feedback.correct { color: var(--green); }
+  .feedback.wrong { color: var(--rose); }
+
+  .btn-row { display: flex; justify-content: center; margin-top: 16px; }
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: white;
+    background: var(--terracotta); padding: 12px 30px; border-radius: 99px; border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(163,90,46,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+  }
+  .pill-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(163,90,46,0.35); background: #8a4a24; }
+  .next-btn { opacity: 0; pointer-events: none; }
+  .next-btn.show { opacity: 1; pointer-events: auto; }
+
+  .final { text-align: center; }
+  .score-circle {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--terracotta-mid), var(--terracotta));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 6px auto 16px; box-shadow: 0 6px 24px rgba(163,90,46,0.28); color: white;
+  }
+  .score-circle .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
+  .score-circle .score-denom { font-size: 13px; font-weight: 700; opacity: 0.85; }
+  .final-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+  .final p { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
+
+  .hidden { display: none; }
+
+  footer { text-align: center; padding: 28px 24px; font-size: 12px; color: #a8a49e; font-weight: 500; border-top: 1px solid var(--cream); position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="home" href="index.html">🌿 Sciences</a>
+  <span class="nav-sep">/</span>
+  <a href="activites.html#squelette">Activités</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-current">Identifie les os</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Squelette</div>
+  <h1>Identifie <em>les os</em></h1>
+  <p class="hero-sub">Un repère s'illumine sur le squelette : retrouve le nom de l'os parmi les propositions.</p>
+</div>
+
+<main>
+
+  <div id="quiz-card" class="card">
+    <div class="progress-row">
+      <span id="progress-text">Os 1 / 8</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+
+    <div class="question-label">Quelle flèche en surbrillance désigne quel os ?</div>
+
+    <div class="skeleton-wrap">
+      <div class="skeleton-frame">
+        <img src="img/squelette_os.png" alt="Squelette humain, vue de face, avec légendes">
+        <div class="bone-marker" id="bone-marker"></div>
+      </div>
+    </div>
+    <div class="skeleton-caption">Image : A.Spielhoff, Wikimedia Commons (CC BY-SA 3.0) — crâne, mains et pieds exclus du jeu</div>
+
+    <div class="options-text" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row"><button class="pill-btn next-btn" id="next-btn">Suivant →</button></div>
+  </div>
+
+  <div id="final-card" class="card final hidden">
+    <div class="final-title">Activité terminée !</div>
+    <div class="score-circle">
+      <span class="score-num" id="final-score-num">0</span>
+      <span class="score-denom" id="final-score-denom">/ 8</span>
+    </div>
+    <p id="final-msg"></p>
+    <button class="pill-btn" id="restart-btn">Recommencer</button>
+  </div>
+
+</main>
+
+<footer>Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026</footer>
+
+<script>
+// ── Os : nom + position de la ligne pointillée (légende) qui lui correspond sur l'image réelle ──
+// x0/x1 = étendue horizontale de la ligne pointillée (%), y = sa hauteur (%)
+const boneDefs = [
+  { name: "Clavicule",          bar: {x0:3,  x1:13, y:20.65} },
+  { name: "Sternum",            bar: {x0:3,  x1:13, y:26.53} },
+  { name: "Côtes",              bar: {x0:87, x1:97, y:15.20} },
+  { name: "Colonne vertébrale", bar: {x0:87, x1:97, y:34.88} },
+  { name: "Bassin",             bar: {x0:3,  x1:13, y:43.63} },
+  { name: "Humérus",            bar: {x0:87, x1:97, y:24.52} },
+  { name: "Radius",             bar: {x0:87, x1:97, y:42.50} },
+  { name: "Cubitus",            bar: {x0:87, x1:97, y:45.69} },
+  { name: "Fémur",              bar: {x0:87, x1:97, y:65.60} },
+  { name: "Rotule",             bar: {x0:3,  x1:13, y:68.95} },
+  { name: "Tibia",              bar: {x0:87, x1:97, y:84.40} },
+  { name: "Péroné",             bar: {x0:87, x1:97, y:78.87} },
+];
+
+const QUIZ_LENGTH = 8;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let order = [], current = 0, score = 0, answered = false;
+
+function startQuiz(){
+  const picked = shuffle(boneDefs).slice(0, QUIZ_LENGTH);
+  order = picked.map(def => ({ name: def.name, bar: def.bar }));
+  current = 0; score = 0;
+  document.getElementById('final-card').classList.add('hidden');
+  document.getElementById('quiz-card').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = order[current];
+  const marker = document.getElementById('bone-marker');
+  marker.style.left = q.bar.x0 + '%';
+  marker.style.width = (q.bar.x1 - q.bar.x0) + '%';
+  marker.style.top = q.bar.y + '%';
+
+  document.getElementById('progress-text').textContent = `Os ${current+1} / ${order.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current/order.length)*100}%`;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.remove('show');
+
+  const others = boneDefs.filter(b => b.name !== q.name).map(b => b.name);
+  const wrongs = shuffle(others).slice(0, 3);
+  const optionNames = shuffle([q.name, ...wrongs]);
+
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  optionNames.forEach(name => {
+    const el = document.createElement('div');
+    el.className = 'text-option';
+    el.textContent = name;
+    el.addEventListener('click', () => selectOption(el, name === q.name));
+    optionsDiv.appendChild(el);
+  });
+}
+
+function selectOption(el, isCorrect){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll('.text-option').forEach(o => o.classList.add('disabled'));
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const feedback = document.getElementById('feedback');
+  if(isCorrect){
+    score++;
+    feedback.textContent = 'Bravo, c\'est le bon os !';
+    feedback.classList.add('correct');
+  } else {
+    feedback.textContent = `Pas tout à fait... c'était : ${order[current].name}.`;
+    feedback.classList.add('wrong');
+  }
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= order.length){ showFinal(); } else { renderQuestion(); }
+}
+
+function showFinal(){
+  document.getElementById('quiz-card').classList.add('hidden');
+  document.getElementById('final-card').classList.remove('hidden');
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = `/ ${order.length}`;
+  let msg = '';
+  if(score === order.length) msg = 'Parfait, tous les os sont reconnus !';
+  else if(score >= order.length - 2) msg = 'Très bien joué, presque sans faute.';
+  else if(score >= order.length/2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois le squelette et réessaie.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

@@ -5,216 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <base href="/Sciences/">
 <title>Identifie la molécule — Sciences</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink:        #1a1f2e;
-    --ink-soft:   #4a5168;
-    --paper:      #f7f5f0;
-    --cream:      #efecea;
-    --green:      #2d6a4f;
-    --green-mid:  #52b788;
-    --green-pale: #d8f3dc;
-    --rose:       #b5384a;
-    --rose-mid:   #d9607a;
-    --rose-pale:  #fde8ec;
-    --color-h:    #ffffff;
-    --color-h-stroke: #333333;
-    --color-c:    #111111;
-    --color-o:    #e2001a;
-    --color-o-stroke: #a30012;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-  }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0;
-  }
-
-  nav {
-    padding: 14px 24px;
-    display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid var(--cream);
-    background: rgba(247,245,240,0.95);
-    backdrop-filter: blur(8px);
-    position: sticky; top: 0; z-index: 100;
-  }
-  nav a { text-decoration: none; font-size: 13px; font-weight: 600; color: var(--ink-soft); transition: color 0.15s; }
-  nav a:hover { color: var(--green); }
-  nav a.home { color: var(--green); font-weight: 700; }
-  .nav-sep { color: #ccc; font-size: 12px; }
-  .nav-current { font-size: 13px; font-weight: 700; color: var(--ink); }
-
-  .hero {
-    position: relative;
-    padding: 52px 24px 36px;
-    text-align: center;
-    border-bottom: 1px solid var(--cream);
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(181,56,74,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-tag {
-    display: inline-block;
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--rose);
-    border: 1.5px solid var(--rose-mid);
-    padding: 5px 14px; border-radius: 99px;
-    margin-bottom: 18px;
-    background: var(--rose-pale);
-  }
-  .hero h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(26px, 5vw, 38px);
-    line-height: 1.15;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-  .hero h1 em { font-style: italic; color: var(--rose); }
-  .hero-sub {
-    font-size: 14px; color: var(--ink-soft); font-weight: 500;
-    max-width: 440px; margin: 0 auto; line-height: 1.6;
-  }
-
-  main { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; padding: 36px 20px 60px; }
-
-  .card {
-    background: white; border-radius: 18px; padding: 24px; margin-bottom: 18px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-    position: relative; overflow: hidden;
-  }
-  .card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--rose), var(--rose-mid));
-  }
-
-  .rappel-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--rose); margin-bottom: 12px; text-align: center; }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
-  .legend-item { display: flex; align-items: center; gap: 6px; }
-  .legend-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
-  .dot-h { background: var(--color-h); border: 2px solid var(--color-h-stroke); }
-  .dot-c { background: var(--color-c); }
-  .dot-o { background: var(--color-o); }
-  .rappel-tip { width: 100%; text-align: center; color: var(--ink-soft); font-size: 12.5px; font-weight: 500; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cream); }
-
-  .progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
-  .progress-bar-bg { background: var(--cream); border-radius: 8px; height: 7px; overflow: hidden; margin-bottom: 20px; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rose), var(--rose-mid)); border-radius: 8px; transition: width 0.3s ease; }
-
-  .formula-display {
-    text-align: center;
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.1rem;
-    color: var(--ink);
-    background: var(--rose-pale);
-    border-radius: 14px;
-    padding: 14px 10px;
-    margin-bottom: 14px;
-  }
-
-  .question-label { text-align: center; font-weight: 600; color: var(--ink-soft); margin-bottom: 12px; font-size: 13.5px; }
-
-  .options-img { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 400px) { .options-img { grid-template-columns: 1fr; } }
-
-  .img-option {
-    background: var(--paper);
-    border: 1.5px solid var(--cream);
-    border-radius: 14px;
-    padding: 8px;
-    cursor: pointer;
-    height: 140px;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .img-option svg { max-width: 100%; max-height: 100%; }
-  .img-option:hover:not(.disabled) { border-color: var(--rose-mid); transform: translateY(-2px); }
-  .img-option:active:not(.disabled) { transform: translateY(0); }
-  .img-option.disabled { cursor: default; }
-  .img-option.correct { background: var(--green-pale); border-color: var(--green-mid); }
-  .img-option.wrong { background: var(--rose-pale); border-color: var(--rose-mid); }
-
-  .bond { stroke: #cfc9c2; stroke-width: 6; stroke-linecap: round; }
-  .atom-h { fill: var(--color-h); stroke: var(--color-h-stroke); stroke-width: 3; }
-  .atom-c { fill: var(--color-c); stroke: var(--color-c); }
-  .atom-o { fill: var(--color-o); stroke: var(--color-o-stroke); stroke-width: 2; }
-
-  .feedback { text-align: center; font-weight: 700; margin-top: 16px; min-height: 1.3em; font-size: 14.5px; }
-  .feedback.correct { color: var(--green); }
-  .feedback.wrong { color: var(--rose); }
-
-  .btn-row { display: flex; justify-content: center; margin-top: 16px; }
-  .pill-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: white;
-    background: var(--rose); padding: 12px 30px; border-radius: 99px; border: none; cursor: pointer;
-    box-shadow: 0 2px 8px rgba(181,56,74,0.25);
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
-  }
-  .pill-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(181,56,74,0.35); background: #94293a; }
-  .next-btn { opacity: 0; pointer-events: none; }
-  .next-btn.show { opacity: 1; pointer-events: auto; }
-
-  .final { text-align: center; }
-  .score-circle {
-    width: 110px; height: 110px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--rose-mid), var(--rose));
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    margin: 6px auto 16px; box-shadow: 0 6px 24px rgba(181,56,74,0.28); color: white;
-  }
-  .score-circle .score-num { font-size: 34px; font-weight: 800; line-height: 1; }
-  .score-circle .score-denom { font-size: 13px; font-weight: 700; opacity: 0.85; }
-  .final-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
-  .final p { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
-
-  .hidden { display: none; }
-
-  footer { text-align: center; padding: 28px 24px; font-size: 12px; color: #a8a49e; font-weight: 500; border-top: 1px solid var(--cream); position: relative; z-index: 1; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <nav>
-  <a class="home" href="index.html">🌿 Sciences</a>
-  <span class="nav-sep">/</span>
-  <a href="activites.html#chimie">Activités</a>
-  <span class="nav-sep">/</span>
-  <span class="nav-current">Identifie la molécule</span>
+  <a class="brand" href="index.html">Sciences</a>
+  <a href="index.html">Accueil</a>
+  <a href="activites.html">Activités</a>
+  <a href="cours.html">Cours</a>
 </nav>
 
-<div class="hero">
-  <div class="hero-tag">Chimie</div>
-  <h1>Identifie <em>la molécule</em></h1>
-  <p class="hero-sub">Une formule chimique s'affiche : choisis l'image qui la représente correctement.</p>
-</div>
-
 <main>
+  <h1>Identifie la molécule</h1>
+  <p class="sub">Une formule chimique s'affiche : choisis l'image qui la représente correctement.</p>
 
   <div class="card">
-    <div class="rappel-title">Rappel des couleurs</div>
+    <div class="legend-title">Rappel des couleurs</div>
     <div class="legend">
-      <div class="legend-item"><span class="legend-dot dot-h"></span> Hydrogène (H)</div>
-      <div class="legend-item"><span class="legend-dot dot-c"></span> Carbone (C)</div>
-      <div class="legend-item"><span class="legend-dot dot-o"></span> Oxygène (O)</div>
+      <div class="legend-item"><span class="legend-dot h"></span> Hydrogène (H)</div>
+      <div class="legend-item"><span class="legend-dot c"></span> Carbone (C)</div>
+      <div class="legend-item"><span class="legend-dot o"></span> Oxygène (O)</div>
     </div>
-    <div class="rappel-tip">Compte bien le nombre de billes de chaque couleur avant de choisir !</div>
+    <div class="legend-tip">Compte bien le nombre de billes de chaque couleur avant de choisir !</div>
   </div>
 
   <div id="quiz-card" class="card">
@@ -224,29 +37,25 @@
     </div>
     <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
 
-    <div class="formula-display" id="formula-display"></div>
-    <div class="question-label">Quelle image représente cette molécule ?</div>
+    <div id="formula-display" style="text-align:center; font-size:2rem; font-weight:700; background:var(--border-light); border-radius:10px; padding:14px 10px; margin-bottom:14px;"></div>
+    <div class="sub" style="text-align:center; margin-bottom:10px;">Quelle image représente cette molécule ?</div>
 
-    <div class="options-img" id="options"></div>
+    <div class="options" id="options"></div>
 
     <div class="feedback" id="feedback"></div>
 
-    <div class="btn-row"><button class="pill-btn next-btn" id="next-btn">Suivant →</button></div>
+    <div class="btn-row"><button class="hidden" id="next-btn">Suivant</button></div>
   </div>
 
   <div id="final-card" class="card final hidden">
-    <div class="final-title">Activité terminée !</div>
-    <div class="score-circle">
-      <span class="score-num" id="final-score-num">0</span>
-      <span class="score-denom" id="final-score-denom">/ 8</span>
-    </div>
+    <p class="sub" style="margin-bottom:4px;">Activité terminée</p>
+    <div class="score"><span id="final-score-num">0</span> / <span id="final-score-denom">8</span></div>
     <p id="final-msg"></p>
-    <button class="pill-btn" id="restart-btn">Recommencer</button>
+    <button id="restart-btn">Recommencer</button>
   </div>
-
 </main>
 
-<footer>Sciences — Activités interactives &nbsp;·&nbsp; Mis à jour 2026</footer>
+<footer>Sciences — Activités interactives</footer>
 
 <script>
 // ── Molécules : nom affiché + composition {H, C, O} ──
@@ -261,7 +70,6 @@ const questions = [
   { formula: "C₂H₄O₂",   correct: {H:4, C:2, O:2} },
 ];
 
-// wrong variants generated by nudging one element count by ±1
 function wrongVariants(c){
   const variants = [];
   const tryAdd = (dh, dc, doo) => {
@@ -280,7 +88,6 @@ function wrongVariants(c){
   return variants.slice(0, 3);
 }
 
-// ── Génération d'un nuage d'atomes en SVG ──
 const RADIUS = { H: 14, C: 22, O: 20 };
 
 function buildTypesList(counts){
@@ -374,7 +181,7 @@ function renderQuestion(){
   document.getElementById('formula-display').textContent = q.formula;
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
-  document.getElementById('next-btn').classList.remove('show');
+  document.getElementById('next-btn').classList.add('hidden');
 
   const wrongs = wrongVariants(q.correct);
   const optionData = shuffle([
@@ -386,7 +193,7 @@ function renderQuestion(){
   optionsDiv.innerHTML = '';
   optionData.forEach(opt => {
     const el = document.createElement('div');
-    el.className = 'img-option';
+    el.className = 'option option-img';
     el.innerHTML = moleculeSVG(opt.counts);
     el.addEventListener('click', () => selectOption(el, opt.isCorrect));
     optionsDiv.appendChild(el);
@@ -397,13 +204,13 @@ function selectOption(el, isCorrect){
   if(answered) return;
   answered = true;
 
-  document.querySelectorAll('.img-option').forEach(o => o.classList.add('disabled'));
+  document.querySelectorAll('.option').forEach(o => o.style.pointerEvents = 'none');
   el.classList.add(isCorrect ? 'correct' : 'wrong');
 
   const feedback = document.getElementById('feedback');
   if(isCorrect){
     score++;
-    feedback.textContent = 'Bravo, c\'est la bonne représentation !';
+    feedback.textContent = 'Bravo, c\'est la bonne représentation.';
     feedback.classList.add('correct');
   } else {
     feedback.textContent = 'Pas tout à fait... regarde bien le nombre d\'atomes de chaque couleur.';
@@ -411,7 +218,7 @@ function selectOption(el, isCorrect){
   }
 
   document.getElementById('score-text').textContent = `Score : ${score}`;
-  document.getElementById('next-btn').classList.add('show');
+  document.getElementById('next-btn').classList.remove('hidden');
 }
 
 function nextQuestion(){
@@ -424,9 +231,9 @@ function showFinal(){
   document.getElementById('quiz-card').classList.add('hidden');
   document.getElementById('final-card').classList.remove('hidden');
   document.getElementById('final-score-num').textContent = score;
-  document.getElementById('final-score-denom').textContent = `/ ${questions.length}`;
+  document.getElementById('final-score-denom').textContent = questions.length;
   let msg = '';
-  if(score === questions.length) msg = 'Parfait, toutes les molécules sont reconnues !';
+  if(score === questions.length) msg = 'Parfait, toutes les molécules sont reconnues.';
   else if(score >= questions.length - 2) msg = 'Très bien joué, presque sans faute.';
   else if(score >= questions.length/2) msg = 'Bon travail, continue à t\'entraîner.';
   else msg = 'Revois le rappel des couleurs et réessaie.';

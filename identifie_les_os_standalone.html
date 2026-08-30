@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Identifie les os — Sciences</title>
+<style>
+/* ============================================================
+   style.css — feuille de style partagée du site Sciences
+   Toutes les pages du site pointeront vers ce même fichier,
+   au lieu d'avoir chacune leur propre <style>.
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Texte et fond : neutre, aucune couleur de thème.
+     Les deux seules couleurs du site : vert (juste) et rouge (faux). */
+  --ink:       #1a1f2e;
+  --ink-soft:  #5a6178;
+  --page-bg:   #f5f5f4;
+  --paper:     #ffffff;
+  --border:    #dddddd;
+  --border-light: #eeeeee;
+
+  --green:      #2d6a4f;
+  --green-bg:   #e9f4ee;
+  --red:        #b5384a;
+  --red-bg:     #fbebec;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--page-bg);
+  line-height: 1.55;
+}
+
+/* ── NAV ── */
+nav {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+nav .brand {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  text-decoration: none;
+  margin-right: auto;
+}
+
+nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+nav a:hover, nav a.active {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* ── CONTAINER ── */
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+h2 {
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 40px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sub {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  margin-bottom: 24px;
+}
+
+/* ── CARD ──
+   Conteneur générique, utilisé pour les blocs d'activité
+   (quiz, question, résultat final). Un léger radius + une
+   ombre discrète suffisent à donner du relief, sans couleur. */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.05);
+}
+
+/* ── PROGRESSION (quiz) ── */
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.progress-bar-bg {
+  background: var(--border-light);
+  height: 6px;
+  margin-bottom: 20px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--ink);
+  transition: width 0.2s ease;
+}
+
+/* ── OPTIONS (choix multiple / réponses) ── */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 420px) {
+  .options { grid-template-columns: 1fr; }
+}
+
+.option {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.option:hover {
+  border-color: #bbb;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.option.correct { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.option.wrong   { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+/* ── FEEDBACK TEXTE ── */
+.feedback {
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 16px;
+  min-height: 1.4em;
+}
+.feedback.correct { color: var(--green); }
+.feedback.wrong   { color: var(--red); }
+
+/* ── BOUTONS ── */
+button, .btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 26px;
+  border-radius: 99px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+button:hover, .btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+}
+button:disabled { opacity: 0.3; cursor: default; transform: none; box-shadow: none; }
+
+.btn-row { display: flex; justify-content: center; margin-top: 16px; }
+
+/* ── ÉCRAN FINAL ── */
+.final { text-align: center; }
+.final .score {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+.final p { color: var(--ink-soft); margin-bottom: 16px; }
+
+.hidden { display: none; }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 24px 20px;
+  color: #999;
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+
+  /* ── Règles propres à cette activité ── */
+  /* Règles propres à cette activité seulement — tout le reste
+     (nav, card, boutons, options, feedback) vient de style.css */
+
+  .skeleton-wrap { display: flex; justify-content: center; margin: 4px 0 6px; }
+  .skeleton-frame { position: relative; display: inline-block; }
+  .skeleton-frame img { display: block; max-height: 440px; width: auto; }
+
+  .bone-marker {
+    position: absolute;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--ink);
+    transform: translateY(-50%);
+    pointer-events: none;
+    animation: markerPulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes markerPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
+  }
+
+  .skeleton-caption {
+    text-align: center;
+    font-size: 11.5px;
+    color: #999;
+    margin-bottom: 18px;
+  }
+
+  .question-label {
+    text-align: center;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    font-size: 13.5px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Sciences</a>
+  <a href="index.html">Accueil</a>
+  <a href="activites.html">Activités</a>
+  <a href="cours.html">Cours</a>
+</nav>
+
+<main>
+  <h1>Identifie les os</h1>
+  <p class="sub">Une ligne s'illumine sur le squelette : retrouve le nom de l'os parmi les propositions.</p>
+
+  <div id="quiz-card" class="card">
+    <div class="progress-row">
+      <span id="progress-text">Os 1 / 13</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+
+    <div class="question-label">Quel est l'os désigné ?</div>
+
+    <div class="skeleton-wrap">
+      <div class="skeleton-frame">
+        <img src="img/squelette_os.png" alt="Squelette humain, vue de face, avec légendes">
+        <div class="bone-marker" id="bone-marker"></div>
+      </div>
+    </div>
+    <div class="skeleton-caption">Image : A.Spielhoff, Wikimedia Commons (CC BY-SA 3.0) — crâne, mains et pieds exclus du jeu</div>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row"><button class="hidden" id="next-btn">Suivant</button></div>
+  </div>
+
+  <div id="final-card" class="card final hidden">
+    <p class="sub" style="margin-bottom:4px;">Activité terminée</p>
+    <div class="score"><span id="final-score-num">0</span> / <span id="final-score-denom">13</span></div>
+    <p id="final-msg"></p>
+    <button id="restart-btn">Recommencer</button>
+  </div>
+</main>
+
+<footer>Sciences — Activités interactives</footer>
+
+<script>
+// ── Os : nom + position de la ligne pointillée (légende) qui lui correspond sur l'image ──
+const boneDefs = [
+  { name: "Clavicule",          bar: {x0:3,  x1:13, y:10.56} },
+  { name: "Omoplate",           bar: {x0:3,  x1:13, y:20.65} },
+  { name: "Sternum",            bar: {x0:3,  x1:13, y:26.53} },
+  { name: "Côtes",              bar: {x0:87, x1:97, y:15.20} },
+  { name: "Colonne vertébrale", bar: {x0:87, x1:97, y:34.88} },
+  { name: "Bassin",             bar: {x0:3,  x1:13, y:43.63} },
+  { name: "Humérus",            bar: {x0:87, x1:97, y:24.52} },
+  { name: "Radius",             bar: {x0:87, x1:97, y:42.50} },
+  { name: "Cubitus",            bar: {x0:87, x1:97, y:45.69} },
+  { name: "Fémur",              bar: {x0:87, x1:97, y:65.60} },
+  { name: "Rotule",             bar: {x0:3,  x1:13, y:68.95} },
+  { name: "Tibia",              bar: {x0:87, x1:97, y:84.40} },
+  { name: "Péroné",             bar: {x0:87, x1:97, y:78.87} },
+];
+
+const QUIZ_LENGTH = boneDefs.length;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let order = [], current = 0, score = 0, answered = false;
+
+function startQuiz(){
+  order = shuffle(boneDefs).slice(0, QUIZ_LENGTH);
+  current = 0; score = 0;
+  document.getElementById('final-card').classList.add('hidden');
+  document.getElementById('quiz-card').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = order[current];
+  const marker = document.getElementById('bone-marker');
+  marker.style.left = q.bar.x0 + '%';
+  marker.style.width = (q.bar.x1 - q.bar.x0) + '%';
+  marker.style.top = q.bar.y + '%';
+
+  document.getElementById('progress-text').textContent = `Os ${current+1} / ${order.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current/order.length)*100}%`;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').classList.add('hidden');
+
+  const others = boneDefs.filter(b => b.name !== q.name).map(b => b.name);
+  const wrongs = shuffle(others).slice(0, 3);
+  const optionNames = shuffle([q.name, ...wrongs]);
+
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  optionNames.forEach(name => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.textContent = name;
+    el.addEventListener('click', () => selectOption(el, name === q.name));
+    optionsDiv.appendChild(el);
+  });
+}
+
+function selectOption(el, isCorrect){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll('.option').forEach(o => o.style.pointerEvents = 'none');
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const feedback = document.getElementById('feedback');
+  if(isCorrect){
+    score++;
+    feedback.textContent = 'Bravo, c\'est le bon os.';
+    feedback.classList.add('correct');
+  } else {
+    feedback.textContent = `C'était : ${order[current].name}.`;
+    feedback.classList.add('wrong');
+  }
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= order.length){ showFinal(); } else { renderQuestion(); }
+}
+
+function showFinal(){
+  document.getElementById('quiz-card').classList.add('hidden');
+  document.getElementById('final-card').classList.remove('hidden');
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = order.length;
+  let msg = '';
+  if(score === order.length) msg = 'Parfait, tous les os sont reconnus.';
+  else if(score >= order.length - 2) msg = 'Très bien joué.';
+  else if(score >= order.length/2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois le squelette et réessaie.';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', startQuiz);
+
+startQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Vitesse, distance, temps — Entraînement</title>
+<style>
+  :root{
+    --bleu:#2b6cb0;
+    --bleu-clair:#ebf4ff;
+    --vert:#2f855a;
+    --vert-clair:#f0fff4;
+    --rouge:#c53030;
+    --rouge-clair:#fff5f5;
+    --gris:#4a5568;
+    --gris-clair:#f7fafc;
+    --bord:#cbd5e0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", Verdana, Arial, sans-serif;
+    background:var(--gris-clair);
+    color:#1a202c;
+    display:flex;
+    justify-content:center;
+    padding:16px;
+  }
+  .carte{
+    background:#ffffff;
+    border-radius:20px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.08);
+    max-width:560px;
+    width:100%;
+    padding:28px 24px 32px;
+  }
+  h1{
+    font-size:22px;
+    text-align:center;
+    color:var(--bleu);
+    margin:0 0 18px;
+  }
+  .progression{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .progression-texte{
+    font-size:15px;
+    color:var(--gris);
+    white-space:nowrap;
+  }
+  .barre-fond{
+    flex:1;
+    height:10px;
+    background:#e2e8f0;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .barre-remplie{
+    height:100%;
+    background:var(--bleu);
+    border-radius:6px;
+    transition:width 0.3s ease;
+  }
+  .rappel{
+    background:var(--bleu-clair);
+    border-left:5px solid var(--bleu);
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:16px;
+    color:#2c5282;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  .enonce{
+    font-size:19px;
+    line-height:1.5;
+    text-align:center;
+    margin-bottom:14px;
+  }
+  .donnees{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .donnee{
+    background:var(--gris-clair);
+    border:2px solid var(--bord);
+    border-radius:12px;
+    padding:10px 16px;
+    text-align:center;
+    min-width:110px;
+  }
+  .donnee .etiquette{
+    font-size:13px;
+    color:var(--gris);
+    display:block;
+  }
+  .donnee .valeur{
+    font-size:22px;
+    font-weight:700;
+    color:#1a202c;
+  }
+  .question{
+    font-size:21px;
+    font-weight:600;
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .option{
+    font-size:20px;
+    padding:16px;
+    border-radius:14px;
+    border:2px solid var(--bord);
+    background:#ffffff;
+    cursor:pointer;
+    text-align:center;
+    transition:background 0.15s, border-color 0.15s;
+  }
+  .option:hover:not(:disabled){
+    border-color:var(--bleu);
+    background:var(--bleu-clair);
+  }
+  .option:disabled{
+    cursor:default;
+  }
+  .option.correcte{
+    background:var(--vert-clair);
+    border-color:var(--vert);
+    color:#22543d;
+    font-weight:700;
+  }
+  .option.incorrecte{
+    background:var(--rouge-clair);
+    border-color:var(--rouge);
+    color:#822727;
+    font-weight:700;
+  }
+  .retour{
+    margin-top:18px;
+    padding:14px;
+    border-radius:12px;
+    font-size:17px;
+    text-align:center;
+    display:none;
+  }
+  .retour.bon{
+    background:var(--vert-clair);
+    color:#22543d;
+    display:block;
+  }
+  .retour.mauvais{
+    background:var(--rouge-clair);
+    color:#822727;
+    display:block;
+  }
+  .retour .calcul{
+    display:block;
+    margin-top:6px;
+    font-size:16px;
+    font-weight:700;
+  }
+  .suite{
+    margin-top:18px;
+    width:100%;
+    padding:15px;
+    font-size:19px;
+    font-weight:700;
+    color:#ffffff;
+    background:var(--bleu);
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    display:none;
+  }
+  .suite.visible{
+    display:block;
+  }
+  .fin{
+    text-align:center;
+  }
+  .fin .score{
+    font-size:48px;
+    font-weight:800;
+    color:var(--bleu);
+    margin:10px 0;
+  }
+  .fin .message{
+    font-size:19px;
+    margin-bottom:22px;
+  }
+  .recommencer{
+    padding:14px 22px;
+    font-size:18px;
+    font-weight:700;
+    color:#ffffff;
+    background:var(--vert);
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="carte">
+  <h1>Vitesse, distance, temps</h1>
+
+  <div id="zoneJeu">
+    <div class="progression">
+      <span class="progression-texte" id="texteProgression">Question 1 / 30</span>
+      <div class="barre-fond"><div class="barre-remplie" id="barreRemplie" style="width:0%"></div></div>
+    </div>
+
+    <div class="rappel" id="rappelFormule">vitesse = distance ÷ temps</div>
+
+    <div class="enonce" id="enonce"></div>
+
+    <div class="donnees" id="donnees"></div>
+
+    <div class="question" id="question"></div>
+
+    <div class="options" id="options"></div>
+
+    <div class="retour" id="retour"></div>
+
+    <button class="suite" id="boutonSuite">Suivant →</button>
+  </div>
+
+  <div class="fin" id="zoneFin" style="display:none">
+    <div class="message">Activité terminée, bravo pour ton travail !</div>
+    <div class="score" id="scoreFinal"></div>
+    <div class="message" id="messageFinal"></div>
+    <button class="recommencer" id="boutonRecommencer">Recommencer</button>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    {sec:'v', d:10,  t:10, ans:1,   opts:[1,10,20]},
+    {sec:'v', d:20,  t:10, ans:2,   opts:[2,10,20]},
+    {sec:'v', d:30,  t:10, ans:3,   opts:[3,10,30]},
+    {sec:'v', d:40,  t:10, ans:4,   opts:[4,10,40]},
+    {sec:'v', d:40,  t:8,  ans:5,   opts:[5,8,32]},
+    {sec:'v', d:60,  t:10, ans:6,   opts:[6,10,50]},
+    {sec:'v', d:60,  t:6,  ans:10,  opts:[10,6,66]},
+    {sec:'v', d:100, t:10, ans:10,  opts:[10,90,100]},
+    {sec:'v', d:45,  t:9,  ans:5,   opts:[5,9,36]},
+    {sec:'v', d:72,  t:8,  ans:9,   opts:[9,8,64]},
+    {sec:'v', d:84,  t:12, ans:7,   opts:[7,12,72]},
+    {sec:'v', d:96,  t:8,  ans:12,  opts:[12,8,88]},
+    {sec:'d', v:5,   t:2,  ans:10,  opts:[10,7,5]},
+    {sec:'d', v:10,  t:3,  ans:30,  opts:[30,13,10]},
+    {sec:'d', v:4,   t:5,  ans:20,  opts:[20,9,5]},
+    {sec:'d', v:8,   t:4,  ans:32,  opts:[32,12,8]},
+    {sec:'d', v:12,  t:3,  ans:36,  opts:[36,15,12]},
+    {sec:'d', v:9,   t:6,  ans:54,  opts:[54,15,9]},
+    {sec:'t', d:20,  v:5,  ans:4,   opts:[4,5,15]},
+    {sec:'t', d:50,  v:10, ans:5,   opts:[5,10,40]},
+    {sec:'t', d:32,  v:8,  ans:4,   opts:[4,8,24]},
+    {sec:'t', d:42,  v:6,  ans:7,   opts:[7,6,36]},
+    {sec:'t', d:63,  v:9,  ans:7,   opts:[7,9,54]},
+    {sec:'t', d:84,  v:12, ans:7,   opts:[7,12,72]},
+    {sec:'v', d:150, t:15, ans:10,  opts:[10,15,135]},
+    {sec:'d', v:15,  t:4,  ans:60,  opts:[60,19,15]},
+    {sec:'t', d:100, v:20, ans:5,   opts:[5,20,80]},
+    {sec:'v', d:132, t:11, ans:12,  opts:[12,11,121]},
+    {sec:'d', v:11,  t:11, ans:121, opts:[121,22,110]},
+    {sec:'t', d:108, v:9,  ans:12,  opts:[12,9,99]}
+  ];
+
+  const infosSection = {
+    v: {
+      formule: "vitesse = distance ÷ temps",
+      texte: (q, flip) => flip
+        ? `En ${q.t} s, une voiture parcourt ${q.d} m.`
+        : `Une voiture parcourt ${q.d} m en ${q.t} s.`,
+      question: "Quelle est sa vitesse ?",
+      unite: "m/s",
+      donnees: (q, flip) => flip ? [q.t+" s", q.d+" m"] : [q.d+" m", q.t+" s"],
+      calcul: q => `${q.d} ÷ ${q.t} = ${q.ans} m/s`
+    },
+    d: {
+      formule: "distance = vitesse × temps",
+      texte: (q, flip) => flip
+        ? `Pendant ${q.t} s, une voiture roule à ${q.v} m/s.`
+        : `Une voiture roule à ${q.v} m/s pendant ${q.t} s.`,
+      question: "Quelle distance parcourt-elle ?",
+      unite: "m",
+      donnees: (q, flip) => flip ? [q.t+" s", q.v+" m/s"] : [q.v+" m/s", q.t+" s"],
+      calcul: q => `${q.v} × ${q.t} = ${q.ans} m`
+    },
+    t: {
+      formule: "temps = distance ÷ vitesse",
+      texte: (q, flip) => flip
+        ? `À la vitesse de ${q.v} m/s, une voiture parcourt ${q.d} m.`
+        : `Une voiture parcourt ${q.d} m à la vitesse de ${q.v} m/s.`,
+      question: "Combien de temps met-elle ?",
+      unite: "s",
+      donnees: (q, flip) => flip ? [q.v+" m/s", q.d+" m"] : [q.d+" m", q.v+" m/s"],
+      calcul: q => `${q.d} ÷ ${q.v} = ${q.ans} s`
+    }
+  };
+
+  let indexActuel = 0;
+  let score = 0;
+
+  const elTexteProgression = document.getElementById('texteProgression');
+  const elBarreRemplie = document.getElementById('barreRemplie');
+  const elRappelFormule = document.getElementById('rappelFormule');
+  const elEnonce = document.getElementById('enonce');
+  const elDonnees = document.getElementById('donnees');
+  const elQuestion = document.getElementById('question');
+  const elOptions = document.getElementById('options');
+  const elRetour = document.getElementById('retour');
+  const boutonSuite = document.getElementById('boutonSuite');
+  const zoneJeu = document.getElementById('zoneJeu');
+  const zoneFin = document.getElementById('zoneFin');
+
+  function melanger(tableau){
+    const copie = tableau.slice();
+    for(let i = copie.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [copie[i], copie[j]] = [copie[j], copie[i]];
+    }
+    return copie;
+  }
+
+  function afficherQuestion(){
+    const q = questions[indexActuel];
+    const infos = infosSection[q.sec];
+
+    const flip = indexActuel % 2 === 1;
+    elTexteProgression.textContent = `Question ${indexActuel + 1} / ${questions.length}`;
+    elBarreRemplie.style.width = ((indexActuel) / questions.length * 100) + "%";
+    elRappelFormule.textContent = "Rappel : " + infos.formule;
+    elEnonce.textContent = infos.texte(q, flip);
+    elQuestion.textContent = infos.question;
+
+    elDonnees.innerHTML = "";
+    infos.donnees(q, flip).forEach(valeur => {
+      const div = document.createElement('div');
+      div.className = 'donnee';
+      div.innerHTML = `<span class="valeur">${valeur}</span>`;
+      elDonnees.appendChild(div);
+    });
+
+    elRetour.className = 'retour';
+    elRetour.textContent = '';
+    boutonSuite.classList.remove('visible');
+
+    const optionsMelangees = melanger(q.opts);
+    elOptions.innerHTML = "";
+    optionsMelangees.forEach(valeur => {
+      const bouton = document.createElement('button');
+      bouton.className = 'option';
+      bouton.textContent = valeur + " " + infos.unite;
+      bouton.addEventListener('click', () => choisir(valeur, bouton));
+      elOptions.appendChild(bouton);
+    });
+  }
+
+  function choisir(valeurChoisie, boutonClique){
+    const q = questions[indexActuel];
+    const infos = infosSection[q.sec];
+    const boutons = elOptions.querySelectorAll('.option');
+    const bonneReponse = q.ans;
+
+    boutons.forEach(b => {
+      b.disabled = true;
+      const valeurBouton = parseInt(b.textContent, 10);
+      if(valeurBouton === bonneReponse){
+        b.classList.add('correcte');
+      } else if(b === boutonClique){
+        b.classList.add('incorrecte');
+      }
+    });
+
+    if(valeurChoisie === bonneReponse){
+      score++;
+      elRetour.className = 'retour bon';
+      elRetour.innerHTML = "✅ Bravo, c'est la bonne réponse !" + `<span class="calcul">${infos.calcul(q)}</span>`;
+    } else {
+      elRetour.className = 'retour mauvais';
+      elRetour.innerHTML = "❌ Pas tout à fait, la bonne réponse est en vert." + `<span class="calcul">${infos.calcul(q)}</span>`;
+    }
+
+    boutonSuite.classList.add('visible');
+  }
+
+  boutonSuite.addEventListener('click', () => {
+    indexActuel++;
+    if(indexActuel < questions.length){
+      afficherQuestion();
+    } else {
+      terminerActivite();
+    }
+  });
+
+  function terminerActivite(){
+    zoneJeu.style.display = 'none';
+    zoneFin.style.display = 'block';
+    document.getElementById('scoreFinal').textContent = score + " / " + questions.length;
+    let message = "";
+    if(score === questions.length){
+      message = "Parfait, toutes les réponses sont justes !";
+    } else if(score >= questions.length * 0.7){
+      message = "Très bon travail, continue comme ça !";
+    } else if(score >= questions.length * 0.4){
+      message = "Bon travail, tu progresses, continue à t'entraîner.";
+    } else {
+      message = "Bon début, n'hésite pas à recommencer pour t'entraîner encore.";
+    }
+    document.getElementById('messageFinal').textContent = message;
+  }
+
+  document.getElementById('boutonRecommencer').addEventListener('click', () => {
+    indexActuel = 0;
+    score = 0;
+    zoneFin.style.display = 'none';
+    zoneJeu.style.display = 'block';
+    afficherQuestion();
+  });
+
+  afficherQuestion();
+</script>
+</body>
+</html>

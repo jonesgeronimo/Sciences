@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Frottement : boîte / sol — Sciences</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.choice-grid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:22px; }
+.choice-btn {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--paper);
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.choice-btn:hover { border-color:#bbb; transform:translateY(-2px); box-shadow:0 3px 8px rgba(0,0,0,0.08); }
+.choice-btn.active { border-color: var(--green); background: var(--green); color: white; }
+input[type="range"] { width:100%; accent-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Sciences</a>
+  <a href="index.html">Accueil</a>
+  <a href="activites.html">Activités</a>
+  <a href="cours.html">Cours</a>
+</nav>
+
+<main>
+  <h1>Frottement : boîte / sol</h1>
+  <p class="sub">Le couple action-réaction des forces de frottement entre une boîte et le sol.</p>
+
+  <div class="card">
+    <svg viewBox="0 0 400 220" style="width:100%; max-width:420px; display:block; margin:0 auto;">
+      <defs>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#2d6a4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect id="ground-band" x="40" y="190" width="320" height="10" rx="2" fill="#c9a876"/>
+      <g id="rough-texture" opacity="0">
+        <circle cx="60" cy="195" r="1.6" fill="#6b6b66"/><circle cx="90" cy="193" r="1.6" fill="#6b6b66"/>
+        <circle cx="120" cy="196" r="1.6" fill="#6b6b66"/><circle cx="150" cy="194" r="1.6" fill="#6b6b66"/>
+        <circle cx="250" cy="195" r="1.6" fill="#6b6b66"/><circle cx="280" cy="193" r="1.6" fill="#6b6b66"/>
+        <circle cx="310" cy="196" r="1.6" fill="#6b6b66"/><circle cx="340" cy="194" r="1.6" fill="#6b6b66"/>
+      </g>
+      <line x1="40" y1="190" x2="360" y2="190" stroke="var(--ink)" stroke-width="2"/>
+
+      <rect id="box" x="175" y="150" width="50" height="40" rx="6" fill="#e5decf" stroke="var(--ink)" stroke-width="1.5"/>
+
+      <line id="arrow-sol" x1="200" y1="182" x2="180" y2="182" stroke="var(--green)" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+      <line id="arrow-boite" x1="200" y1="204" x2="220" y2="204" stroke="var(--green)" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+    </svg>
+
+    <p class="sub" style="text-align:center; margin:10px 0 16px;">On ne représente ici que les frottements (pas le poids ni la réaction normale).</p>
+
+    <div class="legend">
+      <div class="legend-title" style="width:100%;">Couple action-réaction</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>← F(sol→boîte)</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>F(boîte→sol) →</div>
+    </div>
+  </div>
+
+  <h2>Poids de l'objet</h2>
+  <div style="max-width:280px; margin:0 auto 24px;">
+    <input type="range" id="mass-input" min="0" max="20" step="0.5" value="5">
+    <div style="text-align:center; font-weight:700; margin-top:6px;" id="mass-display">5 kg</div>
+  </div>
+
+  <h2>Type de sol</h2>
+  <div class="choice-grid" id="sol-grid"></div>
+
+  <h2>Surface de contact de la boîte</h2>
+  <div class="choice-grid" id="box-grid"></div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:15px; color:var(--ink-soft); margin-bottom:8px;">
+      Sol : <b id="sol-label"></b> (μ = <span id="mu-label"></span>)
+    </div>
+    <div style="font-size:16px;">F = μ × m × g = <span id="calc-detail"></span></div>
+    <div style="font-size:28px; font-weight:700; color:var(--green); margin-top:8px;" id="result"></div>
+  </div>
+
+  <p class="sub" style="text-align:center; margin-top:26px; font-weight:600;">
+    La force de frottement dépend du poids de l'objet et de la nature des 2 surfaces en contact — jamais de leur taille.
+  </p>
+</main>
+
+<footer>Sciences — Activités interactives</footer>
+
+<script>
+const surfaces = [
+  { name: "Table",         mu: 0.4,  band: "#c9a876", rough: false },
+  { name: "Papier de verre", mu: 0.7, band: "#a8a29a", rough: true  },
+  { name: "Glace",         mu: 0.05, band: "#bfe3f5", rough: false },
+];
+const boxSizes = [
+  { name: "Petite",  width: 40  },
+  { name: "Moyenne", width: 70  },
+  { name: "Grande",  width: 110 },
+];
+
+let selSurface = 0;
+let selBox = 1;
+const g = 10;
+
+function renderChoices() {
+  const solGrid = document.getElementById('sol-grid');
+  solGrid.innerHTML = '';
+  surfaces.forEach((s, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn' + (i === selSurface ? ' active' : '');
+    btn.textContent = s.name;
+    btn.onclick = () => { selSurface = i; renderChoices(); update(); };
+    solGrid.appendChild(btn);
+  });
+
+  const boxGrid = document.getElementById('box-grid');
+  boxGrid.innerHTML = '';
+  boxSizes.forEach((b, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'choice-btn' + (i === selBox ? ' active' : '');
+    btn.textContent = b.name;
+    btn.onclick = () => { selBox = i; renderChoices(); update(); };
+    boxGrid.appendChild(btn);
+  });
+}
+
+function update() {
+  const m = parseFloat(document.getElementById('mass-input').value);
+  document.getElementById('mass-display').textContent = m + ' kg';
+
+  const surf = surfaces[selSurface];
+  const F = surf.mu * m * g;
+
+  document.getElementById('sol-label').textContent = surf.name;
+  document.getElementById('mu-label').textContent = surf.mu;
+  document.getElementById('calc-detail').textContent = `${surf.mu} × ${m} × ${g}`;
+  document.getElementById('result').textContent = F.toFixed(1) + ' N';
+
+  document.getElementById('ground-band').setAttribute('fill', surf.band);
+  document.getElementById('rough-texture').setAttribute('opacity', surf.rough ? '1' : '0');
+
+  const w = boxSizes[selBox].width;
+  document.getElementById('box').setAttribute('x', 200 - w / 2);
+  document.getElementById('box').setAttribute('width', w);
+
+  const len = Math.min(Math.max(F, 6), 150);
+  document.getElementById('arrow-sol').setAttribute('x2', 200 - len);
+  document.getElementById('arrow-boite').setAttribute('x2', 200 + len);
+}
+
+document.getElementById('mass-input').addEventListener('input', update);
+
+renderChoices();
+update();
+</script>
+</body>
+</html>

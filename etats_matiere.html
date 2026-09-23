@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les états de la matière</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto;
+    max-width: 700px;
+    padding: 20px;
+    font-family: sans-serif;
+    background: #fff;
+    color: #222;
+    line-height: 1.5;
+  }
+
+  /* ── NAV (identique à l'accueil) ── */
+  nav {
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+  }
+  nav a { color: #222; text-decoration: none; margin-right: 15px; }
+  nav a:hover { text-decoration: underline; }
+
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  .sous-titre { color: #555; margin: 0 0 20px; }
+
+  .carte {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .carte svg { flex: 0 0 240px; width: 240px; height: auto; }
+  .carte h2 { margin: 0 0 8px; font-size: 18px; }
+  .carte p { margin: 0 0 10px; }
+  .carte p:last-child { margin-bottom: 0; }
+  .etiquette { font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .carte { flex-direction: column; align-items: stretch; }
+    .carte svg { flex: none; width: 100%; max-width: 320px; margin: 0 auto; }
+  }
+
+  /* Schémas */
+  .boite { fill: none; stroke: #222; stroke-width: 2.5; }
+  .mol { fill: #d0d0d0; stroke: #222; stroke-width: 2; }
+
+  /* Simulation */
+  .simulation { display: block; }
+  .bouton {
+    display: inline-block;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    padding: 8px 14px;
+    color: #222;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .bouton:hover { background: #f0f0f0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="activites.html">Activités</a>
+  <a href="cours.html">Cours</a>
+</nav>
+
+<main>
+
+  <h1>Les états de la matière</h1>
+  <p class="sous-titre">Modèle : chaque rond représente une molécule.</p>
+
+  <!-- SOLIDE -->
+  <section class="carte">
+    <svg viewBox="0 0 260 140" role="img" aria-label="Schéma d'un solide : molécules serrées et rangées">
+      <rect class="boite" x="10" y="10" width="240" height="120"/>
+      <circle class="mol" cx="65"  cy="117" r="13"/>
+      <circle class="mol" cx="91"  cy="117" r="13"/>
+      <circle class="mol" cx="117" cy="117" r="13"/>
+      <circle class="mol" cx="143" cy="117" r="13"/>
+      <circle class="mol" cx="169" cy="117" r="13"/>
+      <circle class="mol" cx="195" cy="117" r="13"/>
+      <circle class="mol" cx="65"  cy="91"  r="13"/>
+      <circle class="mol" cx="91"  cy="91"  r="13"/>
+      <circle class="mol" cx="117" cy="91"  r="13"/>
+      <circle class="mol" cx="143" cy="91"  r="13"/>
+      <circle class="mol" cx="169" cy="91"  r="13"/>
+      <circle class="mol" cx="195" cy="91"  r="13"/>
+    </svg>
+    <div>
+      <h2>Solide</h2>
+      <p><span class="etiquette">Organisation :</span> les molécules sont serrées les unes contre les autres et rangées en ordre. Elles ne se déplacent pas : elles vibrent sur place. C'est pourquoi un solide garde sa forme.</p>
+      <p><span class="etiquette">Quand on chauffe :</span> les molécules vibrent de plus en plus fort et prennent un peu plus de place : le solide se dilate. En classe, on a vu la bilame qui se tord et la tour Eiffel qui devient plus grande en été. Si on continue de chauffer, elles peuvent se détacher de leur place. Le solide fond et devient liquide.</p>
+    </div>
+  </section>
+
+  <!-- LIQUIDE -->
+  <section class="carte">
+    <svg viewBox="0 0 260 140" role="img" aria-label="Schéma d'un liquide : molécules proches mais en désordre">
+      <rect class="boite" x="10" y="10" width="240" height="120"/>
+      <circle class="mol" cx="23"  cy="117" r="13"/>
+      <circle class="mol" cx="52"  cy="113" r="13"/>
+      <circle class="mol" cx="84"  cy="117" r="13"/>
+      <circle class="mol" cx="112" cy="112" r="13"/>
+      <circle class="mol" cx="145" cy="117" r="13"/>
+      <circle class="mol" cx="171" cy="114" r="13"/>
+      <circle class="mol" cx="206" cy="117" r="13"/>
+      <circle class="mol" cx="237" cy="116" r="13"/>
+      <circle class="mol" cx="36"  cy="90"  r="13"/>
+      <circle class="mol" cx="74"  cy="91"  r="13"/>
+      <circle class="mol" cx="130" cy="88"  r="13"/>
+      <circle class="mol" cx="58"  cy="66"  r="13"/>
+    </svg>
+    <div>
+      <h2>Liquide</h2>
+      <p><span class="etiquette">Organisation :</span> les molécules sont proches les unes des autres, mais en désordre. Elles glissent les unes sur les autres. C'est pourquoi un liquide coule et prend la forme du récipient.</p>
+      <p><span class="etiquette">Quand on chauffe :</span> les molécules bougent de plus en plus vite. En classe, on a vu l'exemple du colorant qui se mélange plus rapidement dans l'eau chaude. Si on continue de chauffer, certaines molécules s'échappent du liquide : le liquide s'évapore puis bout, et devient gaz.</p>
+    </div>
+  </section>
+
+  <!-- GAZ -->
+  <section class="carte">
+    <svg viewBox="0 0 260 140" role="img" aria-label="Schéma d'un gaz : molécules éloignées dans tout le récipient">
+      <rect class="boite" x="10" y="10" width="240" height="120"/>
+      <circle class="mol" cx="35"  cy="35"  r="13"/>
+      <circle class="mol" cx="95"  cy="40"  r="13"/>
+      <circle class="mol" cx="165" cy="28"  r="13"/>
+      <circle class="mol" cx="222" cy="40"  r="13"/>
+      <circle class="mol" cx="60"  cy="80"  r="13"/>
+      <circle class="mol" cx="128" cy="68"  r="13"/>
+      <circle class="mol" cx="190" cy="85"  r="13"/>
+      <circle class="mol" cx="232" cy="95"  r="13"/>
+      <circle class="mol" cx="30"  cy="112" r="13"/>
+      <circle class="mol" cx="95"  cy="112" r="13"/>
+      <circle class="mol" cx="150" cy="110" r="13"/>
+      <circle class="mol" cx="205" cy="115" r="13"/>
+    </svg>
+    <div>
+      <h2>Gaz</h2>
+      <p><span class="etiquette">Organisation :</span> les molécules sont éloignées les unes des autres et se déplacent vite, dans toutes les directions. C'est pourquoi un gaz occupe tout l'espace disponible.</p>
+      <p><span class="etiquette">Quand on chauffe :</span> les molécules vont encore plus vite et frappent plus fort les parois du récipient. Le gaz prend plus de place (ou pousse plus fort s'il est enfermé). En classe, on a vu l'exemple du ballon de baudruche qui a gonflé lorsqu'on l'a chauffé.</p>
+    </div>
+  </section>
+
+  <!-- SIMULATION -->
+  <section class="carte simulation">
+    <h2>Explorer avec la simulation</h2>
+    <p>Chauffe et refroidis toi-même une substance et observe comment bougent ses molécules.</p>
+    <a class="bouton" href="https://phet.colorado.edu/sims/html/states-of-matter-basics/latest/states-of-matter-basics_all.html?locale=fr" target="_blank" rel="noopener">Ouvrir la simulation PhET : États de la matière →</a>
+  </section>
+
+</main>
+</body>
+</html>

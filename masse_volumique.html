@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masse volumique des cubes</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#1d2330; --muted:#6b7280; --line:#d9dde4;
+    --ok:#1f8a4c; --okbg:#e7f6ed; --ko:#c0392b; --kobg:#fdecea; --accent:#2b4c7e; --rho:#8e44ad;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+  header{max-width:1000px;margin:0 auto;padding:20px 16px 8px}
+  .top{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+  h1{margin:.3em 0 .2em;font-size:1.7rem;text-align:center}
+  .consigne{text-align:center;margin:.2em auto .9em;max-width:720px}
+  .rappel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;max-width:760px;margin:0 auto;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .rappel h2{margin:0 0 10px;font-size:1rem;text-align:center}
+  .formules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .formule{border:1.5px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+  .formule .f{font-size:1.35rem;font-weight:700;font-family:Georgia,"Times New Roman",serif}
+  .formule .q{font-size:.85rem;color:var(--muted)}
+  .unites{margin-top:10px;font-size:.88rem;text-align:center;color:var(--muted)}
+  .unites b{color:var(--ink)}
+  .score{position:sticky;top:0;z-index:5;background:var(--bg);max-width:1000px;margin:12px auto 0;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .score b{font-size:1.1rem}
+  .mini{font-family:Georgia,"Times New Roman",serif;font-size:.95rem;color:var(--accent)}
+  .bar{flex:1;min-width:100px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;max-width:260px}
+  .bar div{height:100%;width:0;background:var(--ok);transition:width .3s}
+  main{max-width:1000px;margin:0 auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .carte{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .carte.reussi{border-color:var(--ok)}
+  .carte h3{font-size:1rem;margin:0 0 4px;font-weight:600}
+  .carte h3 span{color:var(--accent)}
+  .dessin{background:#fafbfc;border-radius:8px;margin:4px 0 8px}
+  .dessin svg{width:100%;height:auto;display:block}
+  .donnees{list-style:none;padding:0;margin:0 0 8px;font-size:.95rem}
+  .donnees li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .donnees li:last-child{border-bottom:none}
+  .donnees .inc{color:var(--accent);font-weight:700}
+  .saisie{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .saisie label{font-weight:600;font-family:Georgia,serif;font-size:1.1rem}
+  input,select,button{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;color:var(--ink)}
+  input{width:120px}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  button{cursor:pointer;transition:transform .12s,box-shadow .12s}
+  button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,30,50,.12)}
+  button:disabled{cursor:default;opacity:.7}
+  .verif{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .lien{background:none;border:none;color:var(--accent);text-decoration:underline;padding:4px 0;font-size:.9rem}
+  .lien:hover:not(:disabled){transform:none;box-shadow:none}
+  .fb{margin-top:10px;border-radius:8px;padding:10px 12px;font-size:.92rem;display:none}
+  .fb.ok{display:block;background:var(--okbg);border-left:4px solid var(--ok)}
+  .fb.ko{display:block;background:var(--kobg);border-left:4px solid var(--ko)}
+  .fb .titre{font-weight:700}
+  .fb.ok .titre{color:var(--ok)} .fb.ko .titre{color:var(--ko)}
+  .calc{font-family:Georgia,serif;margin-top:4px}
+  footer{max-width:1000px;margin:0 auto;padding:8px 16px 32px;text-align:center}
+  #bilan{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  #bilan b{font-size:1.3rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top"><span>Sciences de la nature</span><span>Masse volumique</span></div>
+  <h1>Masse volumique des cubes</h1>
+  <p class="consigne">Chaque cube est fait d'une seule matière. On te donne deux grandeurs : calcule celle qui manque, puis choisis la bonne unité.</p>
+
+  <div class="rappel">
+    <h2>Rappel des formules</h2>
+    <div class="formules">
+      <div class="formule"><div class="f">ρ = m / V</div><div class="q">pour trouver la masse volumique</div></div>
+      <div class="formule"><div class="f">m = ρ × V</div><div class="q">pour trouver la masse</div></div>
+      <div class="formule"><div class="f">V = m / ρ</div><div class="q">pour trouver le volume</div></div>
+    </div>
+    <div class="unites"><b>ρ</b> masse volumique en kg/m³ · <b>m</b> masse en kg · <b>V</b> volume en m³</div>
+  </div>
+</header>
+
+<div class="score">
+  <span>Réussis : <b id="pts">0</b> / <span id="tot"></span></span>
+  <span class="mini">ρ = m / V · m = ρ × V · V = m / ρ</span>
+  <div class="bar"><div id="barre"></div></div>
+</div>
+
+<main id="liste"></main>
+
+<footer>
+  <div id="bilan"></div>
+  <button id="reset">↺ Recommencer (nouvel ordre)</button>
+</footer>
+
+<script>
+/* [nom, ρ (kg/m³), arête (m), inconnue, couleur] — tous les objets sont des cubes */
+const OBJETS = [
+  ["Un glaçon géant",            920,  0.1, 'rho', '#cfe8f7'],
+  ["Un lingot cubique d'or",   19300,  0.1, 'rho', '#e8c547'],
+  ["Un cube de chêne",           700,  0.3, 'm',   '#a87b4f'],
+  ["Un bloc de béton",          2400,  0.5, 'V',   '#a9a9a9'],
+  ["Un cube d'aluminium",       2700,  0.2, 'rho', '#c9ced6'],
+  ["Un bloc de polystyrène",      30,  1,   'm',   '#f4f4f0'],
+  ["Un cube de fer",            7900,  0.4, 'rho', '#6f747c'],
+  ["Un bloc de granit",         2700,  1.5, 'm',   '#9a8f8a'],
+  ["Un cube de liège",           240,  0.5, 'V',   '#c89f6b'],
+  ["Un cube de cuivre",         8900,  0.1, 'V',   '#c8743f'],
+  ["Un cube de pin",             500,  2,   'rho', '#e2c08d'],
+  ["Un cube de plomb",         11300,  0.2, 'm',   '#7d8590'],
+  ["Un cube de verre",          2500,  0.3, 'rho', '#bfe3dc'],
+  ["Un bloc de marbre",         2600,  0.6, 'V',   '#ecebe6'],
+  ["Une plaque de beurre cubique", 900, 0.1, 'm',  '#f7e08a'],
+  ["Un cube de titane",         4500,  0.2, 'V',   '#9aa3ad'],
+  ["Un cube d'argent",         10500,  0.1, 'rho', '#d9dde2'],
+  ["Un cube de caoutchouc",     1200,  0.3, 'V',   '#3b3b3b'],
+  ["Un cube de zinc",           7100,  0.4, 'm',   '#b4bcc4'],
+  ["Une botte de foin cubique",  150,  1,   'rho', '#e6cf6e'],
+  ["Un bloc de neige tassée",    400,  1.5, 'V',   '#ffffff'],
+  ["Un cube de balsa",           160,  0.5, 'm',   '#ead9b5'],
+  ["Un bloc d'acier",           7800,  1,   'V',   '#868c94'],
+  ["Un cube d'osmium (le métal le plus dense)", 22600, 0.1, 'rho', '#8fa3b8'],
+];
+
+const UNITE = {rho:'kg/m³', m:'kg', V:'m³'};
+const NOM   = {rho:'Masse volumique', m:'Masse', V:'Volume'};
+const SYM   = {rho:'ρ', m:'m', V:'V'};
+const FORM  = {rho:'ρ = m / V', m:'m = ρ × V', V:'V = m / ρ'};
+
+const net = x => parseFloat(x.toPrecision(12));
+const fmt = x => net(x).toLocaleString('fr-CH',{maximumFractionDigits:6});
+const lire = s => { s=s.trim().replace(/[\s'’]/g,'').replace(',','.'); return s===''||isNaN(s)?NaN:parseFloat(s); };
+
+/* ---------- Dessin à l'échelle ---------- */
+function dessin(a, couleur){
+  const W=260, H=178, sol=146, H_PERS=1.7;
+  const s = 125 / Math.max(H_PERS, a*1.35);          // pixels par mètre (même échelle pour tout le dessin)
+  const e = a*s, dx=e*0.5, dy=e*0.35;                 // cube en perspective cavalière
+  const xc = 108, yc = sol - e;
+  const sombre = c => { const n=parseInt(c.slice(1),16); const f=v=>Math.round(v*0.78); return `rgb(${f(n>>16)},${f((n>>8)&255)},${f(n&255)})`; };
+  const clair  = c => { const n=parseInt(c.slice(1),16); const f=v=>Math.round(v+(255-v)*0.35); return `rgb(${f(n>>16)},${f((n>>8)&255)},${f(n&255)})`; };
+  // silhouette de 1,70 m
+  const h=H_PERS*s, xp=48, t=h/8;
+  const pers = `<g fill="#9aa3b2">
+    <circle cx="${xp}" cy="${sol-h+t*0.5}" r="${t*0.5}"/>
+    <path d="M${xp-t*0.9} ${sol-h+t*1.15} h${t*1.8} l${t*0.25} ${t*3} h${-t*0.6} l${-t*0.15} ${-t*1.6} v${t*4.45} h${-t*0.65} v${-t*2.6} h${-t*0.1} v${t*2.6} h${-t*0.65} v${-t*4.45} l${-t*0.15} ${t*1.6} h${-t*0.6} Z"/></g>
+    <text x="${xp}" y="${sol+14}" font-size="10" text-anchor="middle" fill="#6b7280">1,70 m</text>`;
+  const cube = `<g stroke="#555" stroke-width="1" stroke-linejoin="round">
+    <polygon points="${xc},${yc} ${xc+dx},${yc-dy} ${xc+e+dx},${yc-dy} ${xc+e},${yc}" fill="${clair(couleur)}"/>
+    <polygon points="${xc+e},${yc} ${xc+e+dx},${yc-dy} ${xc+e+dx},${sol-dy} ${xc+e},${sol}" fill="${sombre(couleur)}"/>
+    <rect x="${xc}" y="${yc}" width="${e}" height="${e}" fill="${couleur}"/></g>`;
+  // barre d'échelle 1 m
+  const b = s*1;
+  const barre = `<g stroke="#333" stroke-width="1.5"><line x1="${W-12-b}" y1="${sol+12}" x2="${W-12}" y2="${sol+12}"/>
+    <line x1="${W-12-b}" y1="${sol+8}" x2="${W-12-b}" y2="${sol+16}"/><line x1="${W-12}" y1="${sol+8}" x2="${W-12}" y2="${sol+16}"/></g>
+    <text x="${W-12-b/2}" y="${sol+24}" font-size="10" text-anchor="middle" fill="#333">1 m</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cube dessiné à l'échelle à côté d'une personne de 1,70 m">
+    <line x1="10" y1="${sol}" x2="${W-10}" y2="${sol}" stroke="#bbb" stroke-width="1.5"/>
+    ${pers}${cube}${barre}
+    <text x="10" y="12" font-size="9" text-anchor="start" fill="#9aa3b2" font-style="italic">dessin à l'échelle</text></svg>`;
+}
+
+/* ---------- Activité ---------- */
+let ordre, etat;
+const liste = document.getElementById('liste');
+document.getElementById('tot').textContent = OBJETS.length;
+
+function melanger(){
+  ordre = OBJETS.map((_,i)=>i);
+  for(let i=ordre.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ordre[i],ordre[j]]=[ordre[j],ordre[i]];}
+  etat = OBJETS.map(()=>({essais:0, reussi:false, corrige:false}));
+}
+
+function render(){
+  liste.innerHTML='';
+  ordre.forEach((idx,n)=>{
+    const [nom, rho, a, inc, coul] = OBJETS[idx];
+    const V = net(a*a*a), m = net(rho*V);
+    const val = {rho, m, V};
+    const e = etat[idx];
+    const c = document.createElement('section'); c.className='carte';
+    const ligne = k => k===inc
+      ? `<li><span>${NOM[k]} <b>${SYM[k]}</b></span><span class="inc">?</span></li>`
+      : `<li><span>${NOM[k]} <b>${SYM[k]}</b></span><span>${fmt(val[k])} ${UNITE[k]}</span></li>`;
+    c.innerHTML = `<h3><span>${n+1}.</span> ${nom}</h3>
+      <div class="dessin">${dessin(a, coul)}</div>
+      <ul class="donnees">${['rho','m','V'].map(ligne).join('')}</ul>
+      <div class="saisie">
+        <label>${SYM[inc]} =</label>
+        <input type="text" inputmode="decimal" autocomplete="off" placeholder="valeur" aria-label="valeur">
+        <select aria-label="unité"><option value="">unité…</option><option>kg/m³</option><option>kg</option><option>m³</option></select>
+        <button class="verif">Vérifier</button>
+      </div>
+      <button class="lien corr" style="display:none;align-self:flex-start">Voir la correction</button>
+      <div class="fb"></div>`;
+    const inp=c.querySelector('input'), sel=c.querySelector('select'), btn=c.querySelector('.verif'),
+          fb=c.querySelector('.fb'), corr=c.querySelector('.corr');
+
+    const calcul = () => {
+      if(inc==='rho') return `ρ = m / V = ${fmt(m)} kg / ${fmt(V)} m³ = <b>${fmt(rho)} kg/m³</b>`;
+      if(inc==='m')   return `m = ρ × V = ${fmt(rho)} kg/m³ × ${fmt(V)} m³ = <b>${fmt(m)} kg</b>`;
+      return `V = m / ρ = ${fmt(m)} kg / ${fmt(rho)} kg/m³ = <b>${fmt(V)} m³</b>`;
+    };
+    const fige = () => { inp.disabled=sel.disabled=btn.disabled=true; corr.style.display='none'; };
+
+    const verifier = () => {
+      const x = lire(inp.value), u = sel.value;
+      if(isNaN(x) || !u){
+        fb.className='fb ko';
+        fb.innerHTML=`<div class="titre">Il manque quelque chose</div>Écris une valeur (un nombre) <b>et</b> choisis une unité.`;
+        return;
+      }
+      e.essais++;
+      const bonneVal = Math.abs(x - val[inc]) <= Math.abs(val[inc])*0.01;
+      const bonneU = u === UNITE[inc];
+      if(bonneVal && bonneU){
+        e.reussi=true; c.classList.add('reussi'); fige();
+        fb.className='fb ok';
+        fb.innerHTML=`<div class="titre">✓ Juste !</div><div class="calc">${calcul()}</div>`;
+        score();
+        return;
+      }
+      fb.className='fb ko';
+      let msg;
+      if(bonneVal && !bonneU)      msg = `La valeur est juste, mais pas l'unité. Que cherches-tu : une masse volumique, une masse ou un volume ?`;
+      else if(!bonneVal && bonneU) msg = `L'unité est juste, mais pas la valeur. Vérifie la formule et ton calcul.`;
+      else                         msg = `La valeur et l'unité sont fausses. Commence par chercher quelle grandeur manque, puis choisis la formule.`;
+      fb.innerHTML=`<div class="titre">✗ Pas encore</div>${msg}`;
+      if(e.essais>=2) corr.style.display='inline-block';
+    };
+    btn.onclick = verifier;
+    inp.onkeydown = ev => { if(ev.key==='Enter') verifier(); };
+    corr.onclick = () => {
+      e.corrige=true; fige();
+      fb.className='fb ko';
+      fb.innerHTML=`<div class="titre">Correction</div>On cherche ${NOM[inc].toLowerCase()}, donc on utilise <b>${FORM[inc]}</b>.<div class="calc">${calcul()}</div>`;
+      score();
+    };
+    liste.appendChild(c);
+  });
+  score();
+}
+
+function score(){
+  const pts = etat.filter(e=>e.reussi).length, faits = etat.filter(e=>e.reussi||e.corrige).length;
+  document.getElementById('pts').textContent = pts;
+  document.getElementById('barre').style.width = (100*pts/OBJETS.length)+'%';
+  const bilan = document.getElementById('bilan');
+  if(faits === OBJETS.length){
+    const premier = etat.filter(e=>e.reussi && e.essais===1).length;
+    bilan.style.display='block';
+    bilan.innerHTML = `<b>${pts} / ${OBJETS.length} réussis</b><p>dont ${premier} du premier coup.</p>
+      <p style="color:#666;font-size:.9rem">Astuce : regarde l'unité de ce que tu cherches. Une masse volumique est en kg/m³, une masse en kg et un volume en m³.</p>`;
+  } else bilan.style.display='none';
+}
+
+document.getElementById('reset').onclick = () => { melanger(); render(); window.scrollTo({top:0,behavior:'smooth'}); };
+melanger(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forces et vitesse</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#1d2330; --muted:#6b7280; --line:#d9dde4;
+    --contact:#d62828; --frot:#2a9d3a; --grav:#1f5fd1; --somme:#8e44ad;
+    --ok:#1f8a4c; --okbg:#e7f6ed; --ko:#c0392b; --kobg:#fdecea; --accent:#2b4c7e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+  header{max-width:980px;margin:0 auto;padding:20px 16px 8px}
+  .top{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+  h1{margin:.3em 0 .2em;font-size:1.7rem;text-align:center}
+  .consigne{text-align:center;margin:.2em 0 .8em}
+  .legende{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.92rem}
+  .legende span{display:inline-flex;align-items:center;gap:6px}
+  .legende i{display:inline-block;width:26px;height:3px;position:relative}
+  .legende i::after{content:"";position:absolute;right:-2px;top:-4px;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+  .note{font-size:.8rem;font-style:italic;color:var(--muted);text-align:center;max-width:720px;margin:8px auto 0}
+  .score{position:sticky;top:0;z-index:5;background:var(--bg);max-width:980px;margin:0 auto;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+  .score b{font-size:1.1rem}
+  .bar{flex:1;height:8px;background:var(--line);border-radius:6px;overflow:hidden;max-width:300px}
+  .bar div{height:100%;width:0;background:var(--ok);transition:width .3s}
+  main{max-width:980px;margin:0 auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .carte{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .carte h2{font-size:1rem;margin:0 0 6px;font-weight:600}
+  .carte h2 span{color:var(--accent)}
+  .carte svg.diag{width:100%;height:auto;max-height:230px}
+  .q{margin-top:8px;font-weight:600;font-size:.95rem}
+  .row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  button{font:inherit;cursor:pointer;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;color:var(--ink)}
+  button{transition:transform .12s,box-shadow .12s}
+  button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,30,50,.12)}
+  button.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+  button:disabled{cursor:default;opacity:.75}
+  .pad{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;margin-top:6px}
+  .pad button{padding:0;font-size:1.3rem;width:44px;height:44px}
+  .pad .h{grid-column:2;grid-row:1}.pad .g{grid-column:1;grid-row:2}.pad .d{grid-column:3;grid-row:2}.pad .b{grid-column:2;grid-row:3}
+  .pad .c{grid-column:2;grid-row:2;display:flex;align-items:center;justify-content:center}
+  .pad .c::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ink)}
+  .verif{margin-top:10px;background:var(--ink);color:#fff;border-color:var(--ink);align-self:flex-start}
+  .fb{margin-top:10px;border-radius:8px;padding:10px 12px;font-size:.92rem;display:none;gap:10px;align-items:flex-start}
+  .fb.ok{display:flex;background:var(--okbg);border-left:4px solid var(--ok)}
+  .fb.ko{display:flex;background:var(--kobg);border-left:4px solid var(--ko)}
+  .fb .titre{font-weight:700}
+  .fb.ok .titre{color:var(--ok)} .fb.ko .titre{color:var(--ko)}
+  .fb svg{flex:0 0 76px}
+  .attention{margin-top:6px;font-size:.88rem;background:#fff6dd;border-radius:6px;padding:6px 8px}
+  .hidden{display:none}
+  footer{max-width:980px;margin:0 auto;padding:8px 16px 32px;text-align:center}
+  #bilan{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  #bilan b{font-size:1.3rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top"><span>9e · Sciences de la nature</span><span>Forces et mouvement</span></div>
+  <h1>Forces et vitesse</h1>
+  <p class="consigne">Observe le diagramme des forces. La vitesse de l'objet change-t-elle&nbsp;? Si oui, dans quelle direction varie-t-elle&nbsp;?</p>
+  <div class="legende">
+    <span style="color:var(--contact)"><i style="background:var(--contact)"></i><span style="color:var(--ink)">Force de contact</span></span>
+    <span style="color:var(--frot)"><i style="background:var(--frot)"></i><span style="color:var(--ink)">Force de frottement</span></span>
+    <span style="color:var(--grav)"><i style="background:var(--grav)"></i><span style="color:var(--ink)">Force de gravité</span></span>
+  </div>
+  <p class="note"><b>F<sub>a/b</sub></b> : force exercée par a sur b. Les forces de frottement sont dessinées sur la surface de contact, les autres depuis le centre de l'objet. La longueur d'une flèche est proportionnelle à l'intensité de la force.</p>
+</header>
+
+<div class="score">
+  <span>Score : <b id="pts">0</b> / <span id="tot">9</span></span>
+  <div class="bar"><div id="barre"></div></div>
+  <span id="faits">0 / 9 vérifiés</span>
+</div>
+
+<main id="liste"></main>
+
+<footer>
+  <div id="bilan"></div>
+  <button id="reset">↺ Recommencer</button>
+</footer>
+
+<script>
+const COL = {contact:'#d62828', frot:'#2a9d3a', grav:'#1f5fd1', somme:'#8e44ad'};
+const FLECHE = {haut:'↑', bas:'↓', gauche:'←', droite:'→'};
+
+/* ---------- Dessin ---------- */
+function arrow(x,y,dx,dy,color,w=3,dash=false){
+  const L = Math.hypot(dx,dy); if(!L) return '';
+  const ux=dx/L, uy=dy/L, h=8, b=5;
+  const tx=x+dx, ty=y+dy, ex=tx-ux*h, ey=ty-uy*h;
+  return `<line x1="${x}" y1="${y}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="${w}"${dash?' stroke-dasharray="6 4"':''}/>`+
+         `<polygon points="${tx},${ty} ${ex-uy*b},${ey+ux*b} ${ex+uy*b},${ey-ux*b}" fill="${color}"/>`;
+}
+function label(x,y,sub,color,anchor='start'){
+  return `<text x="${x}" y="${y}" fill="${color}" font-family="sans-serif" font-size="16" font-style="italic" text-anchor="${anchor}">F<tspan font-size="11" font-style="normal" dy="4">${sub}</tspan></text>`;
+}
+function hatch(x1,x2,y,dir){ // dir 1 = hachures sous la ligne, -1 = au-dessus
+  let s=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#555" stroke-width="1.5"/>`;
+  for(let x=x1+4;x<x2;x+=10) s+=`<line x1="${x}" y1="${y}" x2="${x-6}" y2="${y+7*dir}" stroke="#777" stroke-width="1"/>`;
+  return s;
+}
+const dot=(x,y)=>`<circle cx="${x}" cy="${y}" r="3" fill="#111"/>`;
+
+function caisse(){ return hatch(30,215,130,1)+`<rect x="100" y="100" width="40" height="30" fill="#cfd3da" stroke="#555" stroke-width="1.5"/>`; }
+function parachutiste(){
+  return `<path d="M88 108 A32 32 0 0 1 152 108 Z" fill="#cfd3da" stroke="#555" stroke-width="1.5"/>
+  <line x1="88" y1="108" x2="120" y2="128" stroke="#555"/><line x1="152" y1="108" x2="120" y2="128" stroke="#555"/>
+  <circle cx="120" cy="131" r="5" fill="#f1d9b5" stroke="#555"/>
+  <line x1="120" y1="136" x2="120" y2="152" stroke="#333" stroke-width="2"/>
+  <line x1="111" y1="141" x2="129" y2="141" stroke="#333" stroke-width="2"/>
+  <line x1="120" y1="152" x2="114" y2="162" stroke="#333" stroke-width="2"/>
+  <line x1="120" y1="152" x2="126" y2="162" stroke="#333" stroke-width="2"/>`;
+}
+
+/* f: [x, y, dx, dy, type, indice, labelX, labelY, ancre] */
+const ITEMS = [
+ { titre:"Une caisse est poussée sur le sol.", c:[120,115], decor:caisse,
+   f:[[120,115,0,-55,'contact','sol/caisse',126,66],
+      [120,115,0,55,'grav','Terre/caisse',126,176],
+      [120,115,55,0,'contact','main/caisse',150,104],
+      [120,130,-40,0,'frot','sol/caisse',78,124,'end']],
+   acc:true, dir:'droite',
+   why:"La poussée est plus grande que le frottement. Les forces verticales se compensent." },
+ { titre:"Une caisse est poussée sur le sol.", c:[120,115], decor:caisse,
+   f:[[120,115,0,-55,'contact','sol/caisse',126,66],
+      [120,115,0,55,'grav','Terre/caisse',126,176],
+      [120,115,40,0,'contact','main/caisse',146,104],
+      [120,130,-40,0,'frot','sol/caisse',78,124,'end']],
+   acc:false,
+   why:"Toutes les forces se compensent : la caisse est immobile ou avance à vitesse constante.",
+   attention:"Les forces se compensent, mais ça ne veut pas dire que la caisse est forcément immobile !" },
+ { titre:"Un livre est posé sur une table.", c:[120,122],
+   decor:()=>`<rect x="35" y="130" width="170" height="5" fill="#8a6a45"/><line x1="50" y1="135" x2="50" y2="195" stroke="#555" stroke-width="2"/><line x1="190" y1="135" x2="190" y2="195" stroke="#555" stroke-width="2"/><rect x="95" y="115" width="50" height="15" fill="#e8d5b0" stroke="#555" stroke-width="1.5"/>`,
+   f:[[120,122,0,-55,'contact','table/livre',126,74],
+      [120,122,0,55,'grav','Terre/livre',126,184]],
+   acc:false, why:"La force de la table compense exactement le poids : le livre reste immobile." },
+ { titre:"Une pomme tombe de l'arbre.", c:[120,100],
+   decor:()=>`<circle cx="120" cy="100" r="15" fill="#f2c14e" stroke="#555" stroke-width="1.5"/><path d="M120 85 q2 -7 6 -9" stroke="#6b4b2a" stroke-width="2" fill="none"/>`,
+   f:[[120,100,0,-20,'frot','air/pomme',128,82],
+      [120,100,0,65,'grav','Terre/pomme',126,170]],
+   acc:true, dir:'bas', why:"Le poids est beaucoup plus grand que le petit frottement de l'air : la vitesse de la pomme augmente (elle va de plus en plus vite)." },
+ { titre:"Un parachutiste descend, parachute ouvert.", c:[120,142], decor:parachutiste,
+   f:[[120,142,0,-60,'frot','air/parachutiste',126,72],
+      [120,142,0,60,'grav','Terre/parachutiste',126,208]],
+   acc:false, why:"Le frottement de l'air compense exactement le poids : il descend à vitesse constante.",
+   attention:"Il bouge (vers le bas), mais sa vitesse ne change pas." },
+ { titre:"Un parachutiste vient d'ouvrir son parachute.", c:[120,142], decor:parachutiste,
+   f:[[120,142,0,-105,'frot','air/parachutiste',126,40],
+      [120,142,0,60,'grav','Terre/parachutiste',126,208]],
+   acc:true, dir:'haut', why:"Le frottement de l'air est plus grand que le poids. Il descend toujours, mais sa vitesse diminue.",
+   attention:"Sa vitesse varie vers le haut, mais ça ne veut pas dire qu'il monte ! Il descend de moins en moins vite." },
+ { titre:"Une lampe est suspendue au plafond par un fil.", c:[120,112],
+   decor:()=>hatch(55,185,35,-1)+`<line x1="120" y1="35" x2="120" y2="97" stroke="#555" stroke-width="1.5"/><circle cx="120" cy="112" r="15" fill="#fbe7a1" stroke="#555" stroke-width="1.5"/>`,
+   f:[[120,112,0,-60,'contact','fil/lampe',112,72,'end'],
+      [120,112,0,60,'grav','Terre/lampe',126,180]],
+   acc:false, why:"La force du fil compense exactement le poids : la lampe reste immobile." },
+ { titre:"Un palet glisse sur la glace vers la droite.", c:[120,114],
+   decor:()=>`<text x="30" y="58" font-family="sans-serif" font-size="12" font-style="italic" fill="#888">sens du mouvement</text>${arrow(30,68,70,0,'#999',1.5)}<rect x="30" y="120" width="180" height="9" fill="#e3f1fb"/><line x1="30" y1="120" x2="210" y2="120" stroke="#555" stroke-width="1.5"/><ellipse cx="120" cy="114" rx="17" ry="6" fill="#333"/>`,
+   f:[[120,114,0,-48,'contact','glace/palet',126,72],
+      [120,114,0,48,'grav','Terre/palet',126,170],
+      [120,120,-32,0,'frot','glace/palet',86,142,'end']],
+   acc:true, dir:'gauche', why:"Seul le frottement agit horizontalement, contre le mouvement : la vitesse du palet diminue.",
+   attention:"Il avance vers la droite, mais sa vitesse varie vers la gauche (dans le sens de la somme des forces) : il va de moins en moins vite." },
+ { titre:"Une fusée décolle.", c:[120,118],
+   decor:()=>`<path d="M120 68 L131 88 L131 155 L109 155 L109 88 Z" fill="#cfd3da" stroke="#555" stroke-width="1.5"/><path d="M109 135 L98 160 L109 155 Z M131 135 L142 160 L131 155 Z" fill="#aab0bb" stroke="#555"/><path d="M112 155 L120 172 L128 155 Z" fill="#f4a259"/>`,
+   f:[[120,118,0,-80,'contact','gaz/fusée',126,46],
+      [120,118,0,50,'grav','Terre/fusée',126,180]],
+   acc:true, dir:'haut', why:"La poussée des gaz est plus grande que le poids : la somme des forces est vers le haut." }
+];
+
+function diag(it){
+  let s=`<svg class="diag" viewBox="0 0 240 215" role="img" aria-label="Diagramme des forces">`+it.decor();
+  for(const [x,y,dx,dy,t,sub,lx,ly,a] of it.f) s+=arrow(x,y,dx,dy,COL[t])+label(lx,ly,sub,COL[t],a||'start');
+  return s+dot(...it.c)+`</svg>`;
+}
+function somme(it){
+  let sx=0, sy=0; it.f.forEach(f=>{sx+=f[2]; sy+=f[3];});
+  const k=Math.max(Math.abs(sx),Math.abs(sy)); const sc=k?Math.min(1,26/k)*1.0:0;
+  const L = k ? Math.max(16, k*sc) : 0;
+  const dx = sx? Math.sign(sx)*L:0, dy = sy? Math.sign(sy)*L:0;
+  return `<svg viewBox="0 0 76 76" width="76" height="76"><rect x="1" y="1" width="74" height="74" rx="8" fill="#fff" stroke="#ddd"/>`+
+    (k? arrow(38,40,dx,dy,COL.somme,3.5) : `<text x="38" y="45" text-anchor="middle" font-size="15" font-weight="700" fill="${COL.somme}">= 0</text>`)+
+    (k? dot(38,40):'')+`<text x="38" y="13" text-anchor="middle" font-size="9" fill="#666">somme</text></svg>`;
+}
+
+/* ---------- Interaction ---------- */
+/* ordre aléatoire à chaque chargement */
+for(let i=ITEMS.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ITEMS[i],ITEMS[j]]=[ITEMS[j],ITEMS[i]];}
+const etat = ITEMS.map(()=>({acc:null, dir:null, fait:false, juste:false}));
+const liste = document.getElementById('liste');
+
+function render(){
+  liste.innerHTML='';
+  ITEMS.forEach((it,i)=>{
+    const c=document.createElement('section'); c.className='carte';
+    c.innerHTML=`<h2><span>${i+1}.</span> ${it.titre}</h2>${diag(it)}
+      <div class="q">La vitesse change ?</div>
+      <div class="row"><button data-a="1">Oui</button><button data-a="0">Non</button></div>
+      <div class="dirbloc hidden"><div class="q">Dans quelle direction la vitesse varie-t-elle ?</div>
+        <div class="pad">
+          <button class="h" data-d="haut" aria-label="vers le haut">↑</button>
+          <button class="g" data-d="gauche" aria-label="vers la gauche">←</button>
+          <span class="c"></span>
+          <button class="d" data-d="droite" aria-label="vers la droite">→</button>
+          <button class="b" data-d="bas" aria-label="vers le bas">↓</button>
+        </div></div>
+      <button class="verif" disabled>Vérifier</button>
+      <div class="fb"></div>`;
+    const e=etat[i];
+    const majBoutons=()=>{
+      c.querySelectorAll('[data-a]').forEach(b=>b.classList.toggle('sel', e.acc!==null && (b.dataset.a==='1')===e.acc));
+      c.querySelectorAll('[data-d]').forEach(b=>b.classList.toggle('sel', b.dataset.d===e.dir));
+      c.querySelector('.dirbloc').classList.toggle('hidden', e.acc!==true);
+      c.querySelector('.verif').disabled = e.fait || e.acc===null || (e.acc && !e.dir);
+    };
+    c.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ if(e.fait) return; e.acc=b.dataset.a==='1'; if(!e.acc) e.dir=null; majBoutons(); });
+    c.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ if(e.fait) return; e.dir=b.dataset.d; majBoutons(); });
+    c.querySelector('.verif').onclick=()=>{
+      e.fait=true;
+      e.juste = e.acc===it.acc && (!it.acc || e.dir===it.dir);
+      const fb=c.querySelector('.fb'); fb.className='fb '+(e.juste?'ok':'ko');
+      const rep = it.acc ? `Oui, ${FLECHE[it.dir]} vers ${it.dir==='haut'||it.dir==='bas'?'le':'la'} ${it.dir}` : 'Non, la vitesse ne change pas';
+      fb.innerHTML = somme(it)+`<div><div class="titre">${e.juste?'✓ Juste !':'✗ Pas tout à fait'}</div>
+        ${e.juste?'':`<div><b>Réponse :</b> ${rep}</div>`}
+        <div><b>Pourquoi ?</b> ${it.why}</div>
+        ${it.attention?`<div class="attention">⚠️ ${it.attention}</div>`:''}</div>`;
+      c.querySelectorAll('button').forEach(b=>b.disabled=true);
+      score();
+    };
+    majBoutons();
+    liste.appendChild(c);
+  });
+  score();
+}
+
+function score(){
+  const pts=etat.filter(e=>e.juste).length, faits=etat.filter(e=>e.fait).length;
+  document.getElementById('pts').textContent=pts;
+  document.getElementById('faits').textContent=`${faits} / ${ITEMS.length} vérifiés`;
+  document.getElementById('barre').style.width=(100*pts/ITEMS.length)+'%';
+  const bilan=document.getElementById('bilan');
+  if(faits===ITEMS.length){
+    const msg = pts===9 ? "Parfait ! Tu sais lire un diagramme des forces." :
+                pts>=6 ? "Bien joué ! Relis les explications des questions ratées." :
+                "Revois la règle : on compare les flèches qui vont en sens opposés. Si elles se compensent, la vitesse ne change pas.";
+    bilan.style.display='block';
+    bilan.innerHTML=`<b>${pts} / ${ITEMS.length}</b><p>${msg}</p><p style="color:#666;font-size:.9rem">À retenir : si la <span style="color:${COL.somme};font-weight:600">somme des forces</span> est nulle, la vitesse ne change pas (immobile ou vitesse constante). Sinon, la vitesse change : elle augmente si la somme pousse dans le sens du mouvement, elle diminue si elle pousse contre.</p>`;
+  } else bilan.style.display='none';
+}
+
+document.getElementById('reset').onclick=()=>{
+  etat.forEach(e=>Object.assign(e,{acc:null,dir:null,fait:false,juste:false}));
+  render(); window.scrollTo({top:0,behavior:'smooth'});
+};
+render();
+</script>
+</body>
+</html>

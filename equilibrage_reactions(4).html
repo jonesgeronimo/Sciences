@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base href="/Sciences/">
+<title>Équilibrage des réactions — Sciences</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .eq-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
+  .eq-group { display: flex; align-items: center; gap: 1px; }
+  .eq-group svg { width: 40px; height: auto; display: block; }
+  .eq-plus { font-weight: 800; font-size: 16px; color: var(--ink-soft); margin: 0 4px; }
+  .eq-arrow { font-weight: 800; font-size: 18px; color: var(--ink); margin: 0 8px; }
+  .formula-eq { text-align: center; font-weight: 700; font-size: 1.1rem; }
+  .formula-under { text-align: center; font-weight: 700; font-size: 1rem; margin-top: 6px; }
+
+  /* Coefficient (grand chiffre) et indice (petit chiffre) en couleur */
+  .coef { color: #e8590c; font-weight: 800; }
+  .idx  { color: #1c7ed6; font-weight: 800; }
+
+  .q-title { text-align: center; font-weight: 800; margin-bottom: 2px; }
+
+  /* Menu */
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+  .menu-btn { display: block; width: 100%; text-align: left; white-space: normal; padding: 14px 16px; }
+  .menu-btn .t { display: block; font-weight: 800; font-size: 1.05rem; }
+  .menu-btn .d { display: block; font-weight: 400; font-size: .9rem; opacity: .85; margin-top: 4px; }
+
+  /* Tableau de comptage */
+  .count-wrap { margin-top: 10px; }
+  .count-title { font-weight: 700; font-size: .9rem; margin-bottom: 4px; text-align: center; }
+  .count-table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+  .count-table th, .count-table td { border: 1px solid rgba(128,128,128,.35); padding: 4px 12px; text-align: center; }
+  .count-table td.ok { color: #2b8a3e; font-weight: 700; }
+  .count-table td.ko { color: #c92a2a; font-weight: 800; }
+  .count-table .legend-dot { display: inline-block; vertical-align: middle; margin-right: 4px; }
+
+  /* Explication */
+  .anatomy { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin: 12px 0; }
+  .anat-part { text-align: center; max-width: 220px; }
+  .anat-big { font-size: 3rem; font-weight: 800; line-height: 1.1; }
+  .anat-big sub { font-size: 1.6rem; }
+  .anat-label { font-size: .9rem; margin-top: 4px; }
+  .big-draw .eq-group svg { width: 60px; }
+  .calc { text-align: center; font-size: 1.05rem; margin: 8px 0; line-height: 1.7; }
+  .calc .legend-dot { display: inline-block; vertical-align: middle; margin-right: 4px; }
+  .rule { border-left: 4px solid #e8590c; padding: 8px 12px; margin: 14px 0; background: rgba(232,89,12,.08); border-radius: 4px; }
+  .trap { border-left: 4px solid #c92a2a; padding: 8px 12px; margin: 14px 0; background: rgba(201,42,42,.07); border-radius: 4px; }
+  .explain-section { margin-top: 22px; }
+  .explain-section h3 { margin-bottom: 6px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 8px 0; }
+  .chip-row button { padding: 6px 12px; }
+  .chip-row button.active { outline: 3px solid #e8590c; }
+  .coef-ctrl { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; }
+  .coef-ctrl button { width: 40px; padding: 6px 0; }
+  .explore-formula { text-align: center; font-size: 2rem; font-weight: 800; }
+  .steps { margin: 6px 0 0 0; padding-left: 20px; line-height: 1.6; }
+  .btn-row.wrap { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="index.html">Sciences</a>
+  <a href="index.html">Accueil</a>
+  <a href="activites.html">Activités</a>
+  <a href="cours.html">Cours</a>
+</nav>
+
+<main>
+  <h1>Équilibrage des réactions</h1>
+  <p class="sub">Choisis, parmi 4 propositions, la réaction correctement équilibrée : autant d'atomes de chaque élément à gauche qu'à droite de la flèche.</p>
+
+  <div class="card">
+    <div class="legend-title">Rappel des couleurs</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot h"></span> Hydrogène (H)</div>
+      <div class="legend-item"><span class="legend-dot c"></span> Carbone (C)</div>
+      <div class="legend-item"><span class="legend-dot o"></span> Oxygène (O)</div>
+      <div class="legend-item"><span class="legend-dot n"></span> Azote (N)</div>
+    </div>
+    <div class="legend-tip">Une réaction est équilibrée quand il y a le même nombre d'atomes de chaque élément avant et après la flèche (→).</div>
+  </div>
+
+  <!-- MENU -->
+  <div id="menu-card" class="card">
+    <div class="legend-title">Que veux-tu faire ?</div>
+    <div class="menu-grid">
+      <button class="menu-btn" data-go="part1">
+        <span class="t">Partie 1 · Images + formules</span>
+        <span class="d">Compte les atomes sur les dessins et fais le lien avec la formule.</span>
+      </button>
+      <button class="menu-btn" data-go="explain">
+        <span class="t">Comprendre « 2 H₂O »</span>
+        <span class="d">Coefficient, indice : comment compter les atomes dans une formule.</span>
+      </button>
+      <button class="menu-btn" data-go="part2">
+        <span class="t">Partie 2 · Formules seules</span>
+        <span class="d">12 réactions, de la plus simple à la plus difficile.</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- EXPLICATION -->
+  <div id="explain-card" class="card hidden">
+    <div class="phase-banner">Lire une formule</div>
+
+    <h2 style="text-align:center; margin-top:4px;">Que veut dire « 2 H₂O » ?</h2>
+    <div class="anatomy">
+      <div class="anat-part">
+        <div class="anat-big coef">2</div>
+        <div class="anat-label">Le <b>coefficient</b> (grand chiffre devant)<br>= combien de <b>molécules</b></div>
+      </div>
+      <div class="anat-part">
+        <div class="anat-big">H<sub class="idx">2</sub>O</div>
+        <div class="anat-label">L'<b>indice</b> (petit chiffre en bas)<br>= combien d'atomes H dans <b>une seule</b> molécule</div>
+      </div>
+    </div>
+
+    <div class="eq-row big-draw" id="ex-h2o-draw"></div>
+    <div class="calc" id="ex-h2o-calc"></div>
+
+    <div class="rule"><b>La règle :</b> le coefficient multiplie <b>tous</b> les atomes de la molécule, pas seulement le premier. « 2 H₂O », c'est « H₂O + H₂O ».</div>
+
+    <div class="explain-section">
+      <h3>Le piège classique : 2 CO₂</h3>
+      <div class="eq-row big-draw" id="ex-co2-draw"></div>
+      <div class="calc" id="ex-co2-calc"></div>
+      <div class="trap">✗ Erreur fréquente : compter 2 C mais seulement 2 O. Le <span class="coef">2</span> s'applique aussi aux O : 2 molécules × 2 O = <b>4 O</b>.</div>
+    </div>
+
+    <div class="explain-section">
+      <h3>À toi : choisis une molécule et un coefficient</h3>
+      <div class="chip-row" id="explore-mols"></div>
+      <div class="coef-ctrl">
+        <button id="coef-minus" aria-label="Diminuer le coefficient">−</button>
+        <span>coefficient</span>
+        <button id="coef-plus" aria-label="Augmenter le coefficient">+</button>
+      </div>
+      <div class="explore-formula" id="explore-formula"></div>
+      <div class="eq-row big-draw" id="explore-draw"></div>
+      <div class="calc" id="explore-calc"></div>
+    </div>
+
+    <div class="explain-section">
+      <h3>La méthode pour la partie 2</h3>
+      <div class="formula-eq" id="method-eq"></div>
+      <ol class="steps">
+        <li>Fais la liste des éléments présents (ici C, H, O).</li>
+        <li>Pour chaque molécule : <span class="coef">coefficient</span> × <span class="idx">indice</span>. Sans chiffre, c'est 1.</li>
+        <li>Additionne tout ce qui est à gauche, puis tout ce qui est à droite.</li>
+        <li>Équilibrée seulement si <b>chaque</b> élément a le même nombre des deux côtés.</li>
+      </ol>
+      <div class="calc" id="method-detail"></div>
+      <div id="method-table"></div>
+    </div>
+
+    <div class="btn-row wrap" style="margin-top:16px;">
+      <button data-go="part1">Partie 1</button>
+      <button data-go="part2">Partie 2</button>
+      <button data-go="menu">Menu</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-card" class="card hidden">
+    <div class="progress-row">
+      <span id="progress-text">Question 1 / 6</span>
+      <span id="score-text">Score : 0</span>
+    </div>
+    <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill" style="width:0%;"></div></div>
+
+    <div class="phase-banner" id="phase-banner">Partie 1 · Images + formules</div>
+    <div class="q-title" id="q-title"></div>
+    <div class="sub" style="text-align:center; margin-bottom:10px;">Quelle réaction est correctement équilibrée ?</div>
+
+    <div class="options" id="options" style="grid-template-columns:1fr;"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <div id="count-box"></div>
+
+    <div class="btn-row wrap">
+      <button class="hidden" id="next-btn">Suivant</button>
+      <button id="quit-btn">Menu</button>
+    </div>
+  </div>
+
+  <!-- FIN -->
+  <div id="final-card" class="card final hidden">
+    <p class="sub" style="margin-bottom:4px;" id="final-label">Partie terminée</p>
+    <div class="score"><span id="final-score-num">0</span> / <span id="final-score-denom">6</span></div>
+    <p id="final-msg"></p>
+    <div class="btn-row wrap">
+      <button id="restart-btn">Recommencer cette partie</button>
+      <button id="final-next-btn" class="hidden"></button>
+      <button data-go="menu">Menu</button>
+    </div>
+  </div>
+</main>
+
+<footer>Sciences — Activités interactives</footer>
+
+<script>
+/* ---------- Dessins des molécules ---------- */
+const MOLECULE_ICONS = {
+  H2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="27" cy="28" r="11" class="atom-h"/><circle cx="53" cy="28" r="11" class="atom-h"/></svg>`,
+  O2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="26" cy="28" r="12" class="atom-o"/><circle cx="54" cy="28" r="12" class="atom-o"/></svg>`,
+  N2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="38" y1="28" x2="42" y2="28" class="bond"/><circle cx="26" cy="28" r="12" class="atom-n"/><circle cx="54" cy="28" r="12" class="atom-n"/></svg>`,
+  C:  `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="28" r="13" class="atom-c"/></svg>`,
+  CO: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="36" y1="28" x2="42" y2="28" class="bond"/><circle cx="24" cy="28" r="12" class="atom-c"/><circle cx="54" cy="28" r="12" class="atom-o"/></svg>`,
+  CO2: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="24" y1="28" x2="27" y2="28" class="bond"/><line x1="53" y1="28" x2="56" y2="28" class="bond"/><circle cx="14" cy="28" r="10" class="atom-o"/><circle cx="40" cy="28" r="13" class="atom-c"/><circle cx="66" cy="28" r="10" class="atom-o"/></svg>`,
+  H2O: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="36" y1="22" x2="28" y2="36" class="bond"/><line x1="44" y1="22" x2="52" y2="36" class="bond"/><circle cx="40" cy="16" r="11" class="atom-o"/><circle cx="26" cy="40" r="8" class="atom-h"/><circle cx="54" cy="40" r="8" class="atom-h"/></svg>`,
+  NH3: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="24" x2="24" y2="38" class="bond"/><line x1="40" y1="24" x2="40" y2="44" class="bond"/><line x1="40" y1="24" x2="56" y2="38" class="bond"/><circle cx="40" cy="16" r="11" class="atom-n"/><circle cx="20" cy="42" r="7" class="atom-h"/><circle cx="40" cy="48" r="7" class="atom-h"/><circle cx="60" cy="42" r="7" class="atom-h"/></svg>`,
+  CH4: `<svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg"><line x1="40" y1="28" x2="24" y2="13" class="bond"/><line x1="40" y1="28" x2="56" y2="13" class="bond"/><line x1="40" y1="28" x2="24" y2="43" class="bond"/><line x1="40" y1="28" x2="56" y2="43" class="bond"/><circle cx="40" cy="28" r="12" class="atom-c"/><circle cx="21" cy="11" r="7" class="atom-h"/><circle cx="59" cy="11" r="7" class="atom-h"/><circle cx="21" cy="45" r="7" class="atom-h"/><circle cx="59" cy="45" r="7" class="atom-h"/></svg>`,
+};
+
+const FORMULA = { H2:'H₂', O2:'O₂', N2:'N₂', C:'C', CO:'CO', CO2:'CO₂', H2O:'H₂O', NH3:'NH₃', CH4:'CH₄' };
+const DOT = { H:'h', C:'c', O:'o', N:'n' };
+
+/* ---------- Outils : lire et compter une équation ---------- */
+function parseFormula(f){
+  const s = f.replace(/[₀-₉]/g, ch => String(ch.charCodeAt(0) - 0x2080));
+  const out = {};
+  const re = /([A-Z][a-z]?)(\d*)/g;
+  let m;
+  while((m = re.exec(s))){ out[m[1]] = (out[m[1]] || 0) + (m[2] ? +m[2] : 1); }
+  return out;
+}
+function parseTerm(t){
+  const m = t.trim().match(/^(\d+)\s+(.+)$/);
+  return m ? { coef:+m[1], formula:m[2] } : { coef:1, formula:t.trim() };
+}
+function countSide(side, order){
+  const tot = {};
+  side.split('+').forEach(t => {
+    const { coef, formula } = parseTerm(t);
+    const atoms = parseFormula(formula);
+    for(const el in atoms){
+      if(!order.includes(el)) order.push(el);
+      tot[el] = (tot[el] || 0) + coef * atoms[el];
+    }
+  });
+  return tot;
+}
+function countEquation(text){
+  const [l, r] = text.split('→');
+  const order = [];
+  const left = countSide(l, order), right = countSide(r, order);
+  return { order, left, right };
+}
+function dotFor(el){ return DOT[el] ? `<span class="legend-dot ${DOT[el]}"></span>` : ''; }
+
+function countTableHTML(text, title){
+  const { order, left, right } = countEquation(text);
+  const rows = order.map(el => {
+    const a = left[el] || 0, b = right[el] || 0, cls = a === b ? 'ok' : 'ko';
+    return `<tr><td>${dotFor(el)}${el}</td><td class="${cls}">${a}</td><td class="${cls}">${b}</td></tr>`;
+  }).join('');
+  return `<div class="count-wrap">${title ? `<div class="count-title">${title}</div>` : ''}
+    <table class="count-table"><tr><th>Élément</th><th>À gauche</th><th>À droite</th></tr>${rows}</table></div>`;
+}
+
+/* Colore coefficients (orange) et indices (bleu) */
+function fmtEq(text){
+  return text
+    .replace(/([₀-₉]+)/g, '<span class="idx">$1</span>')
+    .replace(/(^|[+→]\s)(\d+)(?=\s)/g, '$1<span class="coef">$2</span>');
+}
+
+/* ---------- Partie 1 : rendu dessin + formule ---------- */
+function moleculeTerm(term){
+  let icons = '';
+  for(let i = 0; i < term.coef; i++) icons += MOLECULE_ICONS[term.mol];
+  return `<span class="eq-group">${icons}</span>`;
+}
+function termText(t){ return (t.coef > 1 ? t.coef + ' ' : '') + FORMULA[t.mol]; }
+function eqText(eq){
+  return eq.reactants.map(termText).join(' + ') + ' → ' + eq.products.map(termText).join(' + ');
+}
+function renderEquationRow(eq){
+  const reactants = eq.reactants.map(moleculeTerm).join('<span class="eq-plus">+</span>');
+  const products = eq.products.map(moleculeTerm).join('<span class="eq-plus">+</span>');
+  return `<div class="eq-row">${reactants}<span class="eq-arrow">→</span>${products}</div>`;
+}
+
+/* ---------- Questions ---------- */
+const part1 = [
+  { title: "Formation de l'eau", options: [
+    { correct: true,  reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:2}] },
+    { correct: false, reactants: [{mol:'H2', coef:1}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:1}], products: [{mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'H2', coef:2}, {mol:'O2', coef:2}], products: [{mol:'H2O', coef:2}] },
+  ]},
+  { title: "Combustion complète du carbone", options: [
+    { correct: true,  reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'C', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:1}] },
+  ]},
+  { title: "Combustion incomplète du carbone", options: [
+    { correct: true,  reactants: [{mol:'C', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO', coef:2}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO', coef:1}] },
+    { correct: false, reactants: [{mol:'C', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO', coef:1}] },
+    { correct: false, reactants: [{mol:'C', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO', coef:2}] },
+  ]},
+  { title: "Fabrication de l'ammoniac", options: [
+    { correct: true,  reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:2}] },
+    { correct: false, reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:1}], products: [{mol:'NH3', coef:1}] },
+    { correct: false, reactants: [{mol:'N2', coef:1}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:1}] },
+    { correct: false, reactants: [{mol:'N2', coef:2}, {mol:'H2', coef:3}], products: [{mol:'NH3', coef:2}] },
+  ]},
+  { title: "Combustion du monoxyde de carbone", options: [
+    { correct: true,  reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:2}] },
+    { correct: false, reactants: [{mol:'CO', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}] },
+    { correct: false, reactants: [{mol:'CO', coef:2}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:2}] },
+  ]},
+  { title: "Combustion du méthane (gaz naturel)", options: [
+    { correct: true,  reactants: [{mol:'CH4', coef:1}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:1}, {mol:'H2O', coef:2}] },
+    { correct: false, reactants: [{mol:'CH4', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}, {mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'CH4', coef:1}, {mol:'O2', coef:2}], products: [{mol:'CO2', coef:1}, {mol:'H2O', coef:1}] },
+    { correct: false, reactants: [{mol:'CH4', coef:1}, {mol:'O2', coef:1}], products: [{mol:'CO2', coef:1}, {mol:'H2O', coef:2}] },
+  ]},
+];
+part1.forEach(q => q.options.forEach(o => { o.text = eqText(o); }));
+
+/* Partie 2 : de la plus simple à la plus difficile */
+const part2 = [
+  { title: "Formation de l'eau", options: [
+    { correct: true,  text: "2 H₂ + O₂ → 2 H₂O" },
+    { correct: false, text: "H₂ + O₂ → H₂O" },
+    { correct: false, text: "2 H₂ + O₂ → H₂O" },
+    { correct: false, text: "H₂ + O₂ → 2 H₂O" },
+  ]},
+  { title: "Formation du sel de cuisine", options: [
+    { correct: true,  text: "2 Na + Cl₂ → 2 NaCl" },
+    { correct: false, text: "Na + Cl₂ → NaCl" },
+    { correct: false, text: "Na + Cl₂ → 2 NaCl" },
+    { correct: false, text: "2 Na + 2 Cl₂ → 2 NaCl" },
+  ]},
+  { title: "Combustion du magnésium", options: [
+    { correct: true,  text: "2 Mg + O₂ → 2 MgO" },
+    { correct: false, text: "Mg + O₂ → MgO" },
+    { correct: false, text: "2 Mg + O₂ → MgO" },
+    { correct: false, text: "Mg + O₂ → 2 MgO" },
+  ]},
+  { title: "Fabrication de l'ammoniac", options: [
+    { correct: true,  text: "N₂ + 3 H₂ → 2 NH₃" },
+    { correct: false, text: "N₂ + H₂ → NH₃" },
+    { correct: false, text: "N₂ + 3 H₂ → NH₃" },
+    { correct: false, text: "N₂ + 2 H₂ → 2 NH₃" },
+  ]},
+  { title: "Combustion du méthane", options: [
+    { correct: true,  text: "CH₄ + 2 O₂ → CO₂ + 2 H₂O" },
+    { correct: false, text: "CH₄ + O₂ → CO₂ + H₂O" },
+    { correct: false, text: "CH₄ + 2 O₂ → CO₂ + H₂O" },
+    { correct: false, text: "2 CH₄ + 2 O₂ → CO₂ + 2 H₂O" },
+  ]},
+  { title: "Décomposition de l'eau oxygénée", options: [
+    { correct: true,  text: "2 H₂O₂ → 2 H₂O + O₂" },
+    { correct: false, text: "H₂O₂ → H₂O + O₂" },
+    { correct: false, text: "2 H₂O₂ → 2 H₂O" },
+    { correct: false, text: "2 H₂O₂ → H₂O + O₂" },
+  ]},
+  { title: "Décomposition du chlorate de potassium", options: [
+    { correct: true,  text: "2 KClO₃ → 2 KCl + 3 O₂" },
+    { correct: false, text: "KClO₃ → KCl + O₂" },
+    { correct: false, text: "2 KClO₃ → 2 KCl + 2 O₂" },
+    { correct: false, text: "2 KClO₃ → KCl + 3 O₂" },
+  ]},
+  { title: "Formation de la rouille", options: [
+    { correct: true,  text: "4 Fe + 3 O₂ → 2 Fe₂O₃" },
+    { correct: false, text: "2 Fe + 3 O₂ → 2 Fe₂O₃" },
+    { correct: false, text: "4 Fe + 3 O₂ → Fe₂O₃" },
+    { correct: false, text: "4 Fe + 2 O₂ → 2 Fe₂O₃" },
+  ]},
+  { title: "Combustion du propane", options: [
+    { correct: true,  text: "C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O" },
+    { correct: false, text: "C₃H₈ + 5 O₂ → 3 CO₂ + 3 H₂O" },
+    { correct: false, text: "C₃H₈ + 4 O₂ → 3 CO₂ + 4 H₂O" },
+    { correct: false, text: "3 C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O" },
+  ]},
+  { title: "Combustion de l'éthanol", options: [
+    { correct: true,  text: "C₂H₆O + 3 O₂ → 2 CO₂ + 3 H₂O" },
+    { correct: false, text: "C₂H₆O + 3 O₂ → 2 CO₂ + 2 H₂O" },
+    { correct: false, text: "C₂H₆O + 2 O₂ → 2 CO₂ + 3 H₂O" },
+    { correct: false, text: "C₂H₆O + 3 O₂ → CO₂ + 3 H₂O" },
+  ]},
+  { title: "Respiration cellulaire (glucose)", options: [
+    { correct: true,  text: "C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O" },
+    { correct: false, text: "C₆H₁₂O₆ + O₂ → CO₂ + H₂O" },
+    { correct: false, text: "C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 12 H₂O" },
+    { correct: false, text: "C₆H₁₂O₆ + 3 O₂ → 6 CO₂ + 6 H₂O" },
+  ]},
+  { title: "Combustion de l'éthane", options: [
+    { correct: true,  text: "2 C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O" },
+    { correct: false, text: "C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O" },
+    { correct: false, text: "2 C₂H₆ + 7 O₂ → 4 CO₂ + 3 H₂O" },
+    { correct: false, text: "2 C₂H₆ + 5 O₂ → 4 CO₂ + 6 H₂O" },
+  ]},
+];
+
+const PARTS = {
+  part1: { label: 'Partie 1 · Images + formules', questions: part1, visual: true },
+  part2: { label: 'Partie 2 · Formules seules',   questions: part2, visual: false },
+};
+
+/* ---------- Navigation ---------- */
+const CARDS = ['menu-card', 'explain-card', 'quiz-card', 'final-card'];
+function show(id){
+  CARDS.forEach(c => document.getElementById(c).classList.toggle('hidden', c !== id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function go(where){
+  if(where === 'menu') show('menu-card');
+  else if(where === 'explain') show('explain-card');
+  else startPart(where);
+}
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+
+/* ---------- Quiz ---------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let partKey = 'part1', current = 0, score = 0, answered = false;
+
+function startPart(key){
+  partKey = key; current = 0; score = 0;
+  show('quiz-card');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered = false;
+  const part = PARTS[partKey], qs = part.questions, q = qs[current];
+  document.getElementById('progress-text').textContent = `Question ${current + 1} / ${qs.length}`;
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  document.getElementById('progress-bar').style.width = `${(current / qs.length) * 100}%`;
+  document.getElementById('phase-banner').textContent = part.label;
+  document.getElementById('q-title').textContent = q.title || '';
+  const fb = document.getElementById('feedback');
+  fb.textContent = ''; fb.className = 'feedback';
+  document.getElementById('count-box').innerHTML = '';
+  document.getElementById('next-btn').classList.add('hidden');
+
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  shuffle(q.options).forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = part.visual
+      ? renderEquationRow(opt) + `<div class="formula-under">${opt.text}</div>`
+      : `<div class="formula-eq">${opt.text}</div>`;
+    if(opt.correct) el.dataset.correct = '1';
+    el.addEventListener('click', () => selectOption(el, opt));
+    optionsDiv.appendChild(el);
+  });
+}
+
+function selectOption(el, opt){
+  if(answered) return;
+  answered = true;
+  document.querySelectorAll('.option').forEach(o => o.style.pointerEvents = 'none');
+
+  const fb = document.getElementById('feedback');
+  if(opt.correct){
+    score++;
+    el.classList.add('correct');
+    fb.textContent = 'Bravo, cette réaction est bien équilibrée.';
+    fb.classList.add('correct');
+  } else {
+    el.classList.add('wrong');
+    const good = document.querySelector('.option[data-correct="1"]');
+    if(good) good.classList.add('correct');
+    fb.textContent = 'Pas tout à fait… Regarde le comptage de ta réponse : les chiffres en rouge ne sont pas égaux. La bonne réponse est en vert.';
+    fb.classList.add('wrong');
+  }
+  document.getElementById('count-box').innerHTML =
+    countTableHTML(opt.text, opt.correct ? 'Vérification : coefficient × indice, de chaque côté' : 'Comptage de ta réponse');
+
+  document.getElementById('score-text').textContent = `Score : ${score}`;
+  const nb = document.getElementById('next-btn');
+  nb.textContent = current === PARTS[partKey].questions.length - 1 ? 'Voir le résultat' : 'Suivant';
+  nb.classList.remove('hidden');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= PARTS[partKey].questions.length) showFinal(); else renderQuestion();
+}
+
+function showFinal(){
+  const n = PARTS[partKey].questions.length;
+  show('final-card');
+  document.getElementById('final-label').textContent = PARTS[partKey].label + ' · terminée';
+  document.getElementById('final-score-num').textContent = score;
+  document.getElementById('final-score-denom').textContent = n;
+  let msg;
+  if(score === n) msg = 'Parfait, toutes les réactions sont bien équilibrées.';
+  else if(score >= n - 2) msg = 'Très bien joué, presque sans faute.';
+  else if(score >= n / 2) msg = 'Bon travail, continue à t\'entraîner.';
+  else msg = 'Revois l\'explication « 2 H₂O » et compte bien coefficient × indice des deux côtés.';
+  document.getElementById('final-msg').textContent = msg;
+
+  const fn = document.getElementById('final-next-btn');
+  if(partKey === 'part1'){ fn.textContent = 'Suite : comprendre « 2 H₂O »'; fn.dataset.target = 'explain'; }
+  else if(score < n / 2){ fn.textContent = 'Revoir l\'explication'; fn.dataset.target = 'explain'; }
+  else { fn.textContent = 'Partie 1'; fn.dataset.target = 'part1'; }
+  fn.classList.remove('hidden');
+}
+
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+document.getElementById('restart-btn').addEventListener('click', () => startPart(partKey));
+document.getElementById('quit-btn').addEventListener('click', () => show('menu-card'));
+document.getElementById('final-next-btn').addEventListener('click', e => go(e.currentTarget.dataset.target));
+
+/* ---------- Explication ---------- */
+function calcHTML(mol, coef){
+  const atoms = parseFormula(FORMULA[mol]);
+  return Object.keys(atoms).map(el =>
+    `${dotFor(el)}<b>${el}</b> : <span class="coef">${coef}</span> × <span class="idx">${atoms[el]}</span> = <b>${coef * atoms[el]}</b> atome${coef * atoms[el] > 1 ? 's' : ''}`
+  ).join('<br>');
+}
+function drawHTML(mol, coef){ return moleculeTerm({ mol, coef }); }
+
+document.getElementById('ex-h2o-draw').innerHTML = drawHTML('H2O', 2);
+document.getElementById('ex-h2o-calc').innerHTML = calcHTML('H2O', 2);
+document.getElementById('ex-co2-draw').innerHTML = drawHTML('CO2', 2);
+document.getElementById('ex-co2-calc').innerHTML = calcHTML('CO2', 2);
+
+const EXPLORE_MOLS = ['H2O', 'CO2', 'O2', 'H2', 'NH3', 'CH4'];
+let exMol = 'H2O', exCoef = 3;
+const molRow = document.getElementById('explore-mols');
+EXPLORE_MOLS.forEach(m => {
+  const b = document.createElement('button');
+  b.textContent = FORMULA[m];
+  b.addEventListener('click', () => { exMol = m; renderExplore(); });
+  b.dataset.mol = m;
+  molRow.appendChild(b);
+});
+document.getElementById('coef-minus').addEventListener('click', () => { if(exCoef > 1){ exCoef--; renderExplore(); } });
+document.getElementById('coef-plus').addEventListener('click', () => { if(exCoef < 4){ exCoef++; renderExplore(); } });
+
+function renderExplore(){
+  molRow.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.mol === exMol));
+  document.getElementById('explore-formula').innerHTML = fmtEq(`${exCoef} ${FORMULA[exMol]}`);
+  document.getElementById('explore-draw').innerHTML = drawHTML(exMol, exCoef);
+  document.getElementById('explore-calc').innerHTML = calcHTML(exMol, exCoef);
+}
+renderExplore();
+
+const METHOD_EQ = 'CH₄ + 2 O₂ → CO₂ + 2 H₂O';
+document.getElementById('method-eq').innerHTML = fmtEq(METHOD_EQ);
+document.getElementById('method-detail').innerHTML =
+  `<b>O à gauche</b> : 2 O₂ → <span class="coef">2</span> × <span class="idx">2</span> = 4<br>
+   <b>O à droite</b> : CO₂ → 1 × <span class="idx">2</span> = 2, et 2 H₂O → <span class="coef">2</span> × 1 = 2, total <b>4</b>`;
+document.getElementById('method-table').innerHTML = countTableHTML(METHOD_EQ, 'Tout est égal : la réaction est équilibrée');
+
+/* Lien direct possible : …/equilibrage_reactions.html#partie2 */
+const h = location.hash.replace('#', '');
+if(h === 'partie1') startPart('part1');
+else if(h === 'partie2') startPart('part2');
+else if(h === 'explication') show('explain-card');
+</script>
+</body>
+</html>

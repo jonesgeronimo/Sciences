@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flotte ou coule ?</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#1d2330; --muted:#6b7280; --line:#d9dde4;
+    --ok:#1f8a4c; --okbg:#e7f6ed; --ko:#c0392b; --kobg:#fdecea; --accent:#2b4c7e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+  header{max-width:1000px;margin:0 auto;padding:20px 16px 8px}
+  .top{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+  h1{margin:.3em 0 .2em;font-size:1.7rem;text-align:center}
+  .consigne{text-align:center;margin:.2em auto .9em;max-width:720px}
+  .rappel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;max-width:760px;margin:0 auto;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .rappel h2{margin:0 0 10px;font-size:1rem;text-align:center}
+  .etapes{margin:0;padding-left:1.3em}
+  .etapes li{margin:3px 0}
+  table.rho{border-collapse:collapse;margin:10px auto 0;font-size:.92rem}
+  table.rho td,table.rho th{border:1px solid var(--line);padding:4px 12px;text-align:center}
+  table.rho th{background:#f2f4f7;font-weight:600}
+  .score{position:sticky;top:0;z-index:5;background:var(--bg);max-width:1000px;margin:12px auto 0;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .score b{font-size:1.1rem}
+  .mini{font-family:Georgia,"Times New Roman",serif;font-size:.95rem;color:var(--accent)}
+  .bar{flex:1;min-width:100px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;max-width:260px}
+  .bar div{height:100%;width:0;background:var(--ok);transition:width .3s}
+  .niveau{max-width:1000px;margin:18px auto 0;padding:0 16px}
+  .niveau h2{font-size:1.15rem;margin:0 0 2px}
+  .niveau p{margin:0;color:var(--muted);font-size:.92rem}
+  .grille{max-width:1000px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .carte{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .carte.reussi{border-color:var(--ok)}
+  .carte h3{font-size:1rem;margin:0 0 4px;font-weight:600}
+  .carte h3 span{color:var(--accent)}
+  .dessin{background:#fafbfc;border-radius:8px;margin:4px 0 8px;overflow:hidden}
+  .dessin svg{width:100%;height:auto;display:block}
+  .objet{transition:transform 1.6s cubic-bezier(.35,.05,.4,1)}
+  .donnees{list-style:none;padding:0;margin:0 0 8px;font-size:.93rem}
+  .donnees li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .donnees li:last-child{border-bottom:none}
+  .donnees li span:last-child{font-weight:600;text-align:right;white-space:nowrap}
+  .etape{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
+  .etape.verrou{opacity:.4;pointer-events:none}
+  .etape h4{margin:0 0 6px;font-size:.88rem;color:var(--accent)}
+  .formule{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:Georgia,"Times New Roman",serif;font-size:1.08rem}
+  .formule .res{font-weight:700;min-width:70px}
+  .leg{font-size:.78rem;color:var(--muted);margin-top:3px}
+  input,button{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;background:#fff;color:var(--ink)}
+  input{width:110px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.98rem}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{cursor:pointer;transition:transform .12s,box-shadow .12s}
+  button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,30,50,.12)}
+  button:disabled{cursor:default;opacity:.7}
+  .verif{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .ligne{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .choix{display:flex;gap:8px}
+  .choix label{border:1.5px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:600}
+  .choix input{display:none}
+  .choix label:has(input:checked){border-color:var(--ink);background:var(--ink);color:#fff}
+  .lien{background:none;border:none;color:var(--accent);text-decoration:underline;padding:4px 0;font-size:.9rem}
+  .lien:hover:not(:disabled){transform:none;box-shadow:none}
+  .fb{margin-top:8px;border-radius:8px;padding:9px 12px;font-size:.9rem;display:none}
+  .fb.ok{display:block;background:var(--okbg);border-left:4px solid var(--ok)}
+  .fb.ko{display:block;background:var(--kobg);border-left:4px solid var(--ko)}
+  .fb .titre{font-weight:700}
+  .fb.ok .titre{color:var(--ok)} .fb.ko .titre{color:var(--ko)}
+  .calc{font-family:Georgia,serif;margin-top:4px}
+  footer{max-width:1000px;margin:0 auto;padding:8px 16px 32px;text-align:center}
+  #bilan{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  #bilan b{font-size:1.3rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top"><span>Sciences de la nature</span><span>Masse volumique</span></div>
+  <h1>Flotte ou coule ?</h1>
+  <p class="consigne">Pour chaque bateau ou objet, fais l'essai sur papier avant de le mettre à l'eau. Ensuite, regarde ce qui se passe !</p>
+
+  <div class="rappel">
+    <h2>Pour chaque carte</h2>
+    <ol class="etapes">
+      <li><b>Force d'Archimède maximale</b> : quand l'objet est enfoncé au maximum. Écris le bon volume dans la formule, elle calcule le résultat.</li>
+      <li><b>Poids total</b> : calcule-le toi-même, en newtons.</li>
+      <li><b>Compare</b> les deux forces et décide : flotte ou coule ?</li>
+    </ol>
+    <table class="rho">
+      <tr><th>Matière</th><th>Eau du lac</th><th>Bois</th><th>Sable</th><th>Gravier</th></tr>
+      <tr><td>Masse volumique</td><td>1000 kg/m³</td><td>600 kg/m³</td><td>1600 kg/m³</td><td>1700 kg/m³</td></tr>
+    </table>
+  </div>
+</header>
+
+<div class="score">
+  <span>Réussis : <b id="pts">0</b> / <span id="tot"></span></span>
+  <span class="mini">F<sub>A</sub> = 1000 × V × 10</span>
+  <div class="bar"><div id="barre"></div></div>
+</div>
+
+<div id="contenu"></div>
+
+<footer>
+  <div id="bilan"></div>
+  <button id="reset">↺ Tout recommencer</button>
+</footer>
+
+<script>
+/* ============================================================
+   DONNÉES
+   V      : volume maximal sous l'eau (coque ou objet entier), en m³
+   parts  : masses qui composent le poids total, en kg
+   pieges : réponses fausses fréquentes, avec un message ciblé
+   ============================================================ */
+const NIVEAUX = [
+  {titre:"Niveau 1 · Objets simples", texte:"Le volume est en m³ et la masse en kg."},
+  {titre:"Niveau 2 · Bateaux chargés", texte:"Attention aux unités de masse, et n'oublie rien dans le poids total."},
+  {titre:"Niveau 3 · Retour chez Léman Fret", texte:"Le chargement est donné en volume. Coque ou cale : quel volume utiliser ?"},
+  {titre:"Niveau 4 · D'autres unités de volume", texte:"Le volume n'est pas en m³ : convertis-le avant de l'écrire dans la formule."},
+  {titre:"Niveau 5 · Sans la masse", texte:"On ne te donne que la masse volumique et le volume. À toi de trouver la masse avant de calculer le poids."},
+];
+
+const OBJETS = [
+  // ---------- Niveau 1 ----------
+  {niv:0, nom:"Une barque en bois", type:'bateau', coul:'#a87b4f',
+   donnees:[["Volume de la coque","0,8 m³"],["Masse de la barque","120 kg"]],
+   V:0.8, parts:[["barque",120]]},
+  {niv:0, nom:"Un bloc de béton", type:'bloc', coul:'#a9a9a9',
+   donnees:[["Volume du bloc","0,2 m³"],["Masse du bloc","480 kg"]],
+   V:0.2, parts:[["bloc",480]]},
+  {niv:0, nom:"Un tronc d'arbre", type:'tronc', coul:'#8b5a2b',
+   donnees:[["Volume du tronc","0,5 m³"],["Masse du tronc","300 kg"]],
+   V:0.5, parts:[["tronc",300]]},
+  {niv:0, nom:"Une ancre en fer", type:'bloc', coul:'#6f747c',
+   donnees:[["Volume de l'ancre","0,01 m³"],["Masse de l'ancre","79 kg"]],
+   V:0.01, parts:[["ancre",79]]},
+
+  // ---------- Niveau 2 ----------
+  {niv:1, nom:"Un bateau de pêche", type:'bateau', coul:'#3a7ca5', charge:'#c9d6df',
+   donnees:[["Volume de la coque","6 m³"],["Masse du bateau vide","2 t"],["Chargement : poissons","1,5 t"]],
+   V:6, parts:[["bateau",2000],["poissons",1500]], tonnes:true},
+  {niv:1, nom:"Une barge de ferraille", type:'bateau', coul:'#7a4b3a', charge:'#6f747c',
+   donnees:[["Volume de la coque","40 m³"],["Masse de la barge vide","15 t"],["Chargement : ferraille","28 t"]],
+   V:40, parts:[["barge",15000],["ferraille",28000]], tonnes:true},
+  {niv:1, nom:"Un voilier", type:'bateau', coul:'#f0f0ec', charge:'#e2a15b',
+   donnees:[["Volume de la coque","12 m³"],["Masse du voilier vide","7 t"],["Passagers","10 personnes de 80 kg"]],
+   V:12, parts:[["voilier",7000],["passagers",800]], tonnes:true,
+   pieges:[{x:7080*10, m:"Tu as compté un seul passager ? Il y en a 10 de 80 kg chacun."}]},
+  {niv:1, nom:"Un bac à voitures", type:'bateau', coul:'#2b4c7e', charge:'#d35454',
+   donnees:[["Volume de la coque","120 m³"],["Masse du bac vide","60 t"],["Chargement","45 voitures de 1,5 t"]],
+   V:120, parts:[["bac",60000],["voitures",67500]], tonnes:true,
+   pieges:[{x:61500*10, m:"Tu as compté une seule voiture ? Il y en a 45 de 1,5 t chacune."}]},
+
+  // ---------- Niveau 3 ----------
+  {niv:2, nom:"« Le Léman » chargé de gravier", type:'bateau', coul:'#2f5d9c', charge:'#9a8f8a',
+   donnees:[["Volume de la coque","50 m³"],["Volume de la cale","20 m³"],["Masse du bateau vide","20 t"],["Chargement","20 m³ de gravier"]],
+   V:50, cale:20, parts:[["bateau",20000],["gravier",34000]], tonnes:true, volCharge:20},
+  {niv:2, nom:"« La Rapide » chargée de gravier", type:'bateau', coul:'#e9eef5', charge:'#9a8f8a',
+   donnees:[["Volume de la coque","30 m³"],["Volume de la cale","10 m³"],["Masse du bateau vide","8 t"],["Chargement","10 m³ de gravier"]],
+   V:30, cale:10, parts:[["bateau",8000],["gravier",17000]], tonnes:true, volCharge:10},
+  {niv:2, nom:"« Le Léman » chargé de bois", type:'bateau', coul:'#2f5d9c', charge:'#e2c08d',
+   donnees:[["Volume de la coque","50 m³"],["Volume de la cale","20 m³"],["Masse du bateau vide","20 t"],["Chargement","20 m³ de bois"]],
+   V:50, cale:20, parts:[["bateau",20000],["bois",12000]], tonnes:true, volCharge:20},
+  {niv:2, nom:"Une péniche chargée de sable", type:'bateau', coul:'#3d3d3d', charge:'#e3c88f',
+   donnees:[["Volume de la coque","300 m³"],["Volume de la cale","150 m³"],["Masse de la péniche vide","80 t"],["Chargement","cale pleine de sable"]],
+   V:300, cale:150, parts:[["péniche",80000],["sable",240000]], tonnes:true, volCharge:150},
+
+  // ---------- Niveau 4 ----------
+  {niv:3, nom:"Un kayak", type:'bateau', coul:'#e8a33d', charge:'#2b4c7e',
+   donnees:[["Volume de la coque","300 L"],["Masse du kayak","25 kg"],["Masse du pagayeur","70 kg"]],
+   V:0.3, brut:300, parts:[["kayak",25],["pagayeur",70]]},
+  {niv:3, nom:"Une bouteille fermée remplie de sable", type:'bouteille', coul:'#e3c88f',
+   donnees:[["Volume de la bouteille","1,5 L"],["Masse (bouteille + sable)","2,5 kg"]],
+   V:0.0015, brut:1.5, parts:[["bouteille",2.5]]},
+  {niv:3, nom:"Un bateau jouet", type:'bateau', coul:'#d35454',
+   donnees:[["Volume de la coque","800 cm³"],["Masse du jouet","300 g"]],
+   V:0.0008, brut:800, parts:[["jouet",0.3]], grammes:300},
+  {niv:3, nom:"Un radeau de fortune", type:'radeau', coul:'#c89f6b', charge:'#2b4c7e',
+   donnees:[["Volume du radeau","150 dm³"],["Masse du radeau","40 kg"],["Passagers","2 personnes de 70 kg"]],
+   V:0.15, brut:150, parts:[["radeau",40],["passagers",140]],
+   pieges:[{x:110*10, m:"Tu as compté une seule personne ? Il y en a deux de 70 kg."}]},
+
+  // ---------- Niveau 5 : masse volumique + volume, pas de masse ----------
+  {niv:4, nom:"Un bloc de glace", type:'bloc', coul:'#cfe8f7',
+   donnees:[["Volume du bloc","2 m³"],["Masse volumique de la glace","920 kg/m³"]],
+   V:2, rho:920, parts:[["glace",1840]]},
+  {niv:4, nom:"Un bloc de granit", type:'bloc', coul:'#9a8f8a',
+   donnees:[["Volume du bloc","0,4 m³"],["Masse volumique du granit","2700 kg/m³"]],
+   V:0.4, rho:2700, parts:[["granit",1080]]},
+  {niv:4, nom:"Une planche de chêne", type:'tronc', coul:'#a87b4f',
+   donnees:[["Volume de la planche","0,05 m³"],["Masse volumique du chêne","700 kg/m³"]],
+   V:0.05, rho:700, parts:[["planche",35]]},
+  {niv:4, nom:"Un bloc de polystyrène", type:'bloc', coul:'#f4f4f0',
+   donnees:[["Volume du bloc","0,6 m³"],["Masse volumique du polystyrène","30 kg/m³"]],
+   V:0.6, rho:30, parts:[["polystyrène",18]]},
+  {niv:4, nom:"Une boule de bowling", type:'boule', coul:'#3b3b6b',
+   donnees:[["Volume de la boule","5 L"],["Masse volumique de la boule","1400 kg/m³"]],
+   V:0.005, brut:5, rho:1400, parts:[["boule",7]]},
+  {niv:4, nom:"Un lingot d'aluminium", type:'bloc', coul:'#c9ced6',
+   donnees:[["Volume du lingot","500 cm³"],["Masse volumique de l'aluminium","2700 kg/m³"]],
+   V:0.0005, brut:500, rho:2700, parts:[["lingot",1.35]]},
+];
+
+/* ============================================================
+   OUTILS
+   ============================================================ */
+const G = 10, RHO_EAU = 1000;
+const net = x => parseFloat(x.toPrecision(12));
+const fmt = x => net(x).toLocaleString('fr-CH',{maximumFractionDigits:8});
+const lire = s => { s=s.trim().replace(/[\s'’]/g,'').replace(',','.'); return s===''||isNaN(s)?NaN:parseFloat(s); };
+const proche = (a,b) => Math.abs(a-b) <= Math.abs(b)*0.005 + 1e-12;
+
+OBJETS.forEach(o => {
+  o.m  = net(o.parts.reduce((s,p)=>s+p[1],0));
+  o.P  = net(o.m*G);
+  o.FA = net(RHO_EAU*o.V*G);
+  o.flotte = o.FA >= o.P;
+});
+
+/* ---------- Diagnostics ---------- */
+function diagV(o, x){
+  if(o.cale && proche(x,o.cale)) return `Tu as pris le volume de la <b>cale</b>. La force d'Archimède maximale, c'est quand toute la <b>coque</b> est sous l'eau.`;
+  if(o.volCharge && proche(x,o.volCharge)) return `C'est le volume du chargement. Ici, on cherche le volume qui peut aller sous l'eau : celui de la coque.`;
+  if(o.brut && proche(x,o.brut)) return `C'est le bon volume, mais pas dans la bonne unité. Dans la formule, le volume doit être en <b>m³</b>.`;
+  if(o.brut){
+    const lr = Math.log10(Math.abs(x/o.V));
+    if(x>0 && Math.abs(lr-Math.round(lr))<1e-6) return `Les chiffres sont bons, mais la conversion en m³ n'est pas juste. Rappel : chaque marche de l'escalier des volumes = × 1000.`;
+  }
+  return `Quel volume peut se trouver sous l'eau au maximum ? Celui de ${o.type==='bateau'?'la coque':'l\'objet entier'}, en m³.`;
+}
+
+function diagP(o, x){
+  for(const p of (o.pieges||[])) if(proche(x,p.x)) return p.m;
+  if(proche(x,o.m)) return `Ça, c'est la <b>masse</b> en kg. On cherche un <b>poids</b>, en newtons.`;
+  if(o.rho){
+    if(proche(x,o.rho*G) || proche(x,o.rho)) return `Ce nombre vient de la masse volumique seule. Il faut d'abord la <b>masse</b> de l'objet : m = ρ × V.`;
+    if(o.brut && (proche(x,o.rho*o.brut*G) || proche(x,o.rho*o.brut))) return `As-tu converti le volume en m³ avant de calculer la masse ? La masse volumique est en kg/<b>m³</b>.`;
+    if(proche(x,o.rho*o.V*1000*G) || proche(x,o.rho/o.V*G) || proche(x,o.rho/o.V)) return `Vérifie le calcul de la masse : m = ρ × V (on multiplie la masse volumique par le volume).`;
+    return `Commence par la masse : m = ρ × V, avec le volume en m³. Ensuite, calcule le poids en newtons.`;
+  }
+  if(o.tonnes && proche(x, o.m/1000*G)) return `As-tu converti les tonnes en kg ? 1 t = 1000 kg.`;
+  if(o.tonnes && proche(x, o.m/1000)) return `Ce nombre est la masse en tonnes. Il faut la masse en kg, puis le poids en N.`;
+  if(o.grammes && (proche(x, o.grammes*G) || proche(x,o.grammes))) return `La masse est en grammes. Convertis-la d'abord en kg : 1 kg = 1000 g.`;
+  if(o.volCharge){
+    const vide = o.parts[0][1];
+    if(proche(x,(vide+o.volCharge)*G) || proche(x,(vide/1000+o.volCharge)*G) || proche(x,(vide+o.volCharge*1000)*G))
+      return `Le chargement est donné en m³, pas en kg. Calcule d'abord sa masse avec la masse volumique du tableau.`;
+  }
+  if(o.parts.length>1){
+    for(const [nom,kg] of o.parts){
+      if(proche(x,kg*G)) return `Tu as seulement compté : ${nom}. Le poids total, c'est tout ce qui est dans l'eau : bateau <b>et</b> chargement.`;
+    }
+  }
+  return `Le poids total compte tout ce qui flotte : ${o.parts.length>1?'le bateau et son chargement':'l\'objet entier'}. Pense aux unités !`;
+}
+
+function corrV(o){
+  const conv = o.brut ? `${o.donnees[0][1]} = ${fmt(o.V)} m³<br>` : '';
+  return `${conv}F<sub>A</sub> = 1000 × ${fmt(o.V)} × 10 = <b>${fmt(o.FA)} N</b>`;
+}
+function corrP(o){
+  const somme = o.parts.map(p=>fmt(p[1])+' kg').join(' + ');
+  let lignes = '';
+  if(o.volCharge){
+    const [nom,kg] = o.parts[1];
+    lignes += `masse du ${nom} : ${fmt(kg/o.volCharge)} kg/m³ × ${fmt(o.volCharge)} m³ = ${fmt(kg)} kg<br>`;
+  }
+  if(o.parts.length>1) lignes += `masse totale : ${somme} = ${fmt(o.m)} kg<br>`;
+  else if(o.rho) lignes += `masse : m = ρ × V = ${fmt(o.rho)} kg/m³ × ${fmt(o.V)} m³ = ${fmt(o.m)} kg<br>`;
+  else lignes += `masse : ${fmt(o.m)} kg<br>`;
+  return `${lignes}P = ${fmt(o.m)} kg × 10 N/kg = <b>${fmt(o.P)} N</b>`;
+}
+function compar(o){
+  return o.flotte
+    ? `F<sub>A</sub> = ${fmt(o.FA)} N ≥ P = ${fmt(o.P)} N : la poussée de l'eau est assez forte, <b>ça flotte</b>.`
+    : `F<sub>A</sub> = ${fmt(o.FA)} N &lt; P = ${fmt(o.P)} N : même enfoncé au maximum, la poussée de l'eau ne suffit pas, <b>ça coule</b>.`;
+}
+
+/* ============================================================
+   DESSIN
+   ============================================================ */
+const W=280, H=150, EAU=70, FOND=140;
+function forme(o){
+  const c = o.coul, ch = o.charge;
+  // Chaque forme est dessinée avec son bas (quille) en y = 0 et sa hauteur immergeable `h` vers le haut.
+  if(o.type==='bateau'){
+    const h=30;
+    const charge = ch ? `<rect x="-38" y="${-h-16}" width="56" height="16" rx="2" fill="${ch}" stroke="#444" stroke-width="1"/>` : '';
+    return {h, svg:`${charge}
+      <path d="M-70 ${-h} L70 ${-h} L56 0 L-52 0 Z" fill="${c}" stroke="#333" stroke-width="1.5" stroke-linejoin="round"/>
+      <rect x="30" y="${-h-14}" width="20" height="14" fill="#fff" stroke="#333" stroke-width="1.2"/>`};
+  }
+  if(o.type==='radeau'){
+    const h=16, troncs=[...Array(6)].map((_,i)=>`<rect x="${-60+i*20}" y="${-h}" width="20" height="${h}" rx="7" fill="${c}" stroke="#6b4b2a" stroke-width="1.2"/>`).join('');
+    return {h, svg:`<circle cx="-18" cy="${-h-12}" r="7" fill="${ch}"/><circle cx="18" cy="${-h-12}" r="7" fill="${ch}"/>${troncs}`};
+  }
+  if(o.type==='boule'){
+    const h=40;
+    return {h, svg:`<circle cx="0" cy="${-h/2}" r="${h/2}" fill="${c}" stroke="#222" stroke-width="1.5"/>
+      <circle cx="-6" cy="${-h/2-8}" r="3" fill="#111"/><circle cx="4" cy="${-h/2-9}" r="3" fill="#111"/><circle cx="-1" cy="${-h/2-1}" r="3" fill="#111"/>`};
+  }
+  if(o.type==='tronc'){
+    const h=34;
+    return {h, svg:`<rect x="-70" y="${-h}" width="140" height="${h}" rx="17" fill="${c}" stroke="#4d3115" stroke-width="1.5"/>
+      <ellipse cx="62" cy="${-h/2}" rx="9" ry="16" fill="#c8a06c" stroke="#4d3115" stroke-width="1.2"/>`};
+  }
+  if(o.type==='bouteille'){
+    const h=60;
+    return {h, svg:`<path d="M-14 0 h28 v${-h+18} q0 -8 -7 -12 v-6 h-14 v6 q-7 4 -7 12 Z" fill="#d7ecf5" stroke="#4a6a7a" stroke-width="1.5"/>
+      <rect x="-12" y="${-h+22}" width="24" height="${h-24}" fill="${c}"/>
+      <rect x="-8" y="${-h-2}" width="16" height="6" fill="#2b4c7e"/>`};
+  }
+  const h=36; // bloc
+  return {h, svg:`<rect x="-30" y="${-h}" width="60" height="${h}" rx="3" fill="${c}" stroke="#333" stroke-width="1.5"/>`};
+}
+
+function dessin(o){
+  const f = forme(o);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.nom} au-dessus de l'eau">
+    <rect x="0" y="${EAU}" width="${W}" height="${H-EAU}" fill="#cfe6f5"/>
+    <rect x="0" y="${FOND}" width="${W}" height="${H-FOND}" fill="#b9a98c"/>
+    <line x1="0" y1="${EAU}" x2="${W}" y2="${EAU}" stroke="#5b9bd5" stroke-width="2"/>
+    <g class="objet" style="transform:translate(${W/2}px, ${EAU-8}px)">
+      <g class="incl" style="transition:transform 1.6s ease;transform-box:fill-box;transform-origin:center">${f.svg}</g>
+    </g>
+    <text x="8" y="14" font-size="10" fill="#9aa3b2" font-style="italic">avant la mise à l'eau</text>
+  </svg>`;
+}
+
+function animer(carte, o){
+  const f = forme(o);
+  const g = carte.querySelector('.objet'), incl = carte.querySelector('.incl'), txt = carte.querySelector('svg text');
+  let y;
+  if(o.flotte){
+    const frac = o.P/o.FA;            // part du volume qui s'enfonce
+    y = EAU + frac*f.h;
+    txt.textContent = `flotte : ${Math.round(frac*100)} % du volume sous l'eau`;
+  } else {
+    y = FOND;
+    incl.style.transform = 'rotate(-8deg)';
+    txt.textContent = 'coule au fond du lac';
+  }
+  requestAnimationFrame(()=>{ g.style.transform = `translate(${W/2}px, ${y}px)`; });
+}
+
+/* ============================================================
+   ACTIVITÉ
+   ============================================================ */
+let etat;
+const contenu = document.getElementById('contenu');
+document.getElementById('tot').textContent = OBJETS.length;
+
+function render(){
+  etat = OBJETS.map(()=>({essais:[0,0,0], corrige:false, fini:false}));
+  contenu.innerHTML = '';
+  let num = 0;
+  NIVEAUX.forEach((nv, iN) => {
+    const titre = document.createElement('div'); titre.className='niveau';
+    titre.innerHTML = `<h2>${nv.titre}</h2><p>${nv.texte}</p>`;
+    contenu.appendChild(titre);
+    const grille = document.createElement('div'); grille.className='grille';
+    contenu.appendChild(grille);
+    OBJETS.forEach((o, idx) => { if(o.niv===iN) grille.appendChild(carte(o, idx, ++num)); });
+  });
+  score();
+}
+
+function carte(o, idx, num){
+  const e = etat[idx];
+  const c = document.createElement('section'); c.className='carte';
+  c.innerHTML = `<h3><span>${num}.</span> ${o.nom}</h3>
+    <div class="dessin">${dessin(o)}</div>
+    <ul class="donnees">${o.donnees.map(d=>`<li><span>${d[0]}</span><span>${d[1]}</span></li>`).join('')}</ul>
+
+    <div class="etape" data-e="0">
+      <h4>① Force d'Archimède maximale</h4>
+      <div class="formule"><span>F<sub>A</sub> = 1000 ×</span> <input type="text" inputmode="decimal" autocomplete="off" placeholder="V en m³" aria-label="volume en m³"> <span>× 10 =</span> <span class="res">… N</span></div>
+      <div class="leg">masse volumique de l'eau (kg/m³) × volume sous l'eau (m³) × g (N/kg)</div>
+      <div class="ligne"><button class="verif">Vérifier</button><button class="lien corr" style="display:none">Voir la correction</button></div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="etape verrou" data-e="1">
+      <h4>② Poids total</h4>
+      <div class="formule">P = <input type="text" inputmode="decimal" autocomplete="off" placeholder="?" aria-label="poids en newtons"> N</div>
+      <div class="ligne"><button class="verif">Vérifier</button><button class="lien corr" style="display:none">Voir la correction</button></div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="etape verrou" data-e="2">
+      <h4>③ À l'eau !</h4>
+      <div class="ligne">
+        <div class="choix">
+          <label><input type="radio" name="c${idx}" value="1"> Flotte</label>
+          <label><input type="radio" name="c${idx}" value="0"> Coule</label>
+        </div>
+        <button class="verif">Mettre à l'eau</button>
+      </div>
+      <div class="fb"></div>
+    </div>`;
+
+  const et = [...c.querySelectorAll('.etape')];
+  const inpV = et[0].querySelector('input'), res = et[0].querySelector('.res');
+  inpV.addEventListener('input', () => {
+    const v = lire(inpV.value);
+    res.textContent = isNaN(v) ? '… N' : fmt(RHO_EAU*v*G) + ' N';
+  });
+
+  const ouvrir = i => { et[i].classList.remove('verrou'); const inp = et[i].querySelector('input[type=text]'); if(inp) inp.focus({preventScroll:true}); };
+  const fige = i => { et[i].querySelectorAll('input,button').forEach(b=>b.disabled=true); et[i].querySelector('.corr') && (et[i].querySelector('.corr').style.display='none'); };
+  const fb = i => et[i].querySelector('.fb');
+
+  // Étapes 1 et 2 : saisie d'un nombre
+  const configNombre = (i, juste, diag, correction, apresOk) => {
+    const inp = et[i].querySelector('input'), btn = et[i].querySelector('.verif'), corr = et[i].querySelector('.corr');
+    const verifier = () => {
+      const x = lire(inp.value);
+      if(isNaN(x)){ fb(i).className='fb ko'; fb(i).innerHTML=`<div class="titre">Il manque quelque chose</div>Écris un nombre.`; return; }
+      e.essais[i]++;
+      if(proche(x, juste)){
+        fige(i); fb(i).className='fb ok';
+        fb(i).innerHTML=`<div class="titre">✓ Juste !</div><div class="calc">${correction()}</div>`;
+        apresOk(); return;
+      }
+      fb(i).className='fb ko'; fb(i).innerHTML=`<div class="titre">✗ Pas encore</div>${diag(x)}`;
+      if(e.essais[i]>=2) corr.style.display='inline-block';
+    };
+    btn.onclick = verifier;
+    inp.onkeydown = ev => { if(ev.key==='Enter') verifier(); };
+    corr.onclick = () => {
+      e.corrige = true; inp.value = fmt(juste);
+      inp.dispatchEvent(new Event('input'));
+      fige(i); fb(i).className='fb ko';
+      fb(i).innerHTML=`<div class="titre">Correction</div><div class="calc">${correction()}</div>`;
+      apresOk();
+    };
+  };
+
+  configNombre(0, o.V, x=>diagV(o,x), ()=>corrV(o), ()=>ouvrir(1));
+  configNombre(1, o.P, x=>diagP(o,x), ()=>corrP(o), ()=>ouvrir(2));
+
+  // Étape 3 : flotte ou coule
+  et[2].querySelector('.verif').onclick = () => {
+    const choix = et[2].querySelector('input:checked');
+    if(!choix){ fb(2).className='fb ko'; fb(2).innerHTML=`<div class="titre">Choisis d'abord</div>Flotte ou coule ?`; return; }
+    e.essais[2]++;
+    const juste = (choix.value==='1') === o.flotte;
+    if(juste){
+      fige(2); e.fini = true;
+      fb(2).className='fb ok';
+      fb(2).innerHTML=`<div class="titre">✓ Bien prévu !</div><div class="calc">${compar(o)}</div>`;
+      animer(c, o);
+      if(!e.corrige) c.classList.add('reussi');
+      score();
+    } else if(e.essais[2]===1){
+      fb(2).className='fb ko';
+      fb(2).innerHTML=`<div class="titre">✗ Regarde encore</div>Compare F<sub>A</sub> = ${fmt(o.FA)} N et P = ${fmt(o.P)} N. Laquelle de ces deux forces est la plus grande ? Un objet flotte si la poussée de l'eau est au moins aussi grande que son poids.`;
+    } else {
+      fige(2); e.corrige = true; e.fini = true;
+      fb(2).className='fb ko';
+      fb(2).innerHTML=`<div class="titre">Correction</div><div class="calc">${compar(o)}</div>`;
+      animer(c, o); score();
+    }
+  };
+  return c;
+}
+
+function score(){
+  const tot = OBJETS.length;
+  const pts = etat.filter(e=>e.fini && !e.corrige).length, faits = etat.filter(e=>e.fini).length;
+  document.getElementById('pts').textContent = pts;
+  document.getElementById('barre').style.width = (100*pts/tot)+'%';
+  const bilan = document.getElementById('bilan');
+  if(faits === tot){
+    const premier = etat.filter(e=>!e.corrige && e.essais.every(n=>n===1)).length;
+    bilan.style.display='block';
+    bilan.innerHTML = `<b>${pts} / ${tot} réussis sans correction</b><p>dont ${premier} sans aucune erreur.</p>
+      <p style="color:#666;font-size:.9rem">Les erreurs les plus fréquentes : oublier le chargement, oublier de convertir (t → kg, L → m³), ou prendre le volume de la cale au lieu de celui de la coque.</p>`;
+  } else bilan.style.display='none';
+}
+
+document.getElementById('reset').onclick = () => { render(); window.scrollTo({top:0,behavior:'smooth'}); };
+render();
+</script>
+</body>
+</html>

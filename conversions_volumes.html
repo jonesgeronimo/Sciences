@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversions de volumes</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#fff; --ink:#1d2330; --muted:#6b7280; --line:#d9dde4;
+    --ok:#1f8a4c; --okbg:#e7f6ed; --ko:#c0392b; --kobg:#fdecea; --accent:#2b4c7e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+  header{max-width:1000px;margin:0 auto;padding:20px 16px 8px}
+  .top{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+  h1{margin:.3em 0 .2em;font-size:1.7rem;text-align:center}
+  .consigne{text-align:center;margin:.2em auto .9em;max-width:720px}
+  .rappel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;max-width:760px;margin:0 auto;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .rappel h2{margin:0 0 6px;font-size:1rem;text-align:center}
+  .escalier svg{width:100%;height:auto;display:block;max-width:620px;margin:0 auto}
+  .equiv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:8px}
+  .equiv div{border:1.5px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-family:Georgia,"Times New Roman",serif;font-size:1rem}
+  .astuce{margin-top:10px;font-size:.88rem;text-align:center;color:var(--muted)}
+  .astuce b{color:var(--ink)}
+  .onglets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px auto 0;max-width:1000px;padding:0 16px}
+  .onglet{font:inherit;border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;background:#fff;color:var(--ink);cursor:pointer;font-weight:600}
+  .onglet.actif{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .onglet small{font-weight:400;opacity:.8}
+  .score{position:sticky;top:0;z-index:5;background:var(--bg);max-width:1000px;margin:12px auto 0;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .score b{font-size:1.1rem}
+  .mini{font-family:Georgia,"Times New Roman",serif;font-size:.95rem;color:var(--accent)}
+  .bar{flex:1;min-width:100px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;max-width:260px}
+  .bar div{height:100%;width:0;background:var(--ok);transition:width .3s}
+  .intro{max-width:1000px;margin:12px auto 0;padding:0 16px;color:var(--muted);font-size:.95rem;text-align:center}
+  main{max-width:1000px;margin:0 auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .carte{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(20,30,50,.06)}
+  .carte.reussi{border-color:var(--ok)}
+  .carte h3{font-size:.85rem;margin:0 0 8px;font-weight:600;color:var(--accent)}
+  .question{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Georgia,"Times New Roman",serif;font-size:1.25rem;margin-bottom:10px}
+  .question .u{font-weight:700}
+  .question .rep{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  input,button{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;color:var(--ink)}
+  input{width:130px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:1rem}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{cursor:pointer;transition:transform .12s,box-shadow .12s}
+  button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 8px rgba(20,30,50,.12)}
+  button:disabled{cursor:default;opacity:.7}
+  .verif{background:var(--ink);color:#fff;border-color:var(--ink);align-self:flex-start}
+  .lien{background:none;border:none;color:var(--accent);text-decoration:underline;padding:4px 0;font-size:.9rem;align-self:flex-start}
+  .lien:hover:not(:disabled){transform:none;box-shadow:none}
+  .fb{margin-top:10px;border-radius:8px;padding:10px 12px;font-size:.92rem;display:none}
+  .fb.ok{display:block;background:var(--okbg);border-left:4px solid var(--ok)}
+  .fb.ko{display:block;background:var(--kobg);border-left:4px solid var(--ko)}
+  .fb .titre{font-weight:700}
+  .fb.ok .titre{color:var(--ok)} .fb.ko .titre{color:var(--ko)}
+  .calc{font-family:Georgia,serif;margin-top:4px}
+  footer{max-width:1000px;margin:0 auto;padding:8px 16px 32px;text-align:center}
+  #bilan{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  #bilan b{font-size:1.3rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top"><span>Sciences de la nature</span><span>Masse volumique</span></div>
+  <h1>Conversions de volumes</h1>
+  <p class="consigne">Convertis chaque volume dans l'unité demandée. Les nombres changent à chaque nouvelle série : tu peux t'entraîner autant que tu veux.</p>
+
+  <div class="rappel">
+    <h2>Rappel : l'ordre des unités</h2>
+    <div class="escalier">
+      <svg viewBox="0 0 600 205" role="img" aria-label="Escalier des unités de volume : m³, dm³ = L, cm³ = mL, mm³. Chaque marche vers le bas multiplie par 1000, chaque marche vers le haut divise par 1000.">
+        <defs>
+          <marker id="pd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1f8a4c"/></marker>
+          <marker id="pu" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2b4c7e"/></marker>
+        </defs>
+        <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+          <!-- marches -->
+          <rect x="10"  y="40"  width="135" height="44" rx="8" fill="#fff" stroke="#1d2330" stroke-width="1.5"/>
+          <rect x="155" y="82"  width="135" height="44" rx="8" fill="#fff" stroke="#1d2330" stroke-width="1.5"/>
+          <rect x="300" y="124" width="135" height="44" rx="8" fill="#fff" stroke="#1d2330" stroke-width="1.5"/>
+          <rect x="445" y="166" width="135" height="34" rx="8" fill="#fff" stroke="#1d2330" stroke-width="1.5"/>
+          <text x="77"  y="69"  font-size="21" font-weight="700" fill="#1d2330">m³</text>
+          <text x="222" y="111" font-size="21" font-weight="700" fill="#1d2330">dm³ = L</text>
+          <text x="367" y="153" font-size="21" font-weight="700" fill="#1d2330">cm³ = mL</text>
+          <text x="512" y="190" font-size="21" font-weight="700" fill="#1d2330">mm³</text>
+          <!-- flèches ×1000 (vers le bas) -->
+          <path d="M120 34 Q165 18 196 74" fill="none" stroke="#1f8a4c" stroke-width="2" marker-end="url(#pd)"/>
+          <path d="M265 76 Q310 60 341 116" fill="none" stroke="#1f8a4c" stroke-width="2" marker-end="url(#pd)"/>
+          <path d="M410 118 Q455 102 486 158" fill="none" stroke="#1f8a4c" stroke-width="2" marker-end="url(#pd)"/>
+          <text x="152" y="20"  font-size="15" fill="#1f8a4c" font-weight="700">× 1000</text>
+          <text x="297" y="62"  font-size="15" fill="#1f8a4c" font-weight="700">× 1000</text>
+          <text x="442" y="104" font-size="15" fill="#1f8a4c" font-weight="700">× 1000</text>
+          <!-- flèches ÷1000 (vers le haut) -->
+          <path d="M160 122 Q120 120 96 92" fill="none" stroke="#2b4c7e" stroke-width="2" marker-end="url(#pu)"/>
+          <path d="M305 164 Q265 162 241 134" fill="none" stroke="#2b4c7e" stroke-width="2" marker-end="url(#pu)"/>
+          <path d="M450 200 Q410 198 386 176" fill="none" stroke="#2b4c7e" stroke-width="2" marker-end="url(#pu)"/>
+          <text x="100" y="128" font-size="15" fill="#2b4c7e" font-weight="700">÷ 1000</text>
+          <text x="245" y="170" font-size="15" fill="#2b4c7e" font-weight="700">÷ 1000</text>
+          <text x="392" y="203" font-size="15" fill="#2b4c7e" font-weight="700">÷ 1000</text>
+        </g>
+        <text x="10" y="14" font-size="12" fill="#6b7280" font-family="system-ui, sans-serif">grande unité</text>
+        <text x="590" y="158" font-size="12" fill="#6b7280" font-family="system-ui, sans-serif" text-anchor="end">petite unité</text>
+      </svg>
+    </div>
+    <div class="equiv">
+      <div>1 m³ = 1000 dm³ = 1000 L</div>
+      <div>1 L = 1000 mL</div>
+      <div>1 cm³ = 1 mL = 1000 mm³</div>
+    </div>
+    <p class="astuce">Vers une unité <b>plus petite</b> : le nombre devient <b>plus grand</b> (× 1000 par marche).<br>Vers une unité <b>plus grande</b> : le nombre devient <b>plus petit</b> (÷ 1000 par marche).</p>
+  </div>
+</header>
+
+<div class="onglets">
+  <button class="onglet actif" data-serie="1">Série 1 <small>· une marche</small></button>
+  <button class="onglet" data-serie="2">Série 2 <small>· plusieurs marches</small></button>
+</div>
+
+<div class="score">
+  <span>Réussis : <b id="pts">0</b> / <span id="tot"></span></span>
+  <span class="mini">× 1000 par marche vers le bas</span>
+  <div class="bar"><div id="barre"></div></div>
+</div>
+
+<p class="intro" id="intro"></p>
+<main id="liste"></main>
+
+<footer>
+  <div id="bilan"></div>
+  <button id="reset">↺ Nouvelle série (nouveaux nombres)</button>
+</footer>
+
+<script>
+/* Chaque unité est placée sur une marche (niveau). 1 marche = facteur 1000. */
+const NIV = { 'm³':0, 'dm³':1, 'L':1, 'cm³':2, 'mL':2, 'mm³':3 };
+const NOM_NIV = ['m³','dm³','cm³','mm³'];
+
+/* Paires possibles pour chaque série : [de, vers] */
+const PAIRES = {
+  1: { // une seule marche (×1000 ou ÷1000) + quelques équivalences
+    marche: [['m³','dm³'],['dm³','m³'],['m³','L'],['L','m³'],['dm³','cm³'],['cm³','dm³'],
+             ['L','mL'],['mL','L'],['cm³','mm³'],['mm³','cm³'],['L','cm³'],['mL','dm³'],['mL','mm³']],
+    egal:   [['L','dm³'],['dm³','L'],['mL','cm³'],['cm³','mL']]
+  },
+  2: { // deux ou trois marches
+    marche: [['m³','cm³'],['cm³','m³'],['m³','mL'],['mL','m³'],['m³','mm³'],['mm³','m³'],
+             ['dm³','mm³'],['mm³','dm³'],['L','mm³'],['mm³','L'],['m³','cm³'],['cm³','m³']]
+  }
+};
+const NB = {1: {marche:10, egal:2}, 2: {marche:12, egal:0}};
+const MANT = {
+  1: [1,2,3,4,5,6,7,8,9,12,15,25,45,75,250],
+  2: [1,2,3,4,5,6,7,8,9,12,15,25,45,75,125,250,350,1500]
+};
+
+const net = x => parseFloat(x.toPrecision(12));
+const fmt = x => net(x).toLocaleString('fr-CH',{maximumFractionDigits:12});
+const lire = s => { s=s.trim().replace(/[\s'’]/g,'').replace(',','.'); return s===''||isNaN(s)?NaN:parseFloat(s); };
+const hasard = a => a[Math.floor(Math.random()*a.length)];
+const proche = (a,b) => Math.abs(a-b) <= Math.abs(b)*1e-6;
+
+/* Fabrique une valeur « jolie » à convertir */
+function genValeur(de, vers, serie){
+  const d = (NIV[vers]-NIV[de])*3;        // exposant du facteur : +3 = ×1000, -3 = ÷1000
+  for(let essai=0; essai<200; essai++){
+    const m = hasard(MANT[serie]);
+    let k;
+    if(d > 0){            // vers plus petit : on part d'un petit nombre, parfois décimal
+      k = hasard(serie===1 ? [-2,-1,-1,0,0] : [-3,-2,-2,-1,0]);
+    } else if(d < 0){     // vers plus grand : on part d'un grand nombre
+      const r = hasard(serie===1 ? [-2,-1,0,0,1] : [-3,-2,-1,0,0,1]);
+      k = -d + r;         // résultat ≈ m × 10^r
+    } else {
+      k = hasard([-1,0,0,1]);
+    }
+    const v = net(m*Math.pow(10,k));
+    const rep = net(v*Math.pow(10,d));
+    if(v < 0.001 || v > 1e8 || rep > 1e9 || rep < 1e-6) continue;
+    return {v, rep, d};
+  }
+  return {v:1, rep:net(Math.pow(10,d)), d};
+}
+
+function genSerie(serie){
+  const qs = [];
+  const prises = new Set();
+  const ajoute = (liste, n) => {
+    const pool = liste.slice();
+    for(let i=0;i<n;i++){
+      if(pool.length===0) pool.push(...liste);
+      const p = pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+      let q, cle, t=0;
+      do{ q = {de:p[0], vers:p[1], ...genValeur(p[0],p[1],serie)}; cle=q.de+q.vers+q.v; t++; } while(prises.has(cle) && t<30);
+      prises.add(cle); qs.push(q);
+    }
+  };
+  ajoute(PAIRES[serie].marche, NB[serie].marche);
+  if(NB[serie].egal) ajoute(PAIRES[serie].egal, NB[serie].egal);
+  for(let i=qs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qs[i],qs[j]]=[qs[j],qs[i]];}
+  return qs;
+}
+
+/* Chemin de correction : 2,5 m³ → ×1000 → 2500 dm³ → ×1000 → 2'500'000 cm³ */
+function chemin(q){
+  const a = NIV[q.de], b = NIV[q.vers];
+  if(a===b){
+    return `${fmt(q.v)} ${q.de} = <b>${fmt(q.rep)} ${q.vers}</b> &nbsp;(même marche : 1 L = 1 dm³ et 1 mL = 1 cm³, le nombre ne change pas)`;
+  }
+  const pas = b>a ? 1 : -1;
+  let val = q.v, s = `${fmt(val)} ${q.de}`;
+  for(let n=a; n!==b; n+=pas){
+    val = net(pas>0 ? val*1000 : val/1000);
+    const u = (n+pas===b) ? q.vers : NOM_NIV[n+pas];
+    s += ` <span style="color:${pas>0?'var(--ok)':'var(--accent)'}">${pas>0?'× 1000':'÷ 1000'} →</span> ${n+pas===b?'<b>':''}${fmt(val)} ${u}${n+pas===b?'</b>':''}`;
+  }
+  return s;
+}
+
+/* Diagnostic d'une réponse fausse */
+function diagnostic(q, x){
+  const marches = Math.abs(q.d)/3;
+  if(q.d===0) return `Ces deux unités sont sur la même marche : 1 L = 1 dm³ et 1 mL = 1 cm³. Le nombre ne change pas !`;
+  if(proche(x, q.v)) return `Tu as gardé le même nombre, mais ${q.de} et ${q.vers} ne sont pas sur la même marche. Regarde l'escalier.`;
+  if(proche(x, net(q.v/Math.pow(10,q.d)))) return `Tu es parti dans le mauvais sens. ${q.d>0 ? `On va vers une unité plus petite, donc le nombre doit devenir <b>plus grand</b> (×).` : `On va vers une unité plus grande, donc le nombre doit devenir <b>plus petit</b> (÷).`}`;
+  const lr = Math.log10(Math.abs(x/q.rep));
+  if(x!==0 && Math.abs(lr-Math.round(lr))<1e-6){
+    const e = Math.round(lr);
+    if(e % 3 === 0) return `Les chiffres sont bons, mais tu as fait une marche ${Math.abs(e/3)>1?'(ou plus) ':''}${(e>0)===(q.d>0)?'de trop':'de moins'}. Compte les marches entre ${q.de} et ${q.vers} : il y en a ${marches}.`;
+    return `Les chiffres sont bons, mais pas la position de la virgule. As-tu fait × 10 ou × 100 comme pour les longueurs ou les surfaces ? Pour les volumes, chaque marche = <b>× 1000</b> (la virgule bouge de 3 rangs).`;
+  }
+  return `Regarde l'escalier : entre ${q.de} et ${q.vers}, il y a ${marches} marche${marches>1?'s':''}, ${q.d>0?'vers le bas (× 1000 à chaque marche)':'vers le haut (÷ 1000 à chaque marche)'}.`;
+}
+
+/* ---------- Activité ---------- */
+let serie = 1, questions, etat;
+const liste = document.getElementById('liste');
+const INTRO = {
+  1: `Série 1 : une seule marche à descendre ou à monter, et quelques unités équivalentes.`,
+  2: `Série 2 : plusieurs marches (m³ ↔ cm³, m³ ↔ mm³…) et des nombres à virgule. Compte bien les marches !`
+};
+
+function nouvelle(){
+  questions = genSerie(serie);
+  etat = questions.map(()=>({essais:0, reussi:false, corrige:false}));
+  document.getElementById('tot').textContent = questions.length;
+  document.getElementById('intro').textContent = INTRO[serie];
+  render();
+}
+
+function render(){
+  liste.innerHTML='';
+  questions.forEach((q,n)=>{
+    const e = etat[n];
+    const c = document.createElement('section'); c.className='carte';
+    c.innerHTML = `<h3>Question ${n+1}</h3>
+      <div class="question"><span>${fmt(q.v)} <span class="u">${q.de}</span> =</span>
+        <span class="rep"><input type="text" inputmode="decimal" autocomplete="off" placeholder="?" aria-label="réponse en ${q.vers}">
+        <span class="u">${q.vers}</span></span></div>
+      <button class="verif">Vérifier</button>
+      <button class="lien corr" style="display:none">Voir la correction</button>
+      <div class="fb"></div>`;
+    const inp=c.querySelector('input'), btn=c.querySelector('.verif'), fb=c.querySelector('.fb'), corr=c.querySelector('.corr');
+    const fige = () => { inp.disabled=btn.disabled=true; corr.style.display='none'; };
+    const verifier = () => {
+      const x = lire(inp.value);
+      if(isNaN(x)){
+        fb.className='fb ko';
+        fb.innerHTML=`<div class="titre">Il manque quelque chose</div>Écris un nombre (tu peux utiliser la virgule).`;
+        return;
+      }
+      e.essais++;
+      if(proche(x, q.rep)){
+        e.reussi=true; c.classList.add('reussi'); fige();
+        fb.className='fb ok';
+        fb.innerHTML=`<div class="titre">✓ Juste !</div><div class="calc">${chemin(q)}</div>`;
+        score(); return;
+      }
+      fb.className='fb ko';
+      fb.innerHTML=`<div class="titre">✗ Pas encore</div>${diagnostic(q,x)}`;
+      if(e.essais>=2) corr.style.display='inline-block';
+    };
+    btn.onclick = verifier;
+    inp.onkeydown = ev => { if(ev.key==='Enter') verifier(); };
+    corr.onclick = () => {
+      e.corrige=true; fige(); inp.value = fmt(q.rep);
+      fb.className='fb ko';
+      fb.innerHTML=`<div class="titre">Correction</div><div class="calc">${chemin(q)}</div>`;
+      score();
+    };
+    liste.appendChild(c);
+  });
+  score();
+}
+
+function score(){
+  const tot = questions.length;
+  const pts = etat.filter(e=>e.reussi).length, faits = etat.filter(e=>e.reussi||e.corrige).length;
+  document.getElementById('pts').textContent = pts;
+  document.getElementById('barre').style.width = (100*pts/tot)+'%';
+  const bilan = document.getElementById('bilan');
+  if(faits === tot){
+    const premier = etat.filter(e=>e.reussi && e.essais===1).length;
+    bilan.style.display='block';
+    bilan.innerHTML = `<b>Série ${serie} : ${pts} / ${tot} réussies</b><p>dont ${premier} du premier coup.</p>
+      <p style="color:#666;font-size:.9rem">${pts>=tot-2 && serie===1 ? 'Bravo ! Tu peux passer à la série 2.' : 'Clique sur « Nouvelle série » pour t\'entraîner avec d\'autres nombres.'}</p>`;
+  } else bilan.style.display='none';
+}
+
+document.querySelectorAll('.onglet').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.onglet').forEach(o=>o.classList.remove('actif'));
+  b.classList.add('actif'); serie = +b.dataset.serie; nouvelle();
+});
+document.getElementById('reset').onclick = () => { nouvelle(); window.scrollTo({top:0,behavior:'smooth'}); };
+nouvelle();
+</script>
+</body>
+</html>

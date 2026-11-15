@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadran équatorial et latitude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: clear classroom explainer, calm, one idea at a time
+   IDEA: a sundial maker's plate - Earth cut in half on the left, the dial on the ground on the right
+   PICTURE: two linked figures driven by one latitude; board and style never turn in space, the ground does
+   COLOUR and TYPE: deep ocean blue Earth, coral board, ink style; Fraunces titles + Atkinson Hyperlegible
+   LAYOUT: title, two figures side by side (stacked on phones), big readout + controls, short explanation */
+:root{color-scheme:light dark;
+ --bg:light-dark(#fbfaf7,#0e1622);--ink:light-dark(#14233a,#e8eef7);--mut:light-dark(#5b6a80,#9aabc2);
+ --earth:light-dark(#2f6db5,#3c7fd0);--earth2:light-dark(#dbe7f6,#18304f);--gr:light-dark(#5f8a2e,#86b24f);
+ --board:#e5533a;--sty:light-dark(#14233a,#f2f5fa);--lat:light-dark(#2f6db5,#6aa8ff);--line:light-dark(#d9dee6,#2a3a52);--card:light-dark(#ffffff,#132036)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px);max-width:1240px;margin:0 auto}
+h1{font:700 clamp(30px,4.6vw,48px)/1.05 Fraunces,Georgia,serif;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--mut);margin:0 0 24px;max-width:66ch}
+.figs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 6px}
+.panel h2{font-size:15px;font-weight:700;margin:2px 4px 4px;color:var(--mut)}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:"Atkinson Hyperlegible",system-ui,sans-serif;fill:var(--ink)}
+.ctrl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px 28px;align-items:center;margin-top:22px}
+.read{display:flex;gap:28px;flex-wrap:wrap}
+.read div{line-height:1.1}
+.read b{display:block;font:700 clamp(30px,5vw,44px)/1 Fraunces,Georgia,serif;white-space:nowrap}
+.read span{font-size:14px;color:var(--mut)}
+.read .c1 b{color:var(--lat)}.read .c2 b{color:var(--board)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{font:700 16px "Atkinson Hyperlegible",sans-serif;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.main{background:var(--board);border-color:var(--board);color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid var(--lat);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--board);height:44px}
+.sl{grid-column:1/-1}
+.sl label{font-size:14px;color:var(--mut)}
+.key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:8px}
+.key p{margin:0;font-size:16px}
+.key strong{display:block;margin-bottom:2px}
+.note{font-size:14px;color:var(--mut);margin-top:22px}
+@media(max-width:700px){.figs,.key{grid-template-columns:minmax(0,1fr)}.ctrl{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main class="band">
+<h1>Du pôle Nord à Morges&nbsp;: pourquoi le cadran s’incline</h1>
+<p class="lede">Le style reste parallèle à l’axe de la Terre et le tableau parallèle à l’équateur. Quand on descend vers le sud, c’est le sol qui tourne sous eux : l’angle du tableau avec l’horizontale vaut toujours 90° − latitude.</p>
+
+<div class="figs">
+ <div class="panel"><h2>Vue de l’espace (coupe de la Terre)</h2><svg id="g" viewBox="0 0 400 380" role="img" aria-label="Terre en coupe avec le cadran à la latitude choisie"></svg></div>
+ <div class="panel"><h2>Vue sur place (le sol est horizontal)</h2><svg id="l" viewBox="0 0 400 380" role="img" aria-label="Cadran vu sur place avec ses angles"></svg></div>
+</div>
+
+<div class="ctrl">
+ <div class="read">
+  <div class="c1"><b id="rLat">46,5°</b><span>latitude φ</span></div>
+  <div class="c2"><b id="rTab">43,5°</b><span>tableau / horizontale = 90° − φ</span></div>
+ </div>
+ <div class="row">
+  <button class="main" id="play">▶ Descendre du pôle</button>
+  <button data-p="90">Pôle Nord</button><button data-p="46.5">Morges</button><button data-p="0">Équateur</button>
+ </div>
+ <div class="sl"><label for="lat">Latitude : glisse pour te déplacer du pôle (90°) à l’équateur (0°)</label>
+  <input type="range" id="lat" min="0" max="90" step="0.5" value="46.5"></div>
+</div>
+
+<div class="key">
+ <p><strong>Au pôle Nord (90°)</strong>L’axe de la Terre est vertical : le style est planté droit dans le sol et le tableau est à plat (0°).</p>
+ <p><strong>À Morges (46,5°)</strong>Le style monte vers le nord à 46,5° (vers l’étoile Polaire) ; le tableau fait 43,5° avec le sol.</p>
+ <p><strong>À l’équateur (0°)</strong>L’axe est couché sur l’horizon : le style est horizontal, pointé au nord, et le tableau est vertical (90°).</p>
+</div>
+<p class="note">Les deux angles sont complémentaires : style/sol = φ et tableau/sol = 90° − φ, car le style est perpendiculaire au tableau. Le cadran est agrandi par rapport à la Terre pour qu’on le voie.</p>
+</main>
+
+<script>
+{
+const $=id=>document.getElementById(id), G=$('g'), L=$('l'), S=$('lat');
+const rad=d=>d*Math.PI/180, f=v=>v.toFixed(1).replace('.0','').replace('.',',');
+const P=(x,y)=>x.toFixed(1)+','+y.toFixed(1);
+const arc=(cx,cy,r,a0,a1,col)=>{ // angles in screen degrees
+ const s=[cx+r*Math.cos(rad(a0)),cy+r*Math.sin(rad(a0))],e=[cx+r*Math.cos(rad(a1)),cy+r*Math.sin(rad(a1))];
+ const large=Math.abs(a1-a0)>180?1:0, sw=a1>a0?1:0;
+ return `<path d="M${P(...s)} A${r},${r} 0 ${large} ${sw} ${P(...e)}" fill="none" stroke="${col}" stroke-width="3"/>`;};
+const dial=(ox,oy,bx,by,sx,sy,Lb,Ls,w)=>
+ `<line x1="${ox-sx*Ls}" y1="${oy-sy*Ls}" x2="${ox+sx*Ls}" y2="${oy+sy*Ls}" stroke="var(--sty)" stroke-width="${w*0.45}" stroke-linecap="round"/>`+
+ `<line x1="${ox-bx*Lb}" y1="${oy-by*Lb}" x2="${ox+bx*Lb}" y2="${oy+by*Lb}" stroke="var(--board)" stroke-width="${w}" stroke-linecap="round"/>`;
+
+function drawG(phi){
+ const cx=150,cy=200,R=120,c=Math.cos(rad(phi)),s=Math.sin(rad(phi));
+ const px=cx+R*c,py=cy-R*s, ux=c,uy=-s, tx=s,ty=c; // up and tangent
+ const ox=px+ux*30,oy=py+uy*30;
+ let h=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--earth2)" stroke="var(--earth)" stroke-width="3"/>`;
+ h+=`<line x1="${cx}" y1="22" x2="${cx}" y2="378" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 5"/>`;
+ h+=`<text x="${cx+8}" y="372" font-size="15">axe de rotation</text>`;
+ h+=`<line x1="${cx-R-10}" y1="${cy}" x2="${cx+R+10}" y2="${cy}" stroke="var(--mut)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+ h+=`<text x="${cx-R+8}" y="${cy-8}" font-size="14" fill="var(--mut)" style="fill:var(--mut)">équateur</text>`;
+ h+=`<text x="${cx-18}" y="${cy-R+24}" font-size="15" font-weight="700">N</text><text x="${cx-18}" y="${cy+R-12}" font-size="15" font-weight="700">S</text>`;
+ h+=`<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="var(--lat)" stroke-width="2"/>`;
+ if(phi>2) h+=arc(cx,cy,38,0,-phi,'var(--lat)')+`<text x="${cx+44*Math.cos(rad(phi/2))}" y="${cy-44*Math.sin(rad(phi/2))+5}" font-size="15" font-weight="700" style="fill:var(--lat)">φ</text>`;
+ h+=`<line x1="${px-tx*60}" y1="${py-ty*60}" x2="${px+tx*60}" y2="${py+ty*60}" stroke="var(--gr)" stroke-width="5" stroke-linecap="round"/>`;
+ h+=`<line x1="${px}" y1="${py}" x2="${ox}" y2="${oy}" stroke="var(--mut)" stroke-width="2"/>`;
+ h+=dial(ox,oy,1,0,0,1,30,36,6);
+ h+=`<text x="${px+tx*72}" y="${py+ty*72+(ty>0.7?14:5)}" font-size="14" font-weight="700" text-anchor="${ty>0.7?'middle':'start'}" style="fill:var(--gr)">sol</text>`;
+ G.innerHTML=h;
+}
+function drawL(phi){
+ const c=Math.cos(rad(phi)),s=Math.sin(rad(phi)),ox=200,oy=190,gy=330,Lb=110,Ls=130;
+ const bx=s,by=-c, sx=-c,sy=-s; // board up toward south (right), style up toward north (left)
+ let h=`<rect x="0" y="${gy}" width="400" height="50" fill="var(--gr)" opacity=".25"/><line x1="0" y1="${gy}" x2="400" y2="${gy}" stroke="var(--gr)" stroke-width="4"/>`;
+ h+=`<text x="12" y="${gy+30}" font-size="15" font-weight="700">← Nord</text><text x="388" y="${gy+30}" font-size="15" font-weight="700" text-anchor="end">Sud →</text>`;
+ h+=`<rect x="${ox-5}" y="${oy}" width="10" height="${gy-oy}" fill="var(--mut)" opacity=".6"/>`;
+ h+=`<line x1="20" y1="${oy}" x2="380" y2="${oy}" stroke="var(--mut)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+ h+=`<text x="20" y="${oy+18}" font-size="13" style="fill:var(--mut)">horizontale</text>`;
+ h+=dial(ox,oy,bx,by,sx,sy,Lb,Ls,10);
+ const tip=[ox+sx*Ls,oy+sy*Ls];
+ h+=`<text x="${Math.max(tip[0]-6,8)}" y="${tip[1]-10}" font-size="14" text-anchor="${phi>75?'middle':'start'}">vers l’étoile Polaire</text>`;
+ const ta=phi-90, sa=180+phi; // screen angles of board (right-up) and style (left-up)
+ if(phi<89) h+=arc(ox,oy,62,0,ta,'var(--board)')+`<text x="${ox+80*Math.cos(rad(ta/2))}" y="${oy+80*Math.sin(rad(ta/2))+5}" font-size="16" font-weight="700" style="fill:var(--board)">${f(90-phi)}°</text>`;
+ if(phi>1) h+=arc(ox,oy,46,180,180+phi,'var(--lat)')+`<text x="${ox-74*Math.cos(rad(phi/2))}" y="${oy-74*Math.sin(rad(phi/2))+5}" font-size="16" font-weight="700" text-anchor="middle" style="fill:var(--lat)">${f(phi)}°</text>`;
+ h+=`<text x="${ox+bx*Lb+(phi>60?0:12)}" y="${oy+by*Lb+(phi>60?-14:4)}" font-size="14" font-weight="700" text-anchor="${phi>60?'middle':'start'}" style="fill:var(--board)">tableau</text>`;
+ h+=`<text x="${ox-sx*Ls*0.6+10}" y="${oy-sy*Ls*0.6+16}" font-size="14" font-weight="700">style</text>`;
+ L.innerHTML=h;
+}
+function set(phi){S.value=phi;$('rLat').textContent=f(phi)+'°';$('rTab').textContent=f(90-phi)+'°';drawG(phi);drawL(phi);}
+
+let anim=null;
+const stop=()=>{if(anim){cancelAnimationFrame(anim.id);anim=null;$('play').textContent='▶ Descendre du pôle';}};
+function play(){
+ if(anim){stop();return;}
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){set(46.5);return;}
+ $('play').textContent='❚❚ Pause';
+ const keys=[[0,90],[1500,90],[5500,46.5],[7800,46.5],[11000,0],[12500,0]];
+ const t0=performance.now();
+ const step=t=>{const e=t-t0;let phi=0;
+  for(let i=1;i<keys.length;i++){const[a,pa]=keys[i-1],[b,pb]=keys[i];
+   if(e<=b){const k=(e-a)/(b-a),sm=k*k*(3-2*k);phi=pa+(pb-pa)*sm;break;}}
+  set(Math.round(phi*2)/2);
+  if(e<keys[keys.length-1][0]) anim.id=requestAnimationFrame(step); else stop();};
+ anim={id:requestAnimationFrame(step)};
+}
+$('play').addEventListener('click',play);
+S.addEventListener('input',()=>{stop();set(+S.value);});
+document.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',()=>{stop();set(+b.dataset.p);}));
+set(46.5);
+}
+</script>
+</body>
+</html>
